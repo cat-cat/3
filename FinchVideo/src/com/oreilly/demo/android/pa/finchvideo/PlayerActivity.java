@@ -9,6 +9,11 @@ import ru.librofon.audioserver.AudioServer;
 import ru.librofon.download.IManagerObserver;
 import ru.librofon.download.LoadingType;
 import ru.librofon.download.DownloadManager;
+
+import com.audiobook.Formatters;
+import com.audiobook.gs;
+import com.oreilly.demo.android.pa.finchvideo.R;
+
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -16,22 +21,52 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 OnPreparedListener, OnErrorListener, IManagerObserver {
+	
+	static final int K = 1000;
+	/** Отображает длительность трека в формате чч:мм:сс */
+	private TextView durationTime;
+	/** Отображает прогресс проигрывания аудиочасти трека и позволяет по нему перемещаться */
+	private SeekBar progressbar;
+	/** Отображает текущий время трека в формате чч:мм:сс */
+	private TextView currentTime;
+
 	DownloadManager downloadManager;
 //	private static int bookId = 75316;
-//	private static String chapterId = "01_01"; 
+//	private static String chapterId = "01_01";
+	
 	/** Сервер к которому отправлется запрос на воспроизведения аудиокниги. */
 	private static AudioServer server;
+	
 	/** Плеер который используется для проигрывания треков */
 	private static MediaPlayer mediaPlayer;
+	
+	/**
+	 * Поток отображающий время проигрывания, а также ведущий учёт времени для бесплатного трека.
+	 */
+	private Thread postTimeThread;
 
-		
+
+	private void db_InsertMyBook(String bid)
+	{
+		String query = "INSERT OR REPLACE INTO mybooks (abook_id, last_touched) VALUES (?, CURRENT_TIMESTAMP)";
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+				SQLiteDatabase.OPEN_READWRITE|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+
+		db.execSQL(query, new String[]{bid});
+		db.close();
+	}
+	
 	private void CreateMediaPlayer()
 	{Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());Log.d("MyTrace", "PlayerService:" + MyStackTrace.func3());
 		mediaPlayer = new MediaPlayer();
@@ -44,6 +79,11 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 	protected void onCreate(Bundle savedInstanceState) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
+		
+        Intent myLocalIntent = getIntent();
+        Bundle myBundle = myLocalIntent.getExtras();
+        String bid = myBundle.getString("bid");
+        db_InsertMyBook(bid);
 
 		if(mediaPlayer==null)
 			CreateMediaPlayer();
@@ -79,6 +119,65 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
         });
 		
 		//PlayStart(bookId, chapterId);
+        
+		currentTime = (TextView) findViewById(R.id.player_current_time);
+		durationTime = (TextView) findViewById(R.id.player_duration_time);
+		progressbar = (SeekBar) findViewById(R.id.player_progressbar);
+		// TODO: init progress controls
+		progressbar.setProgress(0);
+		progressbar.setMax(300);
+		currentTime.setText("00:00");
+		durationTime.setText("00:00");
+		progressbar.setSecondaryProgress(270);
+		
+		postTimeThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if(Thread.interrupted())
+					return;
+				if (mediaPlayer.isPlaying())
+				{
+//					if (pausePlayButton.isChecked())
+//						pausePlayButton.toggle();
+					
+					int seconds = (int) mediaPlayer.getCurrentPosition() / K;
+					currentTime.setText(Formatters.Time(seconds));
+					progressbar.setProgress(seconds);
+//					if (trackInLoading
+//							&& progressbar.getSecondaryProgress() > 0
+//							&& progressbar.getProgress() >= progressbar
+//									.getSecondaryProgress() + 5)
+//					{
+//						player.Pause();
+//						if(sync != null)
+//							sync.stopSync();
+//					}
+				}
+				else 
+				{
+//					if(!pausePlayButton.isChecked())
+//						pausePlayButton.toggle();
+				}
+			 	
+//				if(!hasTextShowedCheckeOnTimeUpdater)
+//				{
+//					if(textBook.getVisibility() != View.VISIBLE)
+//					{
+//						if(bookManager != null && bookManager.currentTrack != null)
+//						{
+//							errorLook = false;
+//							ShowText(bookManager.GetTrackText());
+//							hasTextShowedCheckeOnTimeUpdater = true;
+//						}
+//					}
+//				}
+				
+				currentTime.postDelayed(postTimeThread, 1000);
+			}
+
+		});
+		postTimeThread.start();
+
 	}
 
 	@Override

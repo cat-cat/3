@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:id="@+id/mybooks_list_item"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+    <!--android:layout_gravity="center_horizontal"-->
+    <LinearLayout
+            android:id="@+id/mybooks_list_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+        <Button
+            android:id="@+id/btn_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:text="Удалить" />
+
+        <TextView 
+                  android:id="@+id/video_text"
+                  android:layout_width="match_parent"
+                  android:layout_height="?android:attr/listPreferredItemHeight"
+                  android:textAppearance="?android:attr/textAppearanceLarge"
+                  android:gravity="center_vertical"
+                  android:paddingLeft="5dip"
+                  android:singleLine="true"
+                  android:layout_gravity="center_vertical"
+                />
+
+    </LinearLayout>
+</LinearLayout>

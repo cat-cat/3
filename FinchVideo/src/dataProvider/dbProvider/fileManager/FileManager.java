@@ -39,19 +39,19 @@ public class FileManager {
 	/**
 	 * Поле, хранящее название папки для аудио.
 	 */
-	public static final String audio = "/Android/Audiobook/audio";
+	public static final String audio = "/Android/data/com.audiobook.audiobook/audio";
 	/**
 	 * Поле, хранящее название папки для текста.
 	 */
-	public static final String text = "/Android/Audiobook/text";
+	public static final String text = "/Android/data/com.audiobook.audiobook/text";
 	/**
 	 * Поле, хранящее название папки для изоражений книг.
 	 */
-	public static final String images = "/Android/Audiobook/book_images";
+	public static final String images = "/Android/data/com.audiobook.audiobook/book_images";
 	/**
 	 * Поле, хранящее название папки для каталога.
 	 */
-	public static final String catalog = "/Android/Audiobook/catalog.xml";
+	public static final String catalog = "/Android/data/com.audiobook.audiobook/catalog.xml";
 	/**
 	 * Имя последнего использовавшегося файла.
 	 */
@@ -582,7 +582,7 @@ public class FileManager {
 	
 	/**
 	 * Удаляет все файлы, которые находятся в директории 
-	 * <code>getExternalStorageDirectory() + "/Android/Audiobook/"</code>
+	 * <code>getExternalStorageDirectory() + "/Android/data/com.audiobook.audiobook/"</code>
 	 * Вложенные директории не удаляются.
 	 */
 	public static void DropAllFiles()
