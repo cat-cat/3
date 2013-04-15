@@ -144,11 +144,10 @@ public class SearchActivity extends Activity {
 			return c;
     }
     
-		@Override
-	    public void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
-	        setContentView(R.layout.search_query_activity);
-	        
+    	@Override
+    	public void onResume()
+    	{
+    		super.onResume();
 	        final ListView searchList = (ListView) findViewById(R.id.video_list);
 	        searchList.setClickable(true);
 	        searchList.setOnItemClickListener(new Clicker1());
@@ -191,7 +190,13 @@ public class SearchActivity extends Activity {
 	        mAdapter.setViewBinder(savb);
 
 	        searchList.setAdapter(mAdapter);
-
+    	}
+    
+		@Override
+	    public void onCreate(Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        setContentView(R.layout.search_query_activity);
+	        
 	        mSearchText = (MesgEditText) findViewById(R.id.video_search_box);
 	        Resources r = getResources();
 	        mSearchText.setMesgText(r.getString(R.string.finch_video_search));

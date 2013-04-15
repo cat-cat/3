@@ -38,7 +38,7 @@ abstract public class Load implements Runnable
 	/** количество вызовов stop */
 	protected char stopCount;
 	
-	public int bookId;
+	public String bookId;
 	public String trackNumber;
 	
 	/** Слушатель от {@link DownloadManager} за окончанием загрузки */
@@ -61,9 +61,9 @@ abstract public class Load implements Runnable
 	public static final int MAX_TIME_TO_SLEEP = 18000; // 18 секунд
 	public int errors;
 	
-	public Load(Context serviceContext, int bookId, String trackNumber, IManagerObserver listener)
+	public Load(Context serviceContext, String bookId2, String trackNumber, IManagerObserver listener)
 	{Log.d("MyTrace", "Load:" + MyStackTrace.func3());
-		this.bookId = bookId;
+		this.bookId = bookId2;
 		this.trackNumber = trackNumber;
 		this.managerListener = listener;
 		this.context = serviceContext;
@@ -102,7 +102,7 @@ abstract public class Load implements Runnable
 	
 	public boolean Restart()
 	{Log.d("MyTrace", "Load:" + MyStackTrace.func3());
-//		if(Player.onForeground && Player.bookId == bookId)
+//		if(Player.onForeground && Player.bookId.equalsIgnoreCase(bookId))
 //			errors = 1;
 //		else
 //			errors++;
@@ -433,7 +433,7 @@ abstract public class Load implements Runnable
 			
 	}
 
-	public void onTextLoadComplete(int bookID, String trackID)
+	public void onTextLoadComplete(String bookID, String trackID)
 	{Log.d("MyTrace", "Load:" + MyStackTrace.func3());
 		if(managerListener != null)
 			managerListener.onTextLoadComplete(bookID, trackNumber);

@@ -18,9 +18,9 @@ class BookFilesFilter implements FilenameFilter
 	 * Создание фильтра для поиска файлов относящихся к книге.
 	 * @param bookId Идентификационный номер книги.
 	 */
-	public BookFilesFilter(int bookId)
+	public BookFilesFilter(String bookId)
 	{
-		prefix = Integer.toString(bookId) + ".";
+		prefix = bookId + ".";
 	}
 	
 	@Override

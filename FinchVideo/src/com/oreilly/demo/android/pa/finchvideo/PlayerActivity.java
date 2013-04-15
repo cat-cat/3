@@ -33,6 +33,8 @@ import android.widget.TextView;
 public class PlayerActivity extends Activity implements OnCompletionListener,
 OnPreparedListener, OnErrorListener, IManagerObserver {
 	
+	String bookId;
+	
 	static final int K = 1000;
 	/** Отображает длительность трека в формате чч:мм:сс */
 	private TextView durationTime;
@@ -82,8 +84,8 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 		
         Intent myLocalIntent = getIntent();
         Bundle myBundle = myLocalIntent.getExtras();
-        String bid = myBundle.getString("bid");
-        db_InsertMyBook(bid);
+        bookId = myBundle.getString("bid");
+        db_InsertMyBook(bookId);
 
 		if(mediaPlayer==null)
 			CreateMediaPlayer();
@@ -102,19 +104,7 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 		Button button = (Button) findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-        		downloadManager.LoadTrack(LoadingType.TextAndFirstChapter, 75316, "01_01"); // Юмористические
-            }
-        });
-		button = (Button) findViewById(R.id.button2);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-        		downloadManager.LoadTrack(LoadingType.TextAndFirstChapter, 43727, "01_01"); // Alice
-            }
-        });
-		button = (Button) findViewById(R.id.button3);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-        		downloadManager.LoadTrack(LoadingType.TextAndFirstChapter, 61933, "01_01"); // Этюд в багровых тонах (аудиоспектакль)
+        		downloadManager.LoadTrack(LoadingType.TextAndFirstChapter, bookId, "01_01"); // Юмористические
             }
         });
 		
@@ -187,7 +177,7 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 		return true;
 	}
 
-	public void PlayStart(int bid, String chid)
+	public void PlayStart(String bid, String chid)
 	{Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		
 		String playUrl = "http://127.0.0.1:" + server.getPort() + "/file://"
@@ -244,19 +234,19 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 	}
 
 	@Override
-	public void onError(int bookID, String trackID, Errors error) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onError(String bookID, String trackID, Errors error) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onStart(int bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onStart(String bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onProgressChanged(int bookID, String trackID, int progress) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onProgressChanged(String bookID, String trackID, int progress) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		if(progress==1)
 			PlayStart(bookID, trackID);
@@ -264,25 +254,25 @@ OnPreparedListener, OnErrorListener, IManagerObserver {
 	}
 
 	@Override
-	public void onTextLoadComplete(int bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onTextLoadComplete(String bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onStop(int bookID, String trackID, boolean isComplete) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onStop(String bookID, String trackID, boolean isComplete) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onBookLoaded(int bookID, String[] trackIDs) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onBookLoaded(String bookID, String[] trackIDs) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onPause(int bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+	public void onPause(String bookID, String trackID) {Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		// TODO Auto-generated method stub
 		
 	}

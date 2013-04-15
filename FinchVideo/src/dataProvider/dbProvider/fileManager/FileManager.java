@@ -412,7 +412,7 @@ public class FileManager {
 	 * @return true если файл существует и доступен для чтения.
 	 * false во всех других случаях.
 	 */
-	public static final boolean IsFileAvaliable(int bookId, String trackNumber)
+	public static final boolean IsFileAvaliable(String bookId, String trackNumber)
 	{
 		File file = new File(PathToAudioFile(bookId, trackNumber));
 		return file.exists() && file.canRead();
@@ -455,9 +455,9 @@ public class FileManager {
 	 * @param trackId идентификационный номер трека.
 	 * @return строка содержащая путь к текстовому файлу.
 	 */
-	public static String PathToTextFile(int bookId)
+	public static String PathToTextFile(String bookId)
 	{
-		return Environment.getExternalStorageDirectory() + text + "/" + Integer.toString(bookId);
+		return Environment.getExternalStorageDirectory() + text + "/" + bookId;
 	}
 	
 	/**
@@ -466,9 +466,9 @@ public class FileManager {
 	 * @param trackId идентификационный номер трека.
 	 * @return строка содержащая путь к аудио файлу.
 	 */
-	public static String PathToAudioFile(int bookId, String trackId)
+	public static String PathToAudioFile(String bookId, String trackId)
 	{
-		return Environment.getExternalStorageDirectory() + audio + "/" + Integer.toString(bookId) + "." + trackId;
+		return Environment.getExternalStorageDirectory() + audio + "/" + bookId + "." + trackId;
 	}
 	
 	/**
@@ -480,7 +480,7 @@ public class FileManager {
 	 * {@link Errors#NO} - если при удалении ошибок не произошло, т.е. все файлы удалены.<br/>
 	 * 
 	 */
-	public static Errors RemoveFilesAssociatedWithBook(int bookId)
+	public static Errors RemoveFilesAssociatedWithBook(String bookId)
 	{
 		if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
 			return Errors.EXTERNAL_STORAGE_NOT_AVAILABLE;
@@ -511,7 +511,7 @@ public class FileManager {
 	 * @param trackId - идентифиакционный номер трека.
 	 * @return
 	 */
-	public static boolean DeleteTrackFiles(int bookId, String trackId)
+	public static boolean DeleteTrackFiles(String bookId, String trackId)
 	{
 		boolean result = false;
 		File file = new File(PathToAudioFile(bookId, trackId));
@@ -528,7 +528,7 @@ public class FileManager {
 	 * @param bookId идентификатор книги.
 	 * @return true если файлы успешно удалены или не существовали, false если произошла ошибка
 	 */
-	public static boolean DeleteFreeFiles(int bookId)
+	public static boolean DeleteFreeFiles(String bookId)
 	{
 		boolean result = false;
 		

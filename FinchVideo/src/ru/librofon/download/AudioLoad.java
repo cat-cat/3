@@ -10,14 +10,25 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.ArrayList;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.audiobook.gs;
 
 //import ru.librofon.Errors;
 //import ru.librofon.MyApp;
@@ -66,7 +77,7 @@ public class AudioLoad extends Load
 	
 	private boolean needIntermediateSave = false;
 	
-	public AudioLoad(Context serviceContext, int bookId, String trackId, IManagerObserver listener)
+	public AudioLoad(Context serviceContext, String bookId, String trackId, IManagerObserver listener)
 	{	super(serviceContext, bookId, trackId, listener);
 	Log.d("MyTrace", "AudioLoad: " + MyStackTrace.func3());
 	}
@@ -298,7 +309,7 @@ public class AudioLoad extends Load
 	@Override
 	public HttpResponse OpenConnection(long downloadedBytes)
 	{Log.d("MyTrace", "AudioLoad: " + MyStackTrace.func3());		
-		downloadInfo = null;
+//		downloadInfo = null;
 		CommandBuilder cb = new CommandBuilder();
 		if(track.isFree())
 			cb.AddCommand(Commands.getAbookFreeAudio);
@@ -310,92 +321,139 @@ public class AudioLoad extends Load
 		// mychanges
 //		Server server = new Server(context);
 //		downloadInfo = server.getTrackDownloadUrl(cb.GetCommand());
-		downloadInfo = getTrackDownloadUrl(cb.GetCommand());
-		
-		if(downloadInfo.url == null)
-		{
-//		//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
-			if(downloadInfo.error)
-			{
-				downloadErrors++;
+		//downloadInfo = getTrackDownloadUrl(cb.GetCommand());
+		String url = String.format("http://%s/chapter.php?bid=%s&ch=%s",gs.s().Host(),bookId,trackNumber);
+		// DOWNLOAD THE PROJECT JSON FILE
 
-				if(track.isFree())
-				{
-					RefreshExpiresDate(downloadInfo.expires);
-					SaveDataToDB();
-					//if ( downloadInfo.errorCode == ConnectionErrorCodes.CANT_LOAD_MORE_FREE_PARTS )
-					//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
-					//else
-					//onError(Errors.RULE_FREE_LOADING_LIMIT);
-					
-					
-//					if(track.CanDownloadNextFreeTrack())
-//					{
-////						RefreshExpiresDate(downloadInfo.expires);
-//						SaveDataToDB();
-//						if(track.CanDownloadNextFreeTrack())
-//						//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
-//						else
-//						{
-////							RefreshExpiresDate(null);
-//							SaveDataToDB();
-//						//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
-//						}
-//					}
-//					else
-//					{
-////						RefreshExpiresDate(null);
-//						SaveDataToDB();
-//					//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
-//					}
-				}
-				else
-				{
-				//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
-				}
-			}
-			else
-			{
-				if(track.audioDownloadProcentage == 100)
-				{
-					if(track.file.length <= 0)
-					{
-						if(downloadInfo.duration > 0)
-							track.file.length = downloadInfo.duration;
-						else
-							track.file.length = CalculateDuration();
+				HttpClient trackhttpclient = new DefaultHttpClient();
+
+		        try {
+
+		            HttpGet httpget = new HttpGet(url);
+
+		            // Create a response handler
+
+		            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+
+		            String responseBody = trackhttpclient.execute(httpget, responseHandler);
+		            
+		            try {
+		            	gs.s().handleSrvError(responseBody);
+						ArrayList<String> nl = gs.s().getNodeList(new String[] {"//chapter_path", responseBody});
+						url = nl.get(0);
+						url.toString();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					SaveDataToDB();
-					onStop(true);
-				}
-				else
-				{
-				//onError(Errors.INTERNET_SERVER_NOT_AVAILABLE);
-				}
-			}
-			return null;
-		}
-		else
-		{
-			if(track.isFree())
-			{
-				//для поддержки динамического изменения количества бесплатных частей 
-				UpdateFreePartsCount(downloadInfo.partNumber - 1);
-				if ( track.created_at == null )
-				{
-					RefreshCreatedDate();
-//					RefreshExpiresDate(null);
-					RefreshExpiresDate(downloadInfo.expires);
-					SaveDataToDB();
-				}
-			}
-		}
+
+
+		        } catch (ClientProtocolException e) {
+
+					e.printStackTrace();
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				} finally {
+
+		            // When HttpClient instance is no longer needed,
+
+		            // shut down the connection manager to ensure
+
+		            // immediate deallocation of all system resources
+
+		            trackhttpclient.getConnectionManager().shutdown();
+
+		        }
+
 		
+//		if(downloadInfo.url == null)
+//		{
+////		//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
+//			if(downloadInfo.error)
+//			{
+//				downloadErrors++;
+//
+//				if(track.isFree())
+//				{
+//					RefreshExpiresDate(downloadInfo.expires);
+//					SaveDataToDB();
+//					//if ( downloadInfo.errorCode == ConnectionErrorCodes.CANT_LOAD_MORE_FREE_PARTS )
+//					//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
+//					//else
+//					//onError(Errors.RULE_FREE_LOADING_LIMIT);
+//					
+//					
+////					if(track.CanDownloadNextFreeTrack())
+////					{
+//////						RefreshExpiresDate(downloadInfo.expires);
+////						SaveDataToDB();
+////						if(track.CanDownloadNextFreeTrack())
+////						//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
+////						else
+////						{
+//////							RefreshExpiresDate(null);
+////							SaveDataToDB();
+////						//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
+////						}
+////					}
+////					else
+////					{
+//////						RefreshExpiresDate(null);
+////						SaveDataToDB();
+////					//onError(Errors.RULE_ONE_FREE_TRACK_FOR_BOOK_PER_DAY);
+////					}
+//				}
+//				else
+//				{
+//				//onError(Errors.INTERNET_SERVER_DONT_RETURN_AUDIO_CONTENT);
+//				}
+//			}
+//			else
+//			{
+//				if(track.audioDownloadProcentage == 100)
+//				{
+//					if(track.file.length <= 0)
+//					{
+//						if(downloadInfo.duration > 0)
+//							track.file.length = downloadInfo.duration;
+//						else
+//							track.file.length = CalculateDuration();
+//					}
+//					SaveDataToDB();
+//					onStop(true);
+//				}
+//				else
+//				{
+//				//onError(Errors.INTERNET_SERVER_NOT_AVAILABLE);
+//				}
+//			}
+//			return null;
+//		}
+//		else
+//		{
+//			if(track.isFree())
+//			{
+//				//для поддержки динамического изменения количества бесплатных частей 
+//				UpdateFreePartsCount(downloadInfo.partNumber - 1);
+//				if ( track.created_at == null )
+//				{
+//					RefreshCreatedDate();
+////					RefreshExpiresDate(null);
+//					RefreshExpiresDate(downloadInfo.expires);
+//					SaveDataToDB();
+//				}
+//			}
+//		}
+//		
 		HttpGet httpRequest = null;
 		try
 		{
 			String deviceId = "a9f094672e47283b6fc7af77ddef829b";
-			httpRequest = new HttpGet( new URL(downloadInfo.url).toURI());
+			//httpRequest = new HttpGet( new URL(downloadInfo.url).toURI());
+			httpRequest = new HttpGet( new URL(url).toURI());
 			httpRequest.addHeader(SourceProvider.HEADER_DEVICE, deviceId);
 			httpRequest.addHeader(SourceProvider.HEADER_USER_AGENT, SourceProvider.USER_AGENT);
 		}
@@ -568,16 +626,16 @@ public class AudioLoad extends Load
 			SaveDataToDB();
 		}
 		
-		if(downloadInfo.duration > 0)
-		{
-			if(track.file.length <= 0)
-			{
-				track.file.length = downloadInfo.duration;
-				SaveDataToDB(); //FIXME проверить надо ли такое
-			}
-			else
-				track.file.length = downloadInfo.duration;
-		}
+//		if(downloadInfo.duration > 0)
+//		{
+//			if(track.file.length <= 0)
+//			{
+//				track.file.length = downloadInfo.duration;
+//				SaveDataToDB(); //FIXME проверить надо ли такое
+//			}
+//			else
+//				track.file.length = downloadInfo.duration;
+//		}
 		
 		HttpEntity entity = response.getEntity();
 		if(entity == null)

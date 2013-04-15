@@ -58,10 +58,7 @@ public class MyBooksActivity extends Activity {
             
 			try {
 				Intent myIntentA1A2;
-				if(items.get(position).type.equalsIgnoreCase("1")) // category
-					myIntentA1A2 = new Intent(MyBooksActivity.this, MyBooksActivity.class);
-				else // 2 - book
-					myIntentA1A2 = new Intent(MyBooksActivity.this, PlayerActivity.class);
+				myIntentA1A2 = new Intent(MyBooksActivity.this, PlayerActivity.class);
 
 				Bundle myData = new Bundle();
 //				TextView v = (TextView)  view.findViewById(R.id.idx_init);

@@ -91,7 +91,7 @@ public class DownloadManager
 	IManagerObserver ownListener = new IManagerObserver() {
 		
 		@Override
-		public void onError(int bookID, String trackID, Errors error)
+		public void onError(String bookID, String trackID, Errors error)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 //			Log.d("Download", "Download Manager " + trackID + " Error: " + error.name() );
 			if(trackID == null)
@@ -122,7 +122,7 @@ public class DownloadManager
 					for(int i = 0; i < size; i++)
 					{
 						load = loadings.get(i);
-						if(load.bookId == bookID && load.trackNumber.equalsIgnoreCase(trackID))
+						if(load.bookId.equalsIgnoreCase(bookID)  && load.trackNumber.equalsIgnoreCase(trackID))
 						{
 //							if(load instanceof AudioLoad)
 //							{
@@ -172,7 +172,7 @@ public class DownloadManager
 					for(int i = 0; i < size; i++)
 					{
 						load = loadings.get(i);
-						if(load.bookId == bookID)
+						if(load.bookId.equalsIgnoreCase(bookID))
 						{
 							if(load.IsActive())
 //								load.Stop();
@@ -204,7 +204,7 @@ public class DownloadManager
 					for(int i = 0; i < size; i++)
 					{
 						load = loadings.get(i);
-						if(load.bookId == bookID 
+						if(load.bookId.equalsIgnoreCase(bookID) 
 							&& CollectionInfo.TEXT_FLAG.equalsIgnoreCase(load.trackNumber))
 						{
 							loadings.remove(i);
@@ -223,7 +223,7 @@ public class DownloadManager
 		}
 
 		@Override
-		public void onStart(int bookID, String trackID)
+		public void onStart(String bookID, String trackID)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 			if(globalListener != null)
 				synchronized (globalListener)
@@ -234,7 +234,7 @@ public class DownloadManager
 		}
 
 		@Override
-		public void onProgressChanged(int bookID, String trackID, int progress)
+		public void onProgressChanged(String bookID, String trackID, int progress)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 			if(globalListener != null)
 				synchronized (globalListener)
@@ -245,7 +245,7 @@ public class DownloadManager
 		}
 		
 		@Override
-		public void onTextLoadComplete(int bookID, String trackID)
+		public void onTextLoadComplete(String bookID, String trackID)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 			if(globalListener != null)
 				synchronized (globalListener)
@@ -281,7 +281,7 @@ public class DownloadManager
 		}
 		
 		@Override
-		public void onPause(int bookID, String trackID)
+		public void onPause(String bookID, String trackID)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 			if ( globalListener != null )
 				synchronized (globalListener)
@@ -293,7 +293,7 @@ public class DownloadManager
 		}
 		
 		@Override
-		public void onStop(int bookID, String trackID, boolean isComplete)
+		public void onStop(String bookID, String trackID, boolean isComplete)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 //			Log.d("Download", "----- Before cycle -----");
 //			for(Load l : loadings)
@@ -307,7 +307,7 @@ public class DownloadManager
 //				for(int i = 0; i < size; i++)
 //				{
 //					loading = loadings.get(i);
-//					if(loading.bookId == bookID && loading.trackNumber.equalsIgnoreCase(trackID))
+//					if(loading.bookId.equalsIgnoreCase(bookID) && loading.trackNumber.equalsIgnoreCase(trackID))
 //					{
 //						if(!pauseNoWifi && loading instanceof AudioLoad)
 //						{
@@ -358,7 +358,7 @@ public class DownloadManager
 					try
 					{
 						loading = loadings.get(i);
-						if(loading.bookId == bookID && loading.trackNumber.equalsIgnoreCase(trackID))
+						if(loading.bookId.equalsIgnoreCase(bookID) && loading.trackNumber.equalsIgnoreCase(trackID))
 						{
 							if(globalListener != null)
 								synchronized (globalListener)
@@ -420,7 +420,7 @@ public class DownloadManager
 		}
 
 		@Override
-		public void onBookLoaded(int bookID, String[] trackIDs)
+		public void onBookLoaded(String bookID, String[] trackIDs)
 		{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 			if(globalListener != null)
 				synchronized (globalListener)
@@ -476,7 +476,7 @@ public class DownloadManager
 	 * @param bookID идентификационный номер книги
 	 * @param trackNumber номер трека {@link Track#number}
 	 */
-	public void LoadTrack(final LoadingType type, final int bookId, final String trackNumber)
+	public void LoadTrack(final LoadingType type, final String bookId, final String trackNumber)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 //		if(trackNumber == null)
 //		{
@@ -616,7 +616,7 @@ public class DownloadManager
 		return canStartLoad;
 	}
 	
-	public boolean AddLoadingToFront(final LoadingType type, final int bookId, final String trackNumber)
+	public boolean AddLoadingToFront(final LoadingType type, final String bookId, final String trackNumber)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		final boolean canAddToQuery = IsGoodInternet();
 		
@@ -667,7 +667,7 @@ public class DownloadManager
 									}
 									else
 									{
-										if ( l.bookId == bookId && l.trackNumber.equalsIgnoreCase(trackNumber) )
+										if ( l.bookId.equalsIgnoreCase(bookId) && l.trackNumber.equalsIgnoreCase(trackNumber) )
 										{
 											try
 											{
@@ -716,7 +716,7 @@ public class DownloadManager
 	 * @param bookID идентификационный номер книги
 	 * @param trackNumber номер трека {@link Track#number}
 	 */
-	public void FastAddToQueue(final LoadingType type, final int bookId, final String trackNumber)
+	public void FastAddToQueue(final LoadingType type, final String bookId, final String trackNumber)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		new Thread(new Runnable() {
 			
@@ -744,7 +744,7 @@ public class DownloadManager
 		{
 //			for(Load loading : loadings)
 //				if( loading instanceof TextLoad
-//					&& loading.bookId == load.bookId 
+//					&& loading.bookId.equalsIgnoreCase(load.bookId) 
 //					&& (
 //							loading.trackNumber == null
 //							|| loading.trackNumber.equalsIgnoreCase(load.trackNumber)
@@ -757,7 +757,7 @@ public class DownloadManager
 			for(int i = size - 1; i >= 0; i--)
 			{
 				Load loading = loadings.get(i);
-				if( loading instanceof AudioLoad && loading.bookId == load.bookId)
+				if( loading instanceof AudioLoad && loading.bookId.equalsIgnoreCase(load.bookId))
 				{
 					if(loading.trackNumber.equalsIgnoreCase(load.trackNumber))
 						return false;
@@ -904,7 +904,7 @@ public class DownloadManager
 	 *     и {@link LoadingType#AllText}
 	 * @param bookID идентификационный номер книги
 	 */
-	public void LoadBook(final int bookId)
+	public void LoadBook(final String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		new Thread(new Runnable() {
 			
@@ -932,7 +932,7 @@ public class DownloadManager
 						for(int i = 0; i < size; i++)
 						{
 							load = loadings.get(i);
-							if(load.bookId == bookId && load instanceof AudioLoad)
+							if(load.bookId.equalsIgnoreCase(bookId) && load instanceof AudioLoad)
 							{
 								index = i;
 								break;
@@ -945,7 +945,7 @@ public class DownloadManager
 							for(int i = index; i < size; i++)
 							{
 								load = loadings.get(i);
-								if(load.bookId == bookId && load instanceof AudioLoad)
+								if(load.bookId.equalsIgnoreCase(bookId) && load instanceof AudioLoad)
 								{
 									loadings.remove(i);
 									i--;
@@ -1016,13 +1016,13 @@ public class DownloadManager
 	 * @param trackID идентификационный номер трека.
 	 * @return true если найдена, false если не найдена.
 	 */
-	public boolean IsHaveTrack(int bookID, String trackID)
+	public boolean IsHaveTrack(String bookID, String trackID)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		boolean result = false;
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookID && load.trackNumber.equalsIgnoreCase(trackID))
+				if(load.bookId.equalsIgnoreCase(bookID) && load.trackNumber.equalsIgnoreCase(trackID))
 				{
 					result = true;
 					break;
@@ -1037,13 +1037,13 @@ public class DownloadManager
 	 * @return массив содержащий <code>String[]</code> номеров треков и процент закачки трека, 
 	 *     если они (треки) есть. Если нет совпадений то <code>NULL</code>.
 	 */
-	public String[] TrackIDsForBook(int bookID)
+	public String[] TrackIDsForBook(String bookID)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookID)
+				if(load.bookId.equalsIgnoreCase(bookID))
 				{
 					list.add(new String(load.trackNumber));
 					list.add(Integer.toString(load.GetDownloadProcentage()));
@@ -1061,12 +1061,12 @@ public class DownloadManager
 	 * @param bookId
 	 * @return {@link Track#number} трека или <code>null</code> если для книги нет закачек в данный момент.
 	 */
-	public String[] TrackInDownload(int bookId)
+	public String[] TrackInDownload(String bookId)
 	{
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookId && load instanceof AudioLoad && load.IsActive())
+				if(load.bookId.equalsIgnoreCase(bookId) && load instanceof AudioLoad && load.IsActive())
 					return new String[] { load.trackNumber, Integer.toString(load.GetDownloadProcentage()) };
 		}
 		return null;
@@ -1102,20 +1102,20 @@ public class DownloadManager
 	public String GetCurrentLoadingBookName()
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		String bookName = null;
-		int bookId = -1;
+		String bookId = "-1";
 		
 		synchronized (loadings) 
 		{
 			for (Load load : loadings)
 				if ( load instanceof AudioLoad )
 				{
-					bookId = load.bookId;
+					bookId.equalsIgnoreCase(load.bookId);
 					break;
 				}
 		}
 		
-		if ( bookId >= 0 )
-		{
+//		if ( bookId >= 0 )
+//		{
 //			if ( requests != null )
 //				try 
 //				{
@@ -1129,24 +1129,24 @@ public class DownloadManager
 //				}
 //			if ( bookName == null )
 //				bookName = "";
-		}
+//		}
 		return bookName;
 	}
 	
-	public int GetDownloadProcentage(int bookId, String trackNumber)
+	public int GetDownloadProcentage(String bookId, String trackNumber)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		synchronized (loadings)
 		{	
 			for(Load load : loadings)
-				if(load.bookId == bookId && load.trackNumber.equalsIgnoreCase(trackNumber))
+				if(load.bookId.equalsIgnoreCase(bookId)  && load.trackNumber.equalsIgnoreCase(trackNumber))
 					return load.GetDownloadProcentage();
 		}
 		return -1;
 	}
 	
-	public Set<Integer> CurrentDownloadBooks()
+	public Set<String> CurrentDownloadBooks()
 	{
-		HashSet<Integer> ids = new HashSet<Integer>();
+		HashSet<String> ids = new HashSet<String>();
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
@@ -1161,13 +1161,13 @@ public class DownloadManager
 	 * @return <code><b>true</b></code> - если есть,
 	 *      <code><b>false</b></code> - если закачек относящихся к книге нет.
 	 */
-	public boolean IsAnyTrackByBookLoading(int bookId)
+	public boolean IsAnyTrackByBookLoading(String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		boolean result = false;
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookId)
+				if(load.bookId.equalsIgnoreCase(bookId) )
 				{
 					result = true;
 					break;
@@ -1176,35 +1176,35 @@ public class DownloadManager
 		return result;
 	}
 	
-	public boolean IsAnyAudioTrackInLoadingList(int bookId)
+	public boolean IsAnyAudioTrackInLoadingList(String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookId && load instanceof AudioLoad)
+				if(load.bookId.equalsIgnoreCase(bookId)  && load instanceof AudioLoad)
 					return true;
 		}
 		return false;
 	}
 	
-	public boolean IsAnyAudioTrackLoading(int bookId)
+	public boolean IsAnyAudioTrackLoading(String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookId && load instanceof AudioLoad && load.IsActive())
+				if(load.bookId.equalsIgnoreCase(bookId) && load instanceof AudioLoad && load.IsActive())
 					return true;
 		}
 		return false;
 	}
 	
-	public int GetBookAudioDownloadProcentage(int bookId)
+	public int GetBookAudioDownloadProcentage(String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		int procent = -1;
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				if(load.bookId == bookId && load instanceof AudioLoad)
+				if(load.bookId.equalsIgnoreCase(bookId)  && load instanceof AudioLoad)
 					procent += load.GetDownloadProcentage();
 		}
 		return procent;
@@ -1215,7 +1215,7 @@ public class DownloadManager
 	 * @param bookId идентификационный номер книги.
 	 * @param removeFromQuery true если закачку надо удалить из очереди закачек.
 	 */
-	public void Stop(int bookId, boolean removeFromQuery)
+	public void Stop(String bookId, boolean removeFromQuery)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		synchronized (loadings)
 		{
@@ -1226,7 +1226,7 @@ public class DownloadManager
 				try
 				{
 					load = loadings.get(i);
-					if(load.bookId == bookId)
+					if(load.bookId.equalsIgnoreCase(bookId))
 						Stop(bookId, load.trackNumber, true, true);
 				}
 				catch(IndexOutOfBoundsException e)
@@ -1236,12 +1236,12 @@ public class DownloadManager
 				}
 			}
 //			for(Load load : loadings)
-//				if(load.bookId == bookId)
+//				if(load.bookId.equalsIgnoreCase(bookId))
 //					load.Stop();
 		}
 	}
 	
-	public void ForseStop(int bookId)
+	public void ForseStop(String bookId)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 //		ArrayList<Track> tracks = requests.GetTracksForPlayer(bookId, false);
 //		Stop(bookId, CollectionInfo.TEXT_FLAG, true, true);
@@ -1258,7 +1258,7 @@ public class DownloadManager
 				try
 				{
 					load = loadings.get(i);
-					if(load.bookId == bookId)
+					if(load.bookId.equalsIgnoreCase(bookId))
 					{
 						bookLoadings.add(load);
 						loadings.remove(i);
@@ -1285,7 +1285,7 @@ public class DownloadManager
 	 * @param trackNumber идентификационный номер трека.
 	 * @param removeFromQuery true если закачку надо удалить из очереди закачек.
 	 */
-	public void Stop(final int bookId, final String trackNumber, final boolean removeFromQuery, final boolean removeFromList)
+	public void Stop(final String bookId, final String trackNumber, final boolean removeFromQuery, final boolean removeFromList)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		new Thread(new Runnable() {
 			
@@ -1305,7 +1305,7 @@ public class DownloadManager
 					for(int i = 0; i < size; i++)
 					{
 						loading = loadings.get(i);
-						if(loading.bookId == bookId && loading.trackNumber.equalsIgnoreCase(trackNumber))
+						if(loading.bookId.equalsIgnoreCase(bookId) && loading.trackNumber.equalsIgnoreCase(trackNumber))
 						{
 							if(loading.IsActive())
 							{
@@ -1368,7 +1368,7 @@ public class DownloadManager
 		}).start();
 	}
 	
-	public void RemoveFromQuery(final int bookId, final String trackNumber)
+	public void RemoveFromQuery(final String bookId, final String trackNumber)
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		new Thread(new Runnable() {
 			
@@ -1383,7 +1383,7 @@ public class DownloadManager
 					for(int i = 0; i < size; i++)
 					{
 						loading = loadings.get(i);
-						if(loading.bookId == bookId && loading.trackNumber.equalsIgnoreCase(trackNumber))
+						if(loading.bookId.equalsIgnoreCase(bookId) && loading.trackNumber.equalsIgnoreCase(trackNumber))
 						{
 							if(loading.IsActive())
 								loading.Stop();
