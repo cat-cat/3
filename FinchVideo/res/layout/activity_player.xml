@@ -4,45 +4,54 @@
     android:layout_height="match_parent"
     tools:context=".PlayerActivity" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_world" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="48dp"
-        android:layout_toLeftOf="@+id/textView1"
-        android:text="Button" />
-
     <SeekBar
         android:id="@+id/player_progressbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
         android:layout_marginTop="24dp" />
-
-    <TextView
-        android:id="@+id/player_current_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/player_progressbar"
-        android:layout_marginTop="32dp"
-        android:text="TextView" />
 
     <TextView
         android:id="@+id/player_duration_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/player_current_time"
-        android:layout_toRightOf="@+id/textView1"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/player_progressbar"
         android:text="TextView" />
+
+    <TextView
+        android:id="@+id/player_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/player_duration_time"
+        android:layout_alignBottom="@+id/player_duration_time"
+        android:layout_alignParentLeft="true"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ListView
+        android:id="@+id/chapters_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button1"
+        android:layout_marginTop="52dp" >
+    </ListView>
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/player_progressbar"
+        android:layout_centerHorizontal="true"
+        android:text="Play" />
 
 </RelativeLayout>
