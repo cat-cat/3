@@ -1,6 +1,7 @@
 package dataProvider.dbProvider.fileManager;
 
 
+import com.audiobook.gs;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -82,10 +83,12 @@ public class FileManager {
 	 * @param trackId ид трека.
 	 * @return полное имя файла.
 	 */
-	private String makeName(int bookId, String trackId){
-		name = new String();
-		name+=lastUse;
-		name+="/"+String.valueOf(bookId)+"."+trackId;
+	private String makeName(String bookId, String trackId){
+		String name = gs.s().pathForBookAndChapter(bookId, trackId);
+		
+//		name = new String();
+//		name+=lastUse;
+//		name+="/"+String.valueOf(bookId)+"."+trackId;
 //		Log.d("Making name in filemanager", name);
 		return name;
 	}
@@ -210,7 +213,7 @@ public class FileManager {
 	 * @return входной поток, если удалось.
 	 * @throws FileNotFoundException возникает, если файл не может быть обнаружен.
 	 */
-	public InputStream getText(int bookId, String trackId) throws FileNotFoundException{
+	public InputStream getText(String bookId, String trackId) throws FileNotFoundException{
 		if(!this.mExternalStorageAvailable) return null;
 		this.lastUse = FileManager.text;
 		String fileName = makeName(bookId, trackId);
@@ -227,7 +230,7 @@ public class FileManager {
 	 * @return входной поток, если удалось.
 	 * @throws FileNotFoundException возникает при отсутствии файла.
 	 */
-	public InputStream getAudio(int bookId, String trackId) throws FileNotFoundException{
+	public InputStream getAudio(String bookId, String trackId) throws FileNotFoundException{
 		if(!this.mExternalStorageAvailable) return null;
 			this.lastUse = FileManager.audio;
 			String fileName = makeName(bookId, trackId);
@@ -308,7 +311,7 @@ public class FileManager {
 	 * @param bookId ид книги. 
 	 * @param trackId ид трека.
 	 */
-	public void SaveAudio(InputStream inStream, int bookId, String trackId){
+	public void SaveAudio(InputStream inStream, String bookId, String trackId){
 		if(!this.mExternalStorageWriteable) return;
 		File dir = new File(Environment.getExternalStorageDirectory()+audio);
 		if(!dir.exists()){
@@ -344,7 +347,7 @@ public class FileManager {
 	 * @param bookId ид книги.
 	 * @param trackId ид трека.
 	 */
-	public void SaveText(final InputStream inStream,int bookId,String trackId){
+	public void SaveText(final InputStream inStream,String bookId,String trackId){
 		if(!this.mExternalStorageWriteable) return;
 		File dir = new File(Environment.getExternalStorageDirectory()+text);
 		if(!dir.exists()){
@@ -468,7 +471,8 @@ public class FileManager {
 	 */
 	public static String PathToAudioFile(String bookId, String trackId)
 	{
-		return Environment.getExternalStorageDirectory() + audio + "/" + bookId + "." + trackId;
+		//return Environment.getExternalStorageDirectory() + audio + "/" + bookId + "." + trackId;
+		return gs.s().pathForBookAndChapter(bookId, trackId);
 	}
 	
 	/**
@@ -517,6 +521,44 @@ public class FileManager {
 		File file = new File(PathToAudioFile(bookId, trackId));
 		if(file.exists())
 			result = file.delete();
+		else
+			result = true;
+		
+		return result;
+	}
+	
+	private static boolean DeleteRecursive(File fileOrDirectory) {
+	    if (fileOrDirectory.isDirectory())
+	        for (File child : fileOrDirectory.listFiles())
+	            DeleteRecursive(child);
+
+	    fileOrDirectory.delete();
+	    return true;
+	}
+	
+	public static boolean delete(String path)
+	{
+		boolean result = false;
+		File dir = new File(path);
+		if(dir.exists())
+			result = DeleteRecursive(dir);
+		else
+			result = true;
+		
+		return result;		
+	}
+	/**
+	 * Удаление всех файлов относящихся к книге.
+	 * @param bookId - идентификационный номер книги.
+	 * @param trackId - идентифиакционный номер трека.
+	 * @return
+	 */
+	public static boolean DeleteBook(String bookId)
+	{		
+		boolean result = false;
+		File dir = new File(gs.s().dirsForBook(bookId));
+		if(dir.exists())
+			result = DeleteRecursive(dir);
 		else
 			result = true;
 		
@@ -587,6 +629,8 @@ public class FileManager {
 	 */
 	public static void DropAllFiles()
 	{
+		DeleteRecursive(new File(Environment.getExternalStorageDirectory() + "/Android/data/com.audiobook.audiobook"));
+
 		if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
 			return;
 		

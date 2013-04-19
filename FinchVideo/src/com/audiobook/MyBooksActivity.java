@@ -166,7 +166,8 @@ public class MyBooksActivity extends Activity {
                             		mAdapter.changeCursor(c);
                             		startManagingCursor(c);
                                     //mAdapter.notifyDataSetChanged();
-                                    FileManager.DropAllFiles();
+                                    FileManager.DeleteBook(bid);
+                                    //FileManager.DropAllFiles();
                                 }
                             });
                         break;

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.audiobook.gs;
+
 import ru.audiobook.MyStackTrace;
 import ru.librofon.Const;
 import ru.librofon.Errors;
@@ -434,19 +436,19 @@ public class DownloadManager
 	/** Конструктор для создания менеджера, контролирует закачки
 	 * @param context
 	 */
-	public DownloadManager(Context context)
+	private DownloadManager(Context context)
 	{
 		//TODO куда-нибудь перенести
 		//На всякий случай, создание папок для текста и аудио.
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run()
-			{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
-				new File(Environment.getExternalStorageDirectory() + FileManager.audio).mkdirs();
-				new File(Environment.getExternalStorageDirectory() + FileManager.text).mkdirs();
-			}
-		}).start();
+//		new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run()
+//			{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
+//				new File(Environment.getExternalStorageDirectory() + FileManager.audio).mkdirs();
+//				new File(Environment.getExternalStorageDirectory() + FileManager.text).mkdirs();
+//			}
+//		}).start();
 
 		this.context = context;
 		loadings = new ArrayList<Load>();
@@ -456,6 +458,17 @@ public class DownloadManager
 
 //		requests = new Requests(context.getApplicationContext());
 	}
+
+	private DownloadManager(){}
+	private static DownloadManager _instance = null;
+	public static DownloadManager s(Context context)
+    {
+        if (_instance == null)
+        {
+            _instance = new DownloadManager(context);
+       }
+        return _instance;
+    }
 	
 	boolean HaveQuery()
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
@@ -601,7 +614,7 @@ public class DownloadManager
 	 * А хорош ли нынче Интернет?
 	 * @return true - хорошо, false - совсем плох, помрёт уж скоро
 	 */
-	private boolean IsGoodInternet()
+	public boolean IsGoodInternet()
 	{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 		boolean canStartLoad = (preferences.getBoolean(Const.PREF_WIFI_ONLY_DOWNLOAD, false)) ? (wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED) : true;
 		if ( canStartLoad )
@@ -1144,13 +1157,13 @@ public class DownloadManager
 		return -1;
 	}
 	
-	public Set<String> CurrentDownloadBooks()
+	public ArrayList<Load> CurrentDownloadBooks()
 	{
-		HashSet<String> ids = new HashSet<String>();
+		ArrayList<Load> ids = new ArrayList<Load>();
 		synchronized (loadings)
 		{
 			for(Load load : loadings)
-				ids.add(load.bookId);
+				ids.add(load);
 		}
 		return ids;
 	}

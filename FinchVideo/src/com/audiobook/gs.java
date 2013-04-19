@@ -51,7 +51,106 @@ public class gs {
     private static gs   _instance;
 
     private String android_id = Secure.ANDROID_ID;
+    
+	static int metaLengthReturnValue = 0;
+	static String metaLengthPrevBid = "";
+	static String metaLengthPrevChid = "";
+	public int metaLengthForChapter(String bid, String chid) {
+		if (!bid.equalsIgnoreCase(metaLengthPrevBid)
+				|| !chid.equalsIgnoreCase(metaLengthPrevChid)) { // ratake
+																// metasize from
+																// xml for new
+																// chapter
+			metaLengthPrevBid = bid;
+			metaLengthPrevChid = chid;
+		} else {
+			return metaLengthReturnValue;
+		}
 
+		String xml = fileToString(
+				dirsForBook(bid) + "/bookMeta.xml");
+		ArrayList<String> as = null;
+		try {
+			as = gs.s()
+					.getNodeList(
+							String.format(
+									"//abook[@id='%s']/content/track[@number='%s']/file/length",
+									bid, chid), xml);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (as.size() != 1) {
+			Log.e("**err:", String.format(
+					"**err: invalid meta size for book: %s, chpater: %s", bid,
+					chid));
+		} else
+			metaLengthReturnValue = Integer.parseInt(as.get(0));
+
+		return metaLengthReturnValue;
+	}
+    
+	static int metaSizeReturnValue = 0;
+	static String metaSizePrevBid = "";
+	static String metaSizePrevChid = "";
+	public int metaSizeForChapter(String bid, String chid) {
+		if (!bid.equalsIgnoreCase(metaSizePrevBid)
+				|| !chid.equalsIgnoreCase(metaSizePrevChid)) { // ratake
+																// metasize from
+																// xml for new
+																// chapter
+			metaSizePrevBid = bid;
+			metaSizePrevChid = chid;
+		} else {
+			return metaSizeReturnValue;
+		}
+
+		String xml = fileToString(
+				dirsForBook(bid) + "/bookMeta.xml");
+		ArrayList<String> as = null;
+		try {
+			as = gs.s()
+					.getNodeList(
+							String.format(
+									"//abook[@id='%s']/content/track[@number='%s']/file/size",
+									bid, chid), xml);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (as.size() != 1) {
+			Log.e("**err:", String.format(
+					"**err: invalid meta size for book: %s, chpater: %s", bid,
+					chid));
+		} else
+			metaSizeReturnValue = Integer.parseInt(as.get(0));
+
+		return metaSizeReturnValue;
+	}
+
+	public int actualSizeForChapter(String bid, String chid) {
+		int returnValue = 0;
+		String pathToChapterAudio = pathForBookAndChapter(bid, chid);
+		File file = new File(pathToChapterAudio);
+		returnValue = (int) file.length();
+
+		return returnValue;
+	}
+	
+	public float calcDownProgressForBook(String bid, String chid) {
+		synchronized (this) {
+			int metaTrackSize = metaSizeForChapter(bid, chid);
+			int trackSize = actualSizeForChapter(bid, chid);
+
+			float downloadProgress = ((float) trackSize / (float) metaTrackSize) * 100.0f;
+
+			return downloadProgress;
+		}
+	}
+
+	
     public String fileToString(String path)
     {
     	//Get the text file
@@ -172,10 +271,24 @@ public class gs {
 		return response;
 	}
 	
+	public String pathForBookFinished(String bid, String chid)
+	{
+    	String newDirPath = dirsForBook(bid);
+    	String path = newDirPath + String.format("/ca/%sfinished!", chid);
+    	return path;		
+	}
+	
 	public String pathForBuy(String bid)
 	{
     	String newDirPath = dirsForBook(bid);
     	String path = newDirPath + "/buy";
+    	return path;		
+	}
+	
+	public String pathForBookAndChapter(String bid, String chid)
+	{
+    	String newDirPath = dirsForBook(bid);
+    	String path = newDirPath + "/ca/"+chid+".mp3";
     	return path;		
 	}
 	
@@ -251,10 +364,10 @@ public class gs {
     	return result;
     }
     
-    public ArrayList<String> getNodeList(String[] args) throws Exception {
+    public ArrayList<String> getNodeList(String xpath, String xml) throws Exception {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPath = factory.newXPath();
-        NodeList shows = (NodeList) xPath.evaluate(args[0], new InputSource(new StringReader(args[1])), XPathConstants.NODESET);
+        NodeList shows = (NodeList) xPath.evaluate(xpath, new InputSource(new StringReader(xml)), XPathConstants.NODESET);
         ArrayList<String> nl = new ArrayList<String>();
         for (int i = 0; i < shows.getLength(); i++) {
           Element show = (Element) shows.item(i);

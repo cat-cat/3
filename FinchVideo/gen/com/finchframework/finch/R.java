@@ -8,9 +8,9 @@ package com.finchframework.finch;
 
 public final class R {
 	public static final class id {
-		public static final int menu_bluetooth = 0x7f09001f;
-		public static final int menu_lifecycle = 0x7f09001e;
-		public static final int menu_animation = 0x7f090020;
+		public static final int menu_bluetooth = 0x7f090026;
+		public static final int menu_lifecycle = 0x7f090025;
+		public static final int menu_animation = 0x7f090027;
 	}
 	public static final class anim {
 		public static final int flip = 0x7f040000;
@@ -32,8 +32,8 @@ public final class R {
 		public static final int finch_option_menu = 0x7f080001;
 	}
 	public static final class drawable {
-		public static final int pine_grosbeak = 0x7f020002;
-		public static final int icon = 0x7f020001;
-		public static final int ic_menu_preferences = 0x7f020000;
+		public static final int pine_grosbeak = 0x7f020003;
+		public static final int icon = 0x7f020002;
+		public static final int ic_menu_preferences = 0x7f020001;
 	}
 }

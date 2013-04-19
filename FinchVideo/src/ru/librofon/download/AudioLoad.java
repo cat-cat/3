@@ -339,7 +339,7 @@ public class AudioLoad extends Load
 		            
 		            try {
 		            	gs.s().handleSrvError(responseBody);
-						ArrayList<String> nl = gs.s().getNodeList(new String[] {"//chapter_path", responseBody});
+						ArrayList<String> nl = gs.s().getNodeList("//chapter_path", responseBody);
 						url = nl.get(0);
 						url.toString();
 					} catch (Exception e) {
@@ -502,20 +502,20 @@ public class AudioLoad extends Load
 //		requests.UpdateDownloadProcentage(bookId, trackNumber, 100);
 
 		track = new Track();
-		track.audioDownloadProcentage = 0;
-		track.bookId = 75316;
+		track.audioDownloadProcentage = (int) gs.s().calcDownProgressForBook(bookId, trackNumber);
+		track.bookId = Integer.parseInt(bookId);
 		track.created_at = null;
-		track.file.bitrate = 192;
-		track.file.size = 13807488;
-		track.file.length = 576;
+//		track.file.bitrate = 192;
+		track.file.size = gs.s().metaSizeForChapter(bookId, trackNumber);
+		//track.file.length = gs.s().metaLengthForChapter(bookId, trackNumber);
 		track.from = null;
-		track.id = 36;
+//		track.id = 36;
 		track.isFree = false;
 //		track.keyType = 114;
 		track.listen = 0;
-		track.name = "Брожение умов";
-		track.number = "01_01";
-		track.offset = 0;
+//		track.name = "Брожение умов";
+//		track.number = "01_01";
+//		track.offset = 0;
 		track.to = null;
 //		requests.UpdateTrackType(track.id, track.keyType);
 

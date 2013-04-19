@@ -54,4 +54,20 @@
         android:layout_centerHorizontal="true"
         android:text="Play" />
 
+    <TextView
+        android:id="@+id/titleChapter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button1"
+        android:layout_alignRight="@+id/button1"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/btn_downloads"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/player_progressbar"
+        android:layout_toLeftOf="@+id/player_duration_time"
+        android:text="Down" />
+
 </RelativeLayout>

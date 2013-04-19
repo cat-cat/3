@@ -36,6 +36,10 @@
             android:name="com.oreilly.demo.android.pa.finchvideo.provider.FinchVideoContentProvider"
             android:authorities="com.oreilly.demo.android.pa.finchvideo.FinchVideo" />
         <activity
+            android:name="com.audiobook.DownloadsActivity"
+            android:label="@string/title_activity_player" >
+        </activity>
+        <activity
             android:name="com.audiobook.MyBooksActivity"
             android:label="@string/title_activity_player" >
         </activity>
