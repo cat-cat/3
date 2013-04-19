@@ -178,8 +178,9 @@ public class SearchActivity extends Activity {
 
 	                        break;
 	                    case 0: // id
-	                    	// TODO:
-	                        //setThumbResource(view, cursor);
+	                        ImageView iv = (ImageView)
+	                        view.findViewById(R.id.video_thumb_icon);
+	                        gs.s().displayBookImage(items.get(cursor.getPosition()).ID, iv);
 	                        break;
 	                }
 

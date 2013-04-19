@@ -29,6 +29,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import dataProvider.dbProvider.fileManager.FileManager;
 import dataProvider.internetProvider.helpers.ConnectionErrorCodes;
 import dataProvider.internetProvider.helpers.SourceProvider;
@@ -40,6 +43,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.widget.ImageView;
 
 
 public class gs {
@@ -362,6 +366,18 @@ public class gs {
 			e.printStackTrace();
 		}
     	return result;
+    }
+    
+    public void displayBookImage(String bid, ImageView iv)
+    {
+        String uri = "http://"+gs.s().Host()+"/books/"+bid+"/BookImage.jpg";
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+        //.showStubImage(R.drawable.stub_image)
+        //.showImageForEmptyUrl(R.drawable.image_for_empty_url)
+        .cacheInMemory()
+        .cacheOnDisc()
+        .build();
+    	ImageLoader.getInstance().displayImage(uri, iv, options);
     }
     
     public ArrayList<String> getNodeList(String xpath, String xml) throws Exception {

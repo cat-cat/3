@@ -2,6 +2,8 @@ package com.audiobook;
 
 import java.util.ArrayList;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.oreilly.demo.android.pa.finchvideo.PlayerActivity;
 import com.oreilly.demo.android.pa.finchvideo.R;
 
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -147,8 +150,9 @@ public class CatalogActivity extends Activity {
 
                         break;
                     case 0: // id
-                    	// TODO:
-                        //setThumbResource(view, cursor);
+                        ImageView iv = (ImageView)
+                        view.findViewById(R.id.video_thumb_icon);
+                        gs.s().displayBookImage(items.get(cursor.getPosition()).ID, iv);
                         break;
                 }
 
