@@ -42,12 +42,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/button1"
+        android:layout_below="@+id/btn_play"
         android:layout_marginTop="52dp" >
     </ListView>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/btn_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/player_progressbar"
@@ -58,8 +58,8 @@
         android:id="@+id/titleChapter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button1"
-        android:layout_alignRight="@+id/button1"
+        android:layout_above="@+id/btn_play"
+        android:layout_alignRight="@+id/btn_play"
         android:text="TextView" />
 
     <Button
@@ -68,6 +68,24 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/player_progressbar"
         android:layout_toLeftOf="@+id/player_duration_time"
-        android:text="Down" />
+        android:text="Queue" />
+
+    <Button
+        android:id="@+id/btn_buy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/player_current_time"
+        android:layout_toLeftOf="@+id/btn_play"
+        android:text="Buy" />
+
+    <Button
+        android:id="@+id/btn_nfo"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btn_buy"
+        android:layout_alignBottom="@+id/btn_buy"
+        android:layout_alignParentLeft="true"
+        android:text="info" />
 
 </RelativeLayout>

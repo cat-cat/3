@@ -36,7 +36,7 @@ import dataProvider.dbProvider.fileManager.FileManager;
 import dataProvider.internetProvider.helpers.ConnectionErrorCodes;
 import dataProvider.internetProvider.helpers.SourceProvider;
 
-import ru.librofon.Errors;
+import ru.old.Errors;
 
 import java.util.ArrayList;
 import android.content.Context;
@@ -47,6 +47,11 @@ import android.widget.ImageView;
 
 
 public class gs {
+	//public static final String testProduct = "001.trash";
+	public static final String testProduct = "android.test.purchased";
+	
+	public static final String pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDISZUCTLy5BM4YW9p4gAkS+4FH24zB2ecBWGQ4VQN9OLgc//lH5/evqXkyKkQl5PWDrY0jWpRSf4hxlsmbEl5qpOZ6hev7Wi4SitK6paShnFSe8GEpJ5GmYlU04I66CJW8q4eqKtqupCuXWfV01DKVgrSlGrQfjcVs5Z4SRkfbxEOFmOgkSKdtlrdvSBkavfvvkFC9KM7RTRx56WWAkm7JyV0w2xzBcNGNXQ8IXamYi+08QaJPnYYClEITStfWQRPdMQHHTEF1kfb2YaZ/UBQNqSY0ltBloERwV0d1m4/0siTW8EW77ogncBIghYWmi4bWtaLuL1QuQWJz8DfRXuwIDAQAB";
+
 	// The Android's default system path of your application database.
 	private final String basePath = "/Android/data/com.audiobook.audiobook/";
 	private Context ctx;

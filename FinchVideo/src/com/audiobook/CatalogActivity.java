@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.oreilly.demo.android.pa.finchvideo.PlayerActivity;
-import com.oreilly.demo.android.pa.finchvideo.R;
+import com.audiobook.R;
 
 import android.app.Activity;
 import android.content.Intent;

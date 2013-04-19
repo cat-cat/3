@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import ru.librofon.download.AudioFile;
+import ru.old.AudioFile;
 
 import android.util.Log;
 import android.util.Xml;

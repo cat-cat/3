@@ -2,11 +2,10 @@ package com.audiobook;
 
 import java.util.ArrayList;
 
-import ru.librofon.download.DownloadManager;
-import ru.librofon.download.Load;
+import ru.old.DownloadManager;
+import ru.old.Load;
 
-import com.oreilly.demo.android.pa.finchvideo.PlayerActivity;
-import com.oreilly.demo.android.pa.finchvideo.R;
+import com.audiobook.R;
 
 import dataProvider.dbProvider.fileManager.FileManager;
 

@@ -2,8 +2,7 @@ package com.audiobook;
 
 import java.util.ArrayList;
 
-import com.oreilly.demo.android.pa.finchvideo.PlayerActivity;
-import com.oreilly.demo.android.pa.finchvideo.R;
+import com.audiobook.R;
 
 import dataProvider.dbProvider.fileManager.FileManager;
 

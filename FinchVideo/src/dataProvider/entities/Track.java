@@ -8,7 +8,7 @@ import java.util.Date;
 //
 //import android.util.Log;
 //
-//import ru.librofon.ServerDrivenSettings;
+//import ru.old.ServerDrivenSettings;
 
 /**
  * Класс, представляющий информацию о треке.

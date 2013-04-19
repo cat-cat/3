@@ -42,9 +42,9 @@ import org.xml.sax.SAXException;
 import android.os.Build;
 import android.util.Log;
 
-//import ru.librofon.Debug;
-//import ru.librofon.MyApp;
-import ru.librofon.download.AudioFile;
+//import ru.old.Debug;
+//import ru.old.MyApp;
+import ru.old.AudioFile;
 //import twitter4j.internal.http.HttpResponseEvent;
 
 import dataProvider.internetProvider.handlers.ConnectHandler;

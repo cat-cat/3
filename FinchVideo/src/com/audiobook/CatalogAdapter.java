@@ -1,6 +1,6 @@
 package com.audiobook;
 
-import com.oreilly.demo.android.pa.finchvideo.R;
+import com.audiobook.R;
 
 import android.content.Context;
 import android.view.View;

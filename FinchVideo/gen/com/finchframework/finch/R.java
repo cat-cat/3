@@ -8,9 +8,9 @@ package com.finchframework.finch;
 
 public final class R {
 	public static final class id {
-		public static final int menu_bluetooth = 0x7f090026;
-		public static final int menu_lifecycle = 0x7f090025;
-		public static final int menu_animation = 0x7f090027;
+		public static final int menu_bluetooth = 0x7f090029;
+		public static final int menu_lifecycle = 0x7f090028;
+		public static final int menu_animation = 0x7f09002a;
 	}
 	public static final class anim {
 		public static final int flip = 0x7f040000;

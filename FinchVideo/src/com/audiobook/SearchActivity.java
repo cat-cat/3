@@ -7,12 +7,10 @@ import java.util.ArrayList;
 
 import com.finchframework.finch.Finch;
 import com.finchframework.finch.views.MesgEditText;
-import com.oreilly.demo.android.pa.finchvideo.PlayerActivity;
-import com.oreilly.demo.android.pa.finchvideo.R;
-import com.oreilly.demo.android.pa.finchvideo.R.id;
-import com.oreilly.demo.android.pa.finchvideo.R.layout;
-import com.oreilly.demo.android.pa.finchvideo.R.string;
-import com.oreilly.demo.android.pa.finchvideo.provider.FinchVideo;
+import com.audiobook.R;
+import com.audiobook.R.id;
+import com.audiobook.R.layout;
+import com.audiobook.R.string;
 
 import android.app.Activity;
 import android.content.ContentUris;
@@ -232,23 +230,6 @@ public class SearchActivity extends Activity {
 	            @Override public void onClick(View view) { query(); }
 	        });
 	        refreshButton.setFocusable(true);
-	    }
-
-	    void setThumbResource(View view, Cursor cursor) {
-	        Uri thumbUri = ContentUris.
-	        withAppendedId(FinchVideo.Videos.THUMB_URI,
-	            cursor.getLong(FinchVideo.ID_COLUMN));
-	        try {
-	            InputStream thumbStream =
-	                getContentResolver().openInputStream(thumbUri);
-	            ImageView iv = (ImageView)
-	            view.findViewById(R.id.video_thumb_icon);
-	            Bitmap bm = BitmapFactory.decodeStream(thumbStream);
-	            iv.setImageBitmap(bm);
-
-	        } catch (FileNotFoundException e) {
-	            Log.d(Finch.LOG_TAG, "could not open provider thumb: ", e);
-	        }
 	    }
 
 	    // sends the query to the finch video content provider

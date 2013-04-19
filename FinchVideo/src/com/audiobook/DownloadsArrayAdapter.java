@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 import dataProvider.dbProvider.fileManager.FileManager;
 
-import ru.librofon.download.DownloadManager;
-import ru.librofon.download.Load;
-import com.oreilly.demo.android.pa.finchvideo.R;
+import ru.old.DownloadManager;
+import ru.old.Load;
+
+import com.audiobook.R;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
