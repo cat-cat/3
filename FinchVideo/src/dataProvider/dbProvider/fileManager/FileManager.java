@@ -40,19 +40,19 @@ public class FileManager {
 	/**
 	 * Поле, хранящее название папки для аудио.
 	 */
-	public static final String audio = "/Android/data/com.audiobook.audiobook/audio";
+	public static final String audio = "/Android/data/com.audiobook/audio";
 	/**
 	 * Поле, хранящее название папки для текста.
 	 */
-	public static final String text = "/Android/data/com.audiobook.audiobook/text";
+	public static final String text = "/Android/data/com.audiobook/text";
 	/**
 	 * Поле, хранящее название папки для изоражений книг.
 	 */
-	public static final String images = "/Android/data/com.audiobook.audiobook/book_images";
+	public static final String images = "/Android/data/com.audiobook/book_images";
 	/**
 	 * Поле, хранящее название папки для каталога.
 	 */
-	public static final String catalog = "/Android/data/com.audiobook.audiobook/catalog.xml";
+	public static final String catalog = "/Android/data/com.audiobook/catalog.xml";
 	/**
 	 * Имя последнего использовавшегося файла.
 	 */
