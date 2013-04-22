@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import com.finchframework.finch.Finch;
-import com.finchframework.finch.views.MesgEditText;
+import com.audiobook.MesgEditText;
 import com.audiobook.R;
 import com.audiobook.R.id;
 import com.audiobook.R.layout;
