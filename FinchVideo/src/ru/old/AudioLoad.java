@@ -500,7 +500,7 @@ public class AudioLoad extends Load
 //		requests.UpdateDownloadProcentage(bookId, trackNumber, 100);
 
 		track = new Track();
-		track.audioDownloadProcentage = (int) gs.s().calcDownProgressForBook(bookId, trackNumber);
+		//track.audioDownloadProcentage = (int) gs.s().calcDownProgressForBook(bookId, trackNumber);
 		track.bookId = Integer.parseInt(bookId);
 		track.created_at = null;
 //		track.file.bitrate = 192;

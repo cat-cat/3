@@ -13,6 +13,7 @@ import com.audiobook.R.layout;
 import com.audiobook.R.string;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -21,6 +22,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,7 +42,31 @@ public class SearchActivity extends Activity {
     private SimpleCursorAdapter mAdapter;
 
     private MesgEditText mSearchText;
+	private class QueryTask extends AsyncTask<String, Void, Cursor> {
+		private final ProgressDialog dialog = new ProgressDialog(
+				SearchActivity.this);
 
+		// can use UI thread here
+		protected void onPreExecute() {
+			this.dialog.setMessage("обновление списка...");
+			this.dialog.show();
+		}
+
+		// automatically done on worker thread (separate from UI thread)
+		@Override
+		protected Cursor doInBackground(final String... args) {
+	        Cursor c = db_GetBooksWithScope(args[0], args[1]); // get all books
+			return c;			
+		}
+
+		// can use UI thread here
+		protected void onPostExecute(final Cursor cursor) {
+			if (this.dialog.isShowing()) {
+				this.dialog.dismiss();
+			}
+			mAdapter.changeCursor(cursor);
+		}
+	}
     @Override
     public void onDestroy()
     {
@@ -150,13 +176,10 @@ public class SearchActivity extends Activity {
 	        searchList.setClickable(true);
 	        searchList.setOnItemClickListener(new Clicker1());
 	        
-	        Cursor c = db_GetBooksWithScope("Новые", ""); // get all books
-	        // have to reset this on a new search
-
 	        // Maps video entries from the database to views
 	        mAdapter = new SimpleCursorAdapter(this,
 	            R.layout.video_list_item,
-	            c,
+	            null,
 	            new String[] {
 	            "id",
 	            "title"
@@ -189,6 +212,8 @@ public class SearchActivity extends Activity {
 	        mAdapter.setViewBinder(savb);
 
 	        searchList.setAdapter(mAdapter);
+	        
+	        new QueryTask().execute("Новые", ""); // get all books
     	}
     
 		@Override

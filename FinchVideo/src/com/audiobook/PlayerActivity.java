@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -18,6 +19,7 @@ import junit.framework.Assert;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -39,8 +41,10 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -64,6 +68,9 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
+	
+	String xml;
+	String bookTitle;
 
 	enum PlayerState {
 		PL_READY, PL_ERROR, PL_NOT_READY
@@ -102,6 +109,63 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	 * бесплатного трека.
 	 */
 	private Thread postTimeThread;
+
+	static int metaSizeReturnValue = 0;
+	static String metaSizePrevBid = "";
+	static String metaSizePrevChid = "";
+	public int metaSizeForChapter(String bid, String chid) {
+		if (!bid.equalsIgnoreCase(metaSizePrevBid)
+				|| !chid.equalsIgnoreCase(metaSizePrevChid)) { // ratake
+			// metasize from
+			// xml for new
+			// chapter
+			metaSizePrevBid = bid;
+			metaSizePrevChid = chid;
+		} else {
+			return metaSizeReturnValue;
+		}
+		XPathFactory factory = XPathFactory.newInstance();
+		XPath xPath = factory.newXPath();
+
+		String strMetaSize = "";
+		for (Chapter c : chapters)
+		{
+			if(c.cId.equalsIgnoreCase(chid))
+				try {
+					strMetaSize = xPath.evaluate("file/size", c.node);
+				} catch (XPathExpressionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		}
+//		ArrayList<String> as =  gs.s()
+//					.getNodeList(
+//							String.format(
+//									"//abook[@id='%s']/content/track[@number='%s']/file/size",
+//									bid, chid), xml);
+
+//		if (as.size() != 1) {
+//			Log.e("**err:", String.format(
+//					"**err: invalid meta size for book: %s, chpater: %s", bid,
+//					chid));
+//		} else
+//			metaSizeReturnValue = Integer.parseInt(as.get(0));
+		metaSizeReturnValue = Integer.parseInt(strMetaSize);
+
+		return metaSizeReturnValue;
+	}
+
+	private float calcDownProgressForBook(String bid, String chid) {
+		synchronized (this) {
+			int metaTrackSize = metaSizeForChapter(bid, chid);
+			int trackSize = gs.s().actualSizeForChapter(bid, chid);
+
+			float downloadProgress = ((float) trackSize / (float) metaTrackSize) * 100.0f;
+
+			return downloadProgress;
+		}
+	}
 
 	private void db_InsertMyBook(String bid) {
 		String query = "INSERT OR REPLACE INTO mybooks (abook_id, last_touched) VALUES (?, CURRENT_TIMESTAMP)";
@@ -145,16 +209,15 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		return responseString;
 	}
 
-	private boolean updateMeta() {
-		String bookMeta = gs.s().fileToString(gs.s().pathForBookMeta(bookId));
+	private ArrayAdapter<Chapter> updateMeta() {
+		final String bookMeta = gs.s().fileToString(gs.s().pathForBookMeta(bookId));
 		XPathFactory factory = XPathFactory.newInstance();
 		XPath xPath = factory.newXPath();
 
 		// first set title
 		try {
-			String bookTitle = xPath.evaluate("/abooks/abook/title",
+			 bookTitle = xPath.evaluate("/abooks/abook/title",
 					new InputSource(new StringReader(bookMeta)));
-			((TextView) findViewById(R.id.title)).setText(bookTitle);
 		} catch (XPathExpressionException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -171,7 +234,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		}
 		ArrayList<Chapter> cl = new ArrayList<Chapter>();
 		for (int i = 0; i < shows.getLength(); i++) {
-			Element show = (Element) shows.item(i);
+			Node show = (Node) shows.item(i);
 			String cId = null;
 			String cName = null;
 			try {
@@ -184,6 +247,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			Chapter c = new Chapter();
 			c.name = cName;
 			c.cId = cId;
+			c.node = show;
 			cl.add(c);
 		}
 
@@ -198,48 +262,92 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		chapters = cl;
 
 		class ChaptersAdapter extends ArrayAdapter<Chapter> {
-			private ArrayList<Chapter> chapters;
+			private ArrayList<Chapter> chapters = new ArrayList<Chapter>();
 
 			public ChaptersAdapter(ArrayList<Chapter> ca) {
 				super(PlayerActivity.this, R.layout.chapter_list_item, ca);
 				chapters = ca;
 			}
 
+			String xml = bookMeta;
 			public View getView(int position, View convertView, ViewGroup parent) {
 				// View row = convertView;
 				//
 				// if ( row == null )
 				// {
 				final LayoutInflater inflater = getLayoutInflater();
-				View row = inflater.inflate(R.layout.chapter_list_item, null);
-				Chapter ch = chapters.get(position);
-			    
-			    // setup chapter's time
-			    String path = gs.s().pathForBookMeta(bookId);
-			    String xml = gs.s().fileToString(path);
-			    ArrayList<String> nl = null;
-				try {
-					nl = gs.s().getNodeList(String.format("//abook[@id='%s']/content/track[@number='%s']/file/length", bookId, ch.cId), xml);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				final View row = inflater.inflate(R.layout.chapter_list_item, null);
+				final int pos = position;
+				class taskCR extends AsyncTask<Void,Void,Bundle>{
+					@Override
+					protected Bundle doInBackground(Void... args)
+					{
+						Chapter ch = chapters.get(pos);
+					    
+					    // setup chapter's time
+		//			    String path = gs.s().pathForBookMeta(bookId);
+		//			    String xml = gs.s().fileToString(path);
+//					    ArrayList<String> nl = null;
+//						try {
+//							nl = gs.s().getNodeList(String.format("//abook[@id='%s']/content/track[@number='%s']/file/length", bookId, ch.cId), xml);
+//						} catch (Exception e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//						Assert.assertNotNull(nl);
+//					    Assert.assertEquals(1, nl.size());
+//				        int fsz = Integer.parseInt(nl.get(0));
+						XPathFactory factory = XPathFactory.newInstance();
+						XPath xPath = factory.newXPath();
+						String strMetaLength = "";
+						for (Chapter c : chapters)
+						{
+							if(c.cId.equalsIgnoreCase(ch.cId))
+								try {
+									strMetaLength = xPath.evaluate("file/length", c.node);
+								} catch (XPathExpressionException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+						}
+						int fsz = Integer.parseInt(strMetaLength);
+				        String timeString = String.format("%d:%02d", (int)(fsz / 60.0),
+				         (int)fsz % 60);
+				        int chProgress = (int) calcDownProgressForBook(bookId, ch.cId);
+				        Bundle b = new Bundle();
+				        b.putString("timeString", timeString);
+				        b.putInt("chProgress", chProgress);
+				        return b;
+					}
+					@Override
+					protected void onPostExecute(Bundle b)
+					{
+						
+						// set chapter time
+				        ((TextView) row.findViewById(R.id.chapter_time))
+						.setText(b.getString("timeString"));
+				        
+						// setup download progress
+					    ProgressBar progress = ((ProgressBar) row.findViewById(R.id.chapter_progress));
+					    progress.setProgress(b.getInt("chProgress"));					    						
+					}
 				}
-				Assert.assertNotNull(nl);
-			    Assert.assertEquals(1, nl.size());
-		        int fsz = Integer.parseInt(nl.get(0));
-		        String timeString = String.format("%d:%02d", (int)(fsz / 60.0),
-		         (int)fsz % 60);
-		        ((TextView) row.findViewById(R.id.chapter_time))
-				.setText(timeString);
-		        
-				// setup download progress
-			    ProgressBar progress = ((ProgressBar) row.findViewById(R.id.chapter_progress));
-			    progress.setProgress((int) gs.s(). calcDownProgressForBook(bookId, ch.cId));
-			    
+				AsyncTask<Void,Void,Bundle> mt = new taskCR();
+				mt.execute();
+//				try {
+//					mt.get();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (ExecutionException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				
-				// setup chapter name and button
+				// setup chapter name
 				((TextView) row.findViewById(R.id.chapter_name))
-						.setText(chapters.get(position).name);
+						.setText(chapters.get(pos).name);
 
 				// setup download button
 				final ToggleButton tbtn = (ToggleButton) row
@@ -286,11 +394,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		// first // parameter, the type of list view as a second parameter and
 		// your array as a third parameter
 		ChaptersAdapter arrayAdapter = new ChaptersAdapter(cl);
-		ListView lv = (ListView) findViewById(R.id.chapters_list_view);
 
-		lv.setAdapter(arrayAdapter);
-
-		return true;
+		return arrayAdapter;
 	}
 
 	private View getListItem(int position) {
@@ -388,7 +493,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			progressbar.setMax(m);
 			progressbar.setProgress(0);
 
-			int sp = (int) gs.s().calcDownProgressForBook(bookId, chid);
+			int sp = (int) calcDownProgressForBook(bookId, chid);
 			progressbar.setSecondaryProgress((progressbar.getMax() * sp) / 100);
 		}
 	}
@@ -423,7 +528,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 				// TODO: no check for tableview pointer as it is in ios
 
-				float progress = gs.s().calcDownProgressForBook(bookId, c.cId);
+				float progress = calcDownProgressForBook(bookId, c.cId);
 				View listItem = getListItem(position);
 
 				if (progress < 100.0) {
@@ -541,26 +646,58 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		Intent myLocalIntent = getIntent();
 		Bundle myBundle = myLocalIntent.getExtras();
 		bookId = myBundle.getString("bid");
-		db_InsertMyBook(bookId);
-		// ///////////////////////////////////////////
-		File dir = new File(gs.s().pathForBookMeta(bookId));
+		
+		class loadTask extends AsyncTask<Void,Void,ArrayAdapter<Chapter>>
+		{
+			private final ProgressDialog dialog = new ProgressDialog(
+					PlayerActivity.this);
 
-		if (dir.exists() == false)
-			requestBookMeta();
+			// can use UI thread here
+			protected void onPreExecute() {
+				this.dialog.setMessage("обновление списка...");
+				this.dialog.show();
+			}
 
-		updateMeta();
+			@Override
+			protected ArrayAdapter<Chapter> doInBackground(Void... params) {
+				db_InsertMyBook(bookId);
+				// ///////////////////////////////////////////
 
-		if (mediaPlayer == null)
-			CreateMediaPlayer();
+				xml = gs.s().fileToString(
+						gs.s().dirsForBook(bookId) + "/bookMeta.xml");
+				
+				if (mediaPlayer == null)
+					CreateMediaPlayer();
 
-		if (server == null) {
-			server = new AudioServer();
-			server.init();
-			server.start();
+				if (server == null) {
+					server = new AudioServer();
+					server.init();
+					server.start();
+				}
+
+				downloadManager = DownloadManager.s(getApplicationContext());
+				downloadManager.BindGlobalListener(PlayerActivity.this);
+
+				File dir = new File(gs.s().pathForBookMeta(bookId));
+
+				if (dir.exists() == false)
+					requestBookMeta();
+
+				return updateMeta();
+			}
+			
+			@Override
+			protected void onPostExecute(final ArrayAdapter<Chapter> aac)
+			{
+				if (this.dialog.isShowing()) {
+					this.dialog.dismiss();
+				}
+				
+				((TextView) findViewById(R.id.title)).setText(bookTitle);				
+				searchList.setAdapter(aac);				
+			}
 		}
-
-		downloadManager = DownloadManager.s(getApplicationContext());
-		downloadManager.BindGlobalListener(this);
+		new loadTask().execute();
 
 		// setup restore button
 		Button button = (Button) findViewById(R.id.btn_nfo);
@@ -885,7 +1022,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				if(v != null)
 				{
 					final ProgressBar pb = (ProgressBar) v.findViewById(R.id.chapter_progress);
-					final int val = (int)gs.s().calcDownProgressForBook(bookID, trackID);
+					final int val = (int)calcDownProgressForBook(bookID, trackID);
 					 
 					runOnUiThread(new Runnable() {
 						@Override

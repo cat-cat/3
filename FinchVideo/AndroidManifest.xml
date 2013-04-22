@@ -4,7 +4,7 @@
     android:versionCode="5"
     android:versionName="5.0" >
         
-    <uses-sdk android:minSdkVersion="3" android:maxSdkVersion="17" android:targetSdkVersion="15"/>    
+    <uses-sdk android:minSdkVersion="8" android:maxSdkVersion="17" android:targetSdkVersion="15"/>    
     <!--<uses-sdk android:minSdkVersion="7" />-->
     
     <!-- Required permission to check licensing. -->

@@ -1,11 +1,13 @@
 package com.audiobook;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -129,121 +131,146 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_query_activity);
-        //Resources r = getResources();
-
-        // init global singleton
-		gs.s().setContext(getApplicationContext()); 
-
-        // check database existance
-		SQLiteDatabase checkDB = null;
-		try {
-			String myPath = gs.s().dbp();
-			checkDB = SQLiteDatabase.openDatabase(myPath, null,
-					SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-	
-		} catch (SQLiteException e) {
-
-			// database does't exist yet.
-
-		}
-
-		if (checkDB != null) {
-
-			checkDB.close();
-
-		}
-
-		if (checkDB == null)
-		{
-			try {
-				CopyDatabase();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 
         
         final ListView searchList = (ListView) findViewById(R.id.video_list);
         searchList.setClickable(true);
         searchList.setOnItemClickListener(new Clicker1());
-        
-        String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
-        		+ " UNION"
-        		+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
-        		+ " UNION"
-               + " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
-               + " LEFT JOIN"
-               + " t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
-               + " JOIN"
-               + " t_authors ON t_abooks_authors.author_id=t_authors.author_id"
-               + " JOIN t_abooks_genres ON t_abooks.abook_id = t_abooks_genres.abook_id"
-               + " WHERE t_abooks_genres.genre_id = ? AND (t_abooks.deleted=0 OR t_abooks.bought=1)  GROUP BY t_abooks.abook_id"
-               + " UNION"
-               + " SELECT t_genres.genre_id AS id, name, COUNT(t_abooks_genres.genre_id) AS subgenres, 1 AS type, 'n/a' priceos, '-' authors, t_genres.genre_id AS _id FROM t_genres"
-               + " LEFT JOIN"
-               + " t_abooks_genres"
-               + " WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
-               + " GROUP BY name"
-               + " ORDER BY  type, name DESC  LIMIT ?, ?";
-        
-    	if(db==null)
-	        db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-					SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-		Cursor c = db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
-        
-		int idxname = c.getColumnIndex("name");
-		int idxid = c.getColumnIndex("id");
-		int idxtype = c.getColumnIndex("type");
-		items = new ArrayList<CatalogItem>(30);
-		if (c.moveToFirst()) {
-			do { 
-					CatalogItem ci = new CatalogItem();
-					ci.name = c.getString(idxname);
-					ci.ID = c.getString(idxid);
-					ci.type = c.getString(idxtype);
-					items.add(ci);
-				}
-			while (c.moveToNext());
-		}
-		startManagingCursor(c);
+
+        // init global singleton
+		gs.s().setContext(getApplicationContext()); // dont move it in asynctask, or error
+
         // Maps video entries from the database to views
-        mAdapter = new SimpleCursorAdapter(this,
+        mAdapter = new SimpleCursorAdapter(MainActivity.this,
             R.layout.video_list_item,
-            c,
+            null,
             new String[] {
             "id",
             "name"
         },
         new int[] { R.id.video_thumb_icon,  R.id.video_text});
+        
+        class loadTask extends AsyncTask<Void,Void,Cursor>
+        {
+    		private final ProgressDialog dialog = new ProgressDialog(
+    				MainActivity.this);
 
-        SimpleCursorAdapter.ViewBinder savb =
-            new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int i) {
-                switch (i) {
-                    case 1: // title
-                        TextView tv = (TextView)
-                        view.findViewById(R.id.video_text);
-                        String videoText = cursor.getString(i);
-                        tv.setText(videoText);
+    		// can use UI thread here
+    		@Override
+    		protected void onPreExecute() {
+    			this.dialog.setMessage("обновление списка...");
+    			this.dialog.show();
+    		}
 
-                        break;
-                    case 0: // id
-                    	// TODO:
-                        //setThumbResource(view, cursor);
-                        break;
-                }
+			@Override
+			protected Cursor doInBackground(Void... params) {
 
-                return true;
-            }
-        };
+		        // check database existance
+				SQLiteDatabase checkDB = null;
+				try {
+					String myPath = gs.s().dbp();
+					checkDB = SQLiteDatabase.openDatabase(myPath, null,
+							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+			
+				} catch (SQLiteException e) {
 
-        mAdapter.setViewBinder(savb);
+					// database does't exist yet.
 
-        searchList.setAdapter(mAdapter);
-		//db.close();
-        //c.close();
+				}
+
+				if (checkDB != null) {
+
+					checkDB.close();
+
+				}
+
+				if (checkDB == null)
+				{
+					try {
+						CopyDatabase();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		        
+		        String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
+		        		+ " UNION"
+		        		+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
+		        		+ " UNION"
+		               + " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
+		               + " LEFT JOIN"
+		               + " t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
+		               + " JOIN"
+		               + " t_authors ON t_abooks_authors.author_id=t_authors.author_id"
+		               + " JOIN t_abooks_genres ON t_abooks.abook_id = t_abooks_genres.abook_id"
+		               + " WHERE t_abooks_genres.genre_id = ? AND (t_abooks.deleted=0 OR t_abooks.bought=1)  GROUP BY t_abooks.abook_id"
+		               + " UNION"
+		               + " SELECT t_genres.genre_id AS id, name, COUNT(t_abooks_genres.genre_id) AS subgenres, 1 AS type, 'n/a' priceos, '-' authors, t_genres.genre_id AS _id FROM t_genres"
+		               + " LEFT JOIN"
+		               + " t_abooks_genres"
+		               + " WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
+		               + " GROUP BY name"
+		               + " ORDER BY  type, name DESC  LIMIT ?, ?";
+		        
+		    	if(db==null)
+			        db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+				Cursor c = db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
+		        
+				int idxname = c.getColumnIndex("name");
+				int idxid = c.getColumnIndex("id");
+				int idxtype = c.getColumnIndex("type");
+				items = new ArrayList<CatalogItem>(30);
+				if (c.moveToFirst()) {
+					do { 
+							CatalogItem ci = new CatalogItem();
+							ci.name = c.getString(idxname);
+							ci.ID = c.getString(idxid);
+							ci.type = c.getString(idxtype);
+							items.add(ci);
+						}
+					while (c.moveToNext());
+				}
+				startManagingCursor(c);
+
+		        SimpleCursorAdapter.ViewBinder savb =
+		            new SimpleCursorAdapter.ViewBinder() {
+		            @Override
+		            public boolean setViewValue(View view, Cursor cursor, int i) {
+		                switch (i) {
+		                    case 1: // title
+		                        TextView tv = (TextView)
+		                        view.findViewById(R.id.video_text);
+		                        String videoText = cursor.getString(i);
+		                        tv.setText(videoText);
+
+		                        break;
+		                    case 0: // id
+		                    	// TODO:
+		                        //setThumbResource(view, cursor);
+		                        break;
+		                }
+
+		                return true;
+		            }
+		        };
+
+		        mAdapter.setViewBinder(savb);
+		        return c;
+			}
+			
+			@Override
+			protected void onPostExecute(final Cursor c)
+			{
+				if (this.dialog.isShowing()) {
+					this.dialog.dismiss();
+				}
+		        searchList.setAdapter(mAdapter);
+		        mAdapter.changeCursor(c);
+			}      	
+        } // loadTask
+        new loadTask().execute();
 
     }
     

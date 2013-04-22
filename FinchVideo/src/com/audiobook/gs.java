@@ -297,18 +297,6 @@ public class gs extends Handler {
 		return returnValue;
 	}
 
-	public float calcDownProgressForBook(String bid, String chid) {
-		synchronized (this) {
-			int metaTrackSize = metaSizeForChapter(bid, chid);
-			int trackSize = actualSizeForChapter(bid, chid);
-
-			float downloadProgress = ((float) trackSize / (float) metaTrackSize) * 100.0f;
-
-			return downloadProgress;
-		}
-	}
-
-
 	public String fileToString(String path)
 	{
 		//Get the text file
