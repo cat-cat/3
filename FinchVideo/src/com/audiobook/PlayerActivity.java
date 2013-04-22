@@ -110,55 +110,62 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	 */
 	private Thread postTimeThread;
 
-	static int metaSizeReturnValue = 0;
-	static String metaSizePrevBid = "";
-	static String metaSizePrevChid = "";
-	public int metaSizeForChapter(String bid, String chid) {
-		if (!bid.equalsIgnoreCase(metaSizePrevBid)
-				|| !chid.equalsIgnoreCase(metaSizePrevChid)) { // ratake
-			// metasize from
-			// xml for new
-			// chapter
-			metaSizePrevBid = bid;
-			metaSizePrevChid = chid;
-		} else {
-			return metaSizeReturnValue;
-		}
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xPath = factory.newXPath();
-
-		String strMetaSize = "";
-		for (Chapter c : chapters)
-		{
-			if(c.cId.equalsIgnoreCase(chid))
-				try {
-					strMetaSize = xPath.evaluate("file/size", c.node);
-				} catch (XPathExpressionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-		}
-//		ArrayList<String> as =  gs.s()
-//					.getNodeList(
-//							String.format(
-//									"//abook[@id='%s']/content/track[@number='%s']/file/size",
-//									bid, chid), xml);
-
-//		if (as.size() != 1) {
-//			Log.e("**err:", String.format(
-//					"**err: invalid meta size for book: %s, chpater: %s", bid,
-//					chid));
-//		} else
-//			metaSizeReturnValue = Integer.parseInt(as.get(0));
-		metaSizeReturnValue = Integer.parseInt(strMetaSize);
-
-		return metaSizeReturnValue;
-	}
+//	static int metaSizeReturnValue = 0;
+//	static String metaSizePrevBid = "";
+//	static String metaSizePrevChid = "";
+//	public int metaSizeForChapter(String bid, String chid) {
+//		if (!bid.equalsIgnoreCase(metaSizePrevBid)
+//				|| !chid.equalsIgnoreCase(metaSizePrevChid)) { // ratake
+//			// metasize from
+//			// xml for new
+//			// chapter
+//			metaSizePrevBid = bid;
+//			metaSizePrevChid = chid;
+//		} else {
+//			return metaSizeReturnValue;
+//		}
+//		XPathFactory factory = XPathFactory.newInstance();
+//		XPath xPath = factory.newXPath();
+//
+//		String strMetaSize = "";
+//		for (Chapter c : chapters)
+//		{
+//			if(c.cId.equalsIgnoreCase(chid))
+//				try {
+//					strMetaSize = xPath.evaluate("file/size", c.node);
+//				} catch (XPathExpressionException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
+//		}
+////		ArrayList<String> as =  gs.s()
+////					.getNodeList(
+////							String.format(
+////									"//abook[@id='%s']/content/track[@number='%s']/file/size",
+////									bid, chid), xml);
+//
+////		if (as.size() != 1) {
+////			Log.e("**err:", String.format(
+////					"**err: invalid meta size for book: %s, chpater: %s", bid,
+////					chid));
+////		} else
+////			metaSizeReturnValue = Integer.parseInt(as.get(0));
+//		metaSizeReturnValue = Integer.parseInt(strMetaSize);
+//
+//		return metaSizeReturnValue;
+//	}
 
 	private float calcDownProgressForBook(String bid, String chid) {
 		synchronized (this) {
-			int metaTrackSize = metaSizeForChapter(bid, chid);
+			int metaTrackSize = 0;
+			for (Chapter c : chapters)
+			{
+				if(c.cId.equalsIgnoreCase(chid))
+					metaTrackSize = c.cSize;
+					
+			}
+
 			int trackSize = gs.s().actualSizeForChapter(bid, chid);
 
 			float downloadProgress = ((float) trackSize / (float) metaTrackSize) * 100.0f;
@@ -237,9 +244,17 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			Node show = (Node) shows.item(i);
 			String cId = null;
 			String cName = null;
+			int cSize = 0;
+			int cintLength = 0;
+			String cLength = null;
 			try {
 				cId = xPath.evaluate("@number", show);
 				cName = xPath.evaluate("name", show);
+				cSize = Integer.valueOf(xPath.evaluate("file/size", show));
+				cintLength =  Integer.valueOf(xPath.evaluate("file/length", show));
+				cLength = String.format("%d:%02d", (int)(cintLength / 60.0),
+				         (int)cintLength % 60);
+
 			} catch (XPathExpressionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -248,6 +263,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			c.name = cName;
 			c.cId = cId;
 			c.node = show;
+			c.cSize = cSize;
+			c.cLength = cLength;
 			cl.add(c);
 		}
 
@@ -297,26 +314,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 //						Assert.assertNotNull(nl);
 //					    Assert.assertEquals(1, nl.size());
 //				        int fsz = Integer.parseInt(nl.get(0));
-						XPathFactory factory = XPathFactory.newInstance();
-						XPath xPath = factory.newXPath();
-						String strMetaLength = "";
-						for (Chapter c : chapters)
-						{
-							if(c.cId.equalsIgnoreCase(ch.cId))
-								try {
-									strMetaLength = xPath.evaluate("file/length", c.node);
-								} catch (XPathExpressionException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								
-						}
-						int fsz = Integer.parseInt(strMetaLength);
-				        String timeString = String.format("%d:%02d", (int)(fsz / 60.0),
-				         (int)fsz % 60);
 				        int chProgress = (int) calcDownProgressForBook(bookId, ch.cId);
 				        Bundle b = new Bundle();
-				        b.putString("timeString", timeString);
+				        b.putString("timeString", ch.cLength);
 				        b.putInt("chProgress", chProgress);
 				        return b;
 					}
@@ -681,7 +681,17 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				File dir = new File(gs.s().pathForBookMeta(bookId));
 
 				if (dir.exists() == false)
+				{
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run()
+						{
+							dialog.setMessage("загрузка каталога из интернета\nпожалуйста подождите...");
+						}
+					});
+					
 					requestBookMeta();
+				}
 
 				return updateMeta();
 			}
@@ -777,7 +787,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			public void run() {
 //				if (Thread.interrupted())
 //					return;
-				if (mediaPlayer.isPlaying()) {
+				if (mediaPlayer!=null && mediaPlayer.isPlaying()) {
 					// if (pausePlayButton.isChecked())
 					// pausePlayButton.toggle();
 
