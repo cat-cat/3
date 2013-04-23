@@ -22,7 +22,7 @@ public class InfoActivity extends Activity {
 			// message box
 			 Toast.makeText(getApplicationContext(),
 			 msg,
-			 Toast.LENGTH_LONG)
+			 Toast.LENGTH_SHORT)
 			 .show();
 	}
  	

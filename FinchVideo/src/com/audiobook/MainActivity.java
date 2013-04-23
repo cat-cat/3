@@ -2,6 +2,7 @@ package com.audiobook;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -9,6 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -38,27 +42,27 @@ public class MainActivity extends Activity {
 	private SQLiteDatabase db = null;
 	private SimpleCursorAdapter mAdapter;
 
-    private ArrayList<CatalogItem> items;
- 
-    @Override
-    public void onDestroy()
-    {
-    	super.onDestroy();
-    	if(db!=null)
-	        db.close();
+	private ArrayList<CatalogItem> items;
 
-    }
-    
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		if(db!=null)
+			db.close();
+
+	}
+
 	private class Clicker1 implements AdapterView.OnItemClickListener {
-        public void onItemClick(AdapterView<?> a, View view, int position, long id) {
-        	
-        	// message box
-//            Toast.makeText(getApplicationContext(),
-//            	      "Click ListItem Number " + position, Toast.LENGTH_LONG)
-//            	      .show();
-            
-            // 
-            
+		public void onItemClick(AdapterView<?> a, View view, int position, long id) {
+
+			// message box
+			//            Toast.makeText(getApplicationContext(),
+			//            	      "Click ListItem Number " + position, Toast.LENGTH_SHORT)
+			//            	      .show();
+
+			// 
+
 			try {
 				Intent myIntentA1A2;
 				if(position == 0) // search books
@@ -69,9 +73,9 @@ public class MainActivity extends Activity {
 					myIntentA1A2 = new Intent(MainActivity.this, CatalogActivity.class);
 
 				Bundle myData = new Bundle();
-//				TextView v = (TextView)  view.findViewById(R.id.idx_init);
-//				int pos = Integer.parseInt(v.getText().toString());
-//				myData.putInt("pos", pos);
+				//				TextView v = (TextView)  view.findViewById(R.id.idx_init);
+				//				int pos = Integer.parseInt(v.getText().toString());
+				//				myData.putInt("pos", pos);
 				String name = items.get(position).name;
 				Log.i("MainActivity:CategoriIDClick:", name);
 				String bid = items.get(position).ID;
@@ -87,13 +91,13 @@ public class MainActivity extends Activity {
 				startActivity(myIntentA1A2);
 			} catch (Exception e) {
 				Toast.makeText(getBaseContext(), e.getMessage(),
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT).show();
 			}
 		}
-    }
-	
-    private void CopyDatabase() throws IOException 
-    {
+	}
+
+	private void CopyDatabase() throws IOException 
+	{
 		File dir = new File(gs.s().dbpath());
 		if(!dir.exists()){
 			dir.mkdirs();
@@ -125,53 +129,118 @@ public class MainActivity extends Activity {
 		myOutput.flush();
 		myOutput.close();
 		myInput.close();    	
-    }
-    
- 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_query_activity);
+	}
 
-        
-        final ListView searchList = (ListView) findViewById(R.id.video_list);
-        searchList.setClickable(true);
-        searchList.setOnItemClickListener(new Clicker1());
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main_query_activity);
 
-        // init global singleton
+
+		final ListView searchList = (ListView) findViewById(R.id.video_list);
+		searchList.setClickable(true);
+		searchList.setOnItemClickListener(new Clicker1());
+
+		// init global singleton
 		gs.s().setContext(getApplicationContext()); // dont move it in asynctask, or error
 
-        // Maps video entries from the database to views
-        mAdapter = new SimpleCursorAdapter(MainActivity.this,
-            R.layout.video_list_item,
-            null,
-            new String[] {
-            "id",
-            "name"
-        },
-        new int[] { R.id.video_thumb_icon,  R.id.video_text});
-        
-        class loadTask extends AsyncTask<Void,Void,Cursor>
-        {
-    		private final ProgressDialog dialog = new ProgressDialog(
-    				MainActivity.this);
 
-    		// can use UI thread here
-    		@Override
-    		protected void onPreExecute() {
-    			this.dialog.setMessage("обновление списка...");
-    			this.dialog.show();
-    		}
+
+
+		// Maps video entries from the database to views
+		mAdapter = new SimpleCursorAdapter(MainActivity.this,
+				R.layout.video_list_item,
+				null,
+				new String[] {
+				"id",
+				"name"
+		},
+		new int[] { R.id.video_thumb_icon,  R.id.video_text});
+
+		class loadTask extends AsyncTask<Void,Void,Cursor>
+		{
+			private final ProgressDialog dialog = new ProgressDialog(
+					MainActivity.this);
+
+			// can use UI thread here
+			@Override
+			protected void onPreExecute() {
+				this.dialog.setMessage("обновление списка...");
+				this.dialog.show();
+			}
 
 			@Override
 			protected Cursor doInBackground(Void... params) {
 
-		        // check database existance
+				// SET DEVICE ID
+				String imeistring=null;				
+				String imsistring=null;
+				String devid = null;
+
+				TelephonyManager   telephonyManager  =  ( TelephonyManager)getSystemService( Context.TELEPHONY_SERVICE );
+
+				/*
+				 * getDeviceId() function Returns the unique device ID.
+				 * for example,the IMEI for GSM and the MEID or ESN for CDMA phones.  
+				 */				    
+				imeistring = telephonyManager.getDeviceId();
+				// IMEI No : 
+				devid=imeistring+"-";
+
+
+				/*
+				 * getSubscriberId() function Returns the unique subscriber ID,
+				 * for example, the IMSI for a GSM phone.
+				 */				                                                                                      
+//				imsistring = telephonyManager.getSubscriberId();        				    
+//				devid+="IMSI No : "+imsistring+"\n";
+
+				/*
+				 * System Property ro.serialno returns the serial number as unique number
+				 * Works for Android 2.3 and above				     
+				 */
+
+				//		 String hwID = android.os.SystemProperties.get("ro.serialno", "unknown");
+				//		 devid+= "hwID : " + hwID + "\n"; 
+//				String serialnum = null;      
+//				try {         
+//					Class<?> c = Class.forName("android.os.SystemProperties");        	           	      
+//					Method get = c.getMethod("get", String.class, String.class );                 
+//					serialnum = (String)(   get.invoke(c, "ro.serialno", "unknown" )  );
+//					devid+= "serial : " + serialnum + "\n" ;
+//				} catch (Exception ignored) {       
+//				}
+//				String serialnum2 = null;
+//				try {
+//					Class myclass = Class.forName( "android.os.SystemProperties" );
+//					Method[] methods = myclass.getMethods();
+//					Object[] params1 = new Object[] { new String( "ro.serialno" ) , new String(  
+//							"Unknown" ) };        	
+//					serialnum2 = (String)(methods[2].invoke( myclass, params1 ));        	
+//					devid+= "serial2 : " + serialnum2 + "\n"; 
+//				}catch (Exception ignored) 
+//				{     		
+//				}		
+				/*
+				 * Settings.Secure.ANDROID_ID returns the unique DeviceID
+				 * Works for Android 2.2 and above				     
+				 */
+				String androidId = Settings.Secure.getString(getContentResolver(),  
+						Settings.Secure.ANDROID_ID);
+				// "AndroidID : "
+				devid+=androidId;
+				gs.s().setDeviceId(devid);
+
+
+
+
+				// check database existence
 				SQLiteDatabase checkDB = null;
 				try {
 					String myPath = gs.s().dbp();
 					checkDB = SQLiteDatabase.openDatabase(myPath, null,
 							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-			
+
 				} catch (SQLiteException e) {
 
 					// database does't exist yet.
@@ -193,86 +262,86 @@ public class MainActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
-		        
-		        String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
-		        		+ " UNION"
-		        		+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
-		        		+ " UNION"
-		               + " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
-		               + " LEFT JOIN"
-		               + " t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
-		               + " JOIN"
-		               + " t_authors ON t_abooks_authors.author_id=t_authors.author_id"
-		               + " JOIN t_abooks_genres ON t_abooks.abook_id = t_abooks_genres.abook_id"
-		               + " WHERE t_abooks_genres.genre_id = ? AND (t_abooks.deleted=0 OR t_abooks.bought=1)  GROUP BY t_abooks.abook_id"
-		               + " UNION"
-		               + " SELECT t_genres.genre_id AS id, name, COUNT(t_abooks_genres.genre_id) AS subgenres, 1 AS type, 'n/a' priceos, '-' authors, t_genres.genre_id AS _id FROM t_genres"
-		               + " LEFT JOIN"
-		               + " t_abooks_genres"
-		               + " WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
-		               + " GROUP BY name"
-		               + " ORDER BY  type, name DESC  LIMIT ?, ?";
-		        
-		    	if(db==null)
-			        db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+
+				String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
+						+ " UNION"
+						+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
+						+ " UNION"
+						+ " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
+						+ " LEFT JOIN"
+						+ " t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
+						+ " JOIN"
+						+ " t_authors ON t_abooks_authors.author_id=t_authors.author_id"
+						+ " JOIN t_abooks_genres ON t_abooks.abook_id = t_abooks_genres.abook_id"
+						+ " WHERE t_abooks_genres.genre_id = ? AND (t_abooks.deleted=0 OR t_abooks.bought=1)  GROUP BY t_abooks.abook_id"
+						+ " UNION"
+						+ " SELECT t_genres.genre_id AS id, name, COUNT(t_abooks_genres.genre_id) AS subgenres, 1 AS type, 'n/a' priceos, '-' authors, t_genres.genre_id AS _id FROM t_genres"
+						+ " LEFT JOIN"
+						+ " t_abooks_genres"
+						+ " WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
+						+ " GROUP BY name"
+						+ " ORDER BY  type, name DESC  LIMIT ?, ?";
+
+				if(db==null)
+					db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
 							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 				Cursor c = db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
-		        
+
 				int idxname = c.getColumnIndex("name");
 				int idxid = c.getColumnIndex("id");
 				int idxtype = c.getColumnIndex("type");
 				items = new ArrayList<CatalogItem>(30);
 				if (c.moveToFirst()) {
 					do { 
-							CatalogItem ci = new CatalogItem();
-							ci.name = c.getString(idxname);
-							ci.ID = c.getString(idxid);
-							ci.type = c.getString(idxtype);
-							items.add(ci);
-						}
+						CatalogItem ci = new CatalogItem();
+						ci.name = c.getString(idxname);
+						ci.ID = c.getString(idxid);
+						ci.type = c.getString(idxtype);
+						items.add(ci);
+					}
 					while (c.moveToNext());
 				}
 				startManagingCursor(c);
 
-		        SimpleCursorAdapter.ViewBinder savb =
-		            new SimpleCursorAdapter.ViewBinder() {
-		            @Override
-		            public boolean setViewValue(View view, Cursor cursor, int i) {
-		                switch (i) {
-		                    case 1: // title
-		                        TextView tv = (TextView)
-		                        view.findViewById(R.id.video_text);
-		                        String videoText = cursor.getString(i);
-		                        tv.setText(videoText);
+				SimpleCursorAdapter.ViewBinder savb =
+						new SimpleCursorAdapter.ViewBinder() {
+					@Override
+					public boolean setViewValue(View view, Cursor cursor, int i) {
+						switch (i) {
+						case 1: // title
+						TextView tv = (TextView)
+						view.findViewById(R.id.video_text);
+						String videoText = cursor.getString(i);
+						tv.setText(videoText);
 
-		                        break;
-		                    case 0: // id
-		                    	// TODO:
-		                        //setThumbResource(view, cursor);
-		                        break;
-		                }
+						break;
+						case 0: // id
+							// TODO:
+							//setThumbResource(view, cursor);
+							break;
+						}
 
-		                return true;
-		            }
-		        };
+						return true;
+					}
+				};
 
-		        mAdapter.setViewBinder(savb);
-		        return c;
+				mAdapter.setViewBinder(savb);
+				return c;
 			}
-			
+
 			@Override
 			protected void onPostExecute(final Cursor c)
 			{
 				if (this.dialog.isShowing()) {
 					this.dialog.dismiss();
 				}
-		        searchList.setAdapter(mAdapter);
-		        mAdapter.changeCursor(c);
+				searchList.setAdapter(mAdapter);
+				mAdapter.changeCursor(c);
 			}      	
-        } // loadTask
-        new loadTask().execute();
+		} // loadTask
+		new loadTask().execute();
 
-    }
-    
-    
+	}
+
+
 }

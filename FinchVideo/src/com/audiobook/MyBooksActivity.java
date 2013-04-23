@@ -50,7 +50,7 @@ public class MyBooksActivity extends Activity {
         	
         	// message box
 //            Toast.makeText(getApplicationContext(),
-//            	      "Click ListItem Number " + position, Toast.LENGTH_LONG)
+//            	      "Click ListItem Number " + position, Toast.LENGTH_SHORT)
 //            	      .show();
             
             // 
@@ -78,7 +78,7 @@ public class MyBooksActivity extends Activity {
 				startActivity(myIntentA1A2);
 			} catch (Exception e) {
 				Toast.makeText(getBaseContext(), e.getMessage(),
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT).show();
 			}
 		}
     }

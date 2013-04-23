@@ -26,9 +26,10 @@ public final class R {
     public static final class drawable {
         public static final int download=0x7f020000;
         public static final int icon=0x7f020001;
-        public static final int selector_download=0x7f020002;
-        public static final int stop=0x7f020003;
-        public static final int video_reload=0x7f020004;
+        public static final int loader=0x7f020002;
+        public static final int selector_download=0x7f020003;
+        public static final int stop=0x7f020004;
+        public static final int video_reload=0x7f020005;
     }
     public static final class id {
         public static final int btn_buy=0x7f080008;
@@ -37,7 +38,7 @@ public final class R {
         public static final int btn_downloads=0x7f080007;
         public static final int btn_nfo=0x7f080009;
         public static final int btn_play=0x7f080005;
-        public static final int btn_restore=0x7f080016;
+        public static final int btn_restore=0x7f080018;
         public static final int chapter_list_item=0x7f08000d;
         public static final int chapter_name=0x7f080011;
         public static final int chapter_progress=0x7f08000f;
@@ -46,31 +47,33 @@ public final class R {
         public static final int chapters_list_view=0x7f080004;
         public static final int downloads_list=0x7f080012;
         public static final int downloads_list_item=0x7f080013;
-        public static final int menu_settings=0x7f080027;
-        public static final int mybooks_list_item=0x7f080017;
+        public static final int menu_settings=0x7f080029;
+        public static final int mybooks_list_item=0x7f080019;
         public static final int player_current_time=0x7f080002;
         public static final int player_duration_time=0x7f080001;
         public static final int player_progressbar=0x7f080000;
-        public static final int simple_video_description_edit=0x7f08001d;
-        public static final int simple_video_description_label=0x7f08001c;
-        public static final int simple_video_insert_button=0x7f080020;
-        public static final int simple_video_list=0x7f080021;
-        public static final int simple_video_list_item=0x7f080022;
-        public static final int simple_video_media_id_edit=0x7f08001f;
-        public static final int simple_video_media_id_label=0x7f08001e;
-        public static final int simple_video_title_edit=0x7f08001b;
-        public static final int simple_video_title_label=0x7f08001a;
-        public static final int simple_video_title_text=0x7f080023;
+        public static final int simple_video_description_edit=0x7f08001f;
+        public static final int simple_video_description_label=0x7f08001e;
+        public static final int simple_video_insert_button=0x7f080022;
+        public static final int simple_video_list=0x7f080023;
+        public static final int simple_video_list_item=0x7f080024;
+        public static final int simple_video_media_id_edit=0x7f080021;
+        public static final int simple_video_media_id_label=0x7f080020;
+        public static final int simple_video_title_edit=0x7f08001d;
+        public static final int simple_video_title_label=0x7f08001c;
+        public static final int simple_video_title_text=0x7f080025;
+        public static final int text_title=0x7f080016;
         public static final int title=0x7f080003;
         public static final int titleChapter=0x7f080006;
+        public static final int title_chapter=0x7f080015;
         public static final int video_layout=0x7f08000a;
         public static final int video_list=0x7f08000b;
-        public static final int video_list_item=0x7f080025;
-        public static final int video_search_box=0x7f080018;
-        public static final int video_text=0x7f080015;
-        public static final int video_thumb_icon=0x7f080026;
-        public static final int video_update_button=0x7f080019;
-        public static final int videos_list_item=0x7f080024;
+        public static final int video_list_item=0x7f080027;
+        public static final int video_search_box=0x7f08001a;
+        public static final int video_text=0x7f080017;
+        public static final int video_thumb_icon=0x7f080028;
+        public static final int video_update_button=0x7f08001b;
+        public static final int videos_list_item=0x7f080026;
     }
     public static final class layout {
         public static final int activity_player=0x7f030000;

@@ -2,10 +2,6 @@ package com.audiobook;
 
 import java.util.ArrayList;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.audiobook.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -39,7 +35,7 @@ public class CatalogActivity extends Activity {
 
 			// message box
 			//            Toast.makeText(getApplicationContext(),
-			//            	      "Click ListItem Number " + position, Toast.LENGTH_LONG)
+			//            	      "Click ListItem Number " + position, Toast.LENGTH_SHORT)
 			//            	      .show();
 
 			// 
@@ -70,7 +66,7 @@ public class CatalogActivity extends Activity {
 				startActivity(myIntentA1A2);
 			} catch (Exception e) {
 				Toast.makeText(getBaseContext(), e.getMessage(),
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}

@@ -57,6 +57,9 @@ import android.widget.Toast;
 
 
 public class gs extends Handler {
+	XPathFactory factory = XPathFactory.newInstance();
+	XPath xPath = factory.newXPath();
+
 	//public static final String testProduct = "001.trash";
 	public static final String testProduct = "android.test.purchased";
 
@@ -69,7 +72,7 @@ public class gs extends Handler {
 
 	private static gs   _instance;
 
-	private String android_id = Secure.ANDROID_ID;
+	private String android_id ;
 
 	private boolean db_PerformUpdate(String sql)
 	{
@@ -128,6 +131,8 @@ public class gs extends Handler {
 
 	private boolean updateCatalog()
 	{
+		if(!new File(dbp()).exists())
+			return false;
 
 		//synchronized(this) {
 
@@ -196,7 +201,7 @@ public class gs extends Handler {
 		// message box
 		Toast.makeText(ctx,
 				msg,
-				Toast.LENGTH_LONG)
+				Toast.LENGTH_SHORT)
 				.show();
 	}
 
@@ -344,6 +349,11 @@ public class gs extends Handler {
 	{
 		return android_id;
 	}
+	
+	public void setDeviceId(String id)
+	{
+		android_id = id;
+	}
 
 	public String responseString(HttpResponse response) {
 		String content = null;
@@ -470,8 +480,6 @@ public class gs extends Handler {
 	{
 		int result = 0;
 
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xPath = factory.newXPath();
 		NodeList shows = null;
 		try {
 			shows = (NodeList) xPath.evaluate("//error", new InputSource(new StringReader(err)), XPathConstants.NODESET);
@@ -498,8 +506,6 @@ public class gs extends Handler {
 	}
 	public String xeval(String xpath, Element ele)
 	{
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xPath = factory.newXPath();
 		String result = null;
 		try {
 			result = xPath.evaluate(xpath, ele);
@@ -514,17 +520,16 @@ public class gs extends Handler {
 	{
 		String uri = "http://"+gs.s().Host()+"/books/"+bid+"/BookImage.jpg";
 		DisplayImageOptions options = new DisplayImageOptions.Builder()
-		//.showStubImage(R.drawable.stub_image)
+		.showStubImage(R.drawable.loader)
 		//.showImageForEmptyUrl(R.drawable.image_for_empty_url)
 		.cacheInMemory()
 		.cacheOnDisc()
 		.build();
+		iv.invalidate();
 		ImageLoader.getInstance().displayImage(uri, iv, options);
 	}
 
 	public ArrayList<String> getNodeList(String xpath, String xml) throws Exception {
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xPath = factory.newXPath();
 		NodeList shows = (NodeList) xPath.evaluate(xpath, new InputSource(new StringReader(xml)), XPathConstants.NODESET);
 		ArrayList<String> nl = new ArrayList<String>();
 		for (int i = 0; i < shows.getLength(); i++) {

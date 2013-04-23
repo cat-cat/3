@@ -68,7 +68,9 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
-	
+	XPathFactory factory = XPathFactory.newInstance();
+	XPath xPath = factory.newXPath();
+
 	String xml;
 	String bookTitle;
 
@@ -124,8 +126,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 //		} else {
 //			return metaSizeReturnValue;
 //		}
-//		XPathFactory factory = XPathFactory.newInstance();
-//		XPath xPath = factory.newXPath();
 //
 //		String strMetaSize = "";
 //		for (Chapter c : chapters)
@@ -218,8 +218,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 	private ArrayAdapter<Chapter> updateMeta() {
 		final String bookMeta = gs.s().fileToString(gs.s().pathForBookMeta(bookId));
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xPath = factory.newXPath();
 
 		// first set title
 		try {
@@ -360,7 +358,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 						// message box
 						// Toast.makeText(getApplicationContext(),
 						// "Click ListItem Number " + position,
-						// Toast.LENGTH_LONG)
+						// Toast.LENGTH_SHORT)
 						// .show();
 
 						// ToggleButton tbtn = (ToggleButton)v;
@@ -506,7 +504,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 			// message box
 			// Toast.makeText(getApplicationContext(),
-			// "Click ListItem Number " + position, Toast.LENGTH_LONG)
+			// "Click ListItem Number " + position, Toast.LENGTH_SHORT)
 			// .show();
 
 			//
@@ -541,7 +539,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 			} catch (Exception e) {
 				Toast.makeText(getBaseContext(), e.getMessage(),
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -552,7 +550,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			// message box
 			 Toast.makeText(getApplicationContext(),
 			 msg,
-			 Toast.LENGTH_LONG)
+			 Toast.LENGTH_SHORT)
 			 .show();
 	}
 	
@@ -748,8 +746,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								// TODO: check developer payload
 								String dp = purchase.getDeveloperPayload();
 								// consume the gas and update the UI
-								m("Поздравляем, книга ваша!");
+								m("Поздравляем, книга куплена!");
 								Log.e("MyTrace:", "++Поздравляем, книга ваша! " + result);
+								
+								// check is useless because at this point payment already collected
+								MyShop.s().startWithBook(purchase.getSku(), false);
 							}
 							//					      else if (purchase.getSku().equals(SKU_PREMIUM)) {
 							//					         // give user access to premium content and update the UI
@@ -1024,6 +1025,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			Log.i("MyTrace:","++ Отображается оглавление другой книги!");
 			return;
 		}
+		
+		// TODO: sometimes chapters is null
+		if(chapters==null)
+			return;
 		
 		for (int i = 0; i < chapters.size(); i++) {
 			if( chapters.get(i).cId == trackID)
