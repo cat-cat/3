@@ -517,15 +517,18 @@ public class DownloadManager
 				{
 //					if(AddLoading(text, LoadingType.Text) && startLoading)
 //						text.Start();
-					synchronized (canStartAudioLoad)
-					{
-						if(AddLoading(audio, LoadingType.Chapter) && startLoading)
-							if(canStartAudioLoad == Boolean.TRUE)
-							{
+//					synchronized (canStartAudioLoad)
+//					{
+//						AddLoadingToFront(LoadingType.TextAndFirstChapter,bookId,trackNumber);
+//						if(AddLoading(audio, LoadingType.Chapter) && startLoading)
+						AddLoading(audio, LoadingType.Chapter);
+//							if(canStartAudioLoad == Boolean.TRUE && startLoading)
+//							{
+								//StopAllLoadings(false);
 								audio.Start();
 								canStartAudioLoad = Boolean.FALSE;
-							}
-					}
+//							}
+//					}
 					
 				}
 				break;
@@ -661,7 +664,7 @@ public class DownloadManager
 								{
 									if ( l.IsActive() )
 									{
-										if ( l.bookId != bookId  && !l.trackNumber.equalsIgnoreCase(trackNumber) )
+										if ( !l.bookId.equalsIgnoreCase( bookId)  && !l.trackNumber.equalsIgnoreCase(trackNumber) )
 											l.Pause();
 										else
 										{
@@ -1428,7 +1431,7 @@ public class DownloadManager
 				if(load.IsActive())
 					load.Stop();
 			}
-			loadings.clear();
+			//loadings.clear();
 		}
 //		synchronized (canStartAudioLoad)
 //		{

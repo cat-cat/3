@@ -205,6 +205,11 @@ public class gs extends Handler {
 				.show();
 	}
 
+	public boolean connected()
+	{
+		return nlistener.getState()==NetworkConnectivityListener.State.CONNECTED;
+	}
+	
 	public void handleMessage(Message msg) 
 	{
 		if(nlistener.getState()==NetworkConnectivityListener.State.CONNECTED)
@@ -516,15 +521,15 @@ public class gs extends Handler {
 		return result;
 	}
 
+	DisplayImageOptions options = new DisplayImageOptions.Builder()
+	.showStubImage(R.drawable.loader)
+	//.showImageForEmptyUrl(R.drawable.image_for_empty_url)
+	.cacheInMemory()
+	.cacheOnDisc()
+	.build();
 	public void displayBookImage(String bid, ImageView iv)
 	{
 		String uri = "http://"+gs.s().Host()+"/books/"+bid+"/BookImage.jpg";
-		DisplayImageOptions options = new DisplayImageOptions.Builder()
-		.showStubImage(R.drawable.loader)
-		//.showImageForEmptyUrl(R.drawable.image_for_empty_url)
-		.cacheInMemory()
-		.cacheOnDisc()
-		.build();
 		iv.invalidate();
 		ImageLoader.getInstance().displayImage(uri, iv, options);
 	}
@@ -541,6 +546,7 @@ public class gs extends Handler {
 
 	public String Host()
 	{
+		//return "192.168.0.100:8080";
 		return "book-smile.ru";
 	}
 	public String dbp()

@@ -8,12 +8,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.ArrayList;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,34 +22,30 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.audiobook.MyStackTrace;
-import com.audiobook.gs;
-
-//import ru.old.Errors;
-//import ru.old.MyApp;
 
 import android.content.Context;
-import android.database.SQLException;
-//import android.hardware.Camera.ErrorCallback;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 
-//import dataProvider.dbProvider.database.ItemNotFoundException;
-//import dataProvider.dbProvider.database.Requests;
+import com.audiobook.MyStackTrace;
+import com.audiobook.gs;
+
 import dataProvider.dbProvider.fileManager.FileManager;
 import dataProvider.entities.Track;
-//import dataProvider.internetProvider.Server;
 import dataProvider.internetProvider.handlers.TrackDownloadUrlParser;
 import dataProvider.internetProvider.helpers.CommandBuilder;
 import dataProvider.internetProvider.helpers.Commands;
-//import dataProvider.internetProvider.helpers.ConnectionErrorCodes;
 import dataProvider.internetProvider.helpers.SourceProvider;
+//import ru.old.Errors;
+//import ru.old.MyApp;
+//import android.hardware.Camera.ErrorCallback;
+//import dataProvider.dbProvider.database.ItemNotFoundException;
+//import dataProvider.dbProvider.database.Requests;
+//import dataProvider.internetProvider.Server;
+//import dataProvider.internetProvider.helpers.ConnectionErrorCodes;
 
 /**
  * Загружает аудио-часть трека.

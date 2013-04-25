@@ -1,8 +1,11 @@
 package com.audiobook;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,12 +36,21 @@ public class CatalogActivity extends Activity {
 	private class Clicker1 implements AdapterView.OnItemClickListener {
 		public void onItemClick(AdapterView<?> a, View view, int position, long id) {
 
-			// message box
-			//            Toast.makeText(getApplicationContext(),
-			//            	      "Click ListItem Number " + position, Toast.LENGTH_SHORT)
-			//            	      .show();
-
-			// 
+			File f = new File(gs.s().pathForBookMeta(items.get(position).ID));
+			if(!gs.s().connected()&&!f.exists())
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder(CatalogActivity.this);
+				builder.setMessage("Для загрузки книги нужен интернет!\nИнтернет не доступен.")
+				       .setCancelable(false)
+				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				                //do things
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+				return;
+			}
 
 			try {
 				Intent myIntentA1A2;

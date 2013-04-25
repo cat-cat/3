@@ -10,6 +10,8 @@ import com.android.vending.billing.util.Purchase;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -61,6 +63,21 @@ public class InfoActivity extends Activity {
 		((Button) findViewById(R.id.btn_restore))
 		.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				if(!gs.s().connected())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(InfoActivity.this);
+					builder.setMessage("Для восстановления покупок нужен интернет!\nИнтернет не доступен.")
+					       .setCancelable(false)
+					       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                //do things
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+					return;
+				}
+
 				mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener() {
 					   public void onQueryInventoryFinished(IabResult result,
 							      Inventory inventory) {

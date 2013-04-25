@@ -39,6 +39,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreProtocolPNames;
 import org.xml.sax.SAXException;
 
+import com.audiobook.gs;
+
 import android.os.Build;
 import android.util.Log;
 
@@ -408,9 +410,9 @@ public class SourceProvider {
 	 */
 	public static boolean IsNetAvailable()
 	{
-		boolean result = TryConnect("http://google.ru");
-		if(!result)
-			result = TryConnect("http://ya.ru");
+		boolean result = TryConnect(String.format("http://%s",gs.s().Host()));
+//		if(!result)
+//			result = TryConnect("http://ya.ru");
 		return result;
 	}
 	
@@ -423,7 +425,10 @@ public class SourceProvider {
         	connection = (HttpURLConnection) url.openConnection();
         	connection.setConnectTimeout(1000 * 5);
         	connection.connect();
-            if(connection.getResponseCode() == 200)
+        	int rc = connection.getResponseCode();
+        	
+        	// TODO:
+            if(rc == 200 || rc == 404)
             	return true;
         }
         catch (MalformedURLException e1)

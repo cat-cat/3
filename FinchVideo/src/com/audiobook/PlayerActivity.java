@@ -44,7 +44,9 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -68,17 +70,18 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
+	int offsetSecs = 0;
 	XPathFactory factory = XPathFactory.newInstance();
 	XPath xPath = factory.newXPath();
 
 	String xml;
 	String bookTitle;
 
-	enum PlayerState {
-		PL_READY, PL_ERROR, PL_NOT_READY
-	}
+//	enum PlayerState {
+//		PL_READY, PL_ERROR, PL_NOT_READY
+//	}
 	
-	private static PlayerState mediaPlayerState = PlayerState.PL_NOT_READY;
+//	private static PlayerState mediaPlayerState = PlayerState.PL_NOT_READY;
 
 	private static String playingBookId = "";
 	private static String playingChapter = "";
@@ -285,13 +288,17 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			}
 
 			String xml = bookMeta;
+			final LayoutInflater inflater = getLayoutInflater();
 			public View getView(int position, View convertView, ViewGroup parent) {
-				// View row = convertView;
+				View tmprow = convertView;
 				//
-				// if ( row == null )
-				// {
-				final LayoutInflater inflater = getLayoutInflater();
-				final View row = inflater.inflate(R.layout.chapter_list_item, null);
+//				 if ( convertView == null )
+//				 {
+				if(tmprow==null)
+					tmprow = inflater.inflate(R.layout.chapter_list_item, null);
+				
+				final View row = tmprow;
+				
 				final int pos = position;
 				class taskCR extends AsyncTask<Void,Void,Bundle>{
 					@Override
@@ -316,19 +323,33 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				        Bundle b = new Bundle();
 				        b.putString("timeString", ch.cLength);
 				        b.putInt("chProgress", chProgress);
+				        boolean inProgress = DownloadManager.s(getContext()).IsHaveTrack(bookId, chapters.get(pos).cId);
+				        b.putBoolean("inProgress", inProgress);
 				        return b;
 					}
 					@Override
 					protected void onPostExecute(Bundle b)
 					{
-						
 						// set chapter time
 				        ((TextView) row.findViewById(R.id.chapter_time))
 						.setText(b.getString("timeString"));
 				        
 						// setup download progress
 					    ProgressBar progress = ((ProgressBar) row.findViewById(R.id.chapter_progress));
-					    progress.setProgress(b.getInt("chProgress"));					    						
+					    int pgs = b.getInt("chProgress");
+					    progress.setProgress(pgs);
+					 
+					    // setup download button
+					    
+						final ToggleButton tbtn = (ToggleButton) row
+								.findViewById(R.id.btn_download);
+						if(pgs==100)
+						{
+							tbtn.setVisibility(View.GONE);
+							progress.setVisibility(View.GONE);
+						}
+						if(b.getBoolean("inProgress"))
+							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
 					}
 				}
 				AsyncTask<Void,Void,Bundle> mt = new taskCR();
@@ -364,27 +385,47 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 						// ToggleButton tbtn = (ToggleButton)v;
 						int i = Integer.parseInt(tbtn.getTag().toString());
 						Chapter c = chapters.get(i);
+
 						if (tbtn.isChecked()) {
-
-							// TODO:
-							// removeDownqObject(chapterIdentity);
-
-							// tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+							if(gs.s().connected())
+							{
+	
+								downloadManager.LoadTrack(LoadingType.Chapter, bookId, c.cId);
+								// removeDownqObject(chapterIdentity);
+	
+								tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+							} 
+							else
+							{
+								AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+								builder.setMessage("Интернет не доступен!")
+								       .setCancelable(false)
+								       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+								           public void onClick(DialogInterface dialog, int id) {
+								                //do things
+								           }
+								       });
+								AlertDialog alert = builder.create();
+								alert.show();	
+							}
+							
 						} else { // cancel download
 
 							// TODO: if no internet
 							// tbtn.setChecked(true);
 							// return;
 
-							// TODO: appendChapterIdentityForDownloading
+							downloadManager.Stop(bookId, c.cId,true,true);
+							downloadManager.RemoveFromQuery(bookId, c.cId);
 
-							// tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.download));
+							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.download));
 						}
 					}
 				});
 
 				return row;
-				// }
+//				 }
+//				 return convertView;
 			}
 		}
 
@@ -459,40 +500,82 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		db.close();
 	}
 
-	private void startChapter(String chid) {
+	private void startChapter(final String chid) {
 		if (!chid.equalsIgnoreCase(playingChapter)
 				|| !bookId.equalsIgnoreCase(playingBookId)) {
 			checkChapter(chid);
 
-			if (mediaPlayer.isPlaying())
-				db_SaveTrackProgress();
-
-			//progressbar.setMax(gs.s().metaSizeForChapter(bookId, chid));
-
-			File f = new File(gs.s().pathForBookAndChapter(bookId, chid));
-			File ff = new File(gs.s().pathForBookFinished(bookId, chid));
-			if(!f.exists())
+			
+			class startRoutine extends AsyncTask<Void,Void,int[]>
 			{
-				NeedToStartWithFirstDownloadedBytes = true;
-				downloadManager.LoadTrack(LoadingType.TextAndFirstChapter,
-					bookId, chid);
-			}
-			else if(!ff.exists())
-			{
-				downloadManager.LoadTrack(LoadingType.TextAndFirstChapter,
-						bookId, chid);
-			}
+
+				@Override
+				protected int[] doInBackground(Void... arg0) {
+					// stop current download
+					downloadManager.Stop(playingBookId, playingChapter, true, true);
+					
+					if (mediaPlayer!=null&&mediaPlayer.isPlaying())
+					{
+						db_SaveTrackProgress();
+						mediaPlayer.stop();
+					}
+		
+					//progressbar.setMax(gs.s().metaSizeForChapter(bookId, chid));
+		
+					File f = new File(gs.s().pathForBookAndChapter(bookId, chid));
+					if(!f.exists())
+						NeedToStartWithFirstDownloadedBytes = true;
+					
+					File ff = new File(gs.s().pathForBookFinished(bookId, chid));
+					if(NeedToStartWithFirstDownloadedBytes || !ff.exists())
+						downloadManager.LoadTrack(LoadingType.TextAndFirstChapter,
+								bookId, chid);
+						
+					if(!NeedToStartWithFirstDownloadedBytes)
+						mediaPlayerInit(bookId, chid, 0);
+		
+		
+					//handlePlayPause();
+					int m = gs.s().metaLengthForChapter(bookId, chid);
+		
+					int sp = (int) calcDownProgressForBook(bookId, chid);
+					sp = (progressbar.getMax() * sp) / 100;
+					
+					return new int[]{m,sp};
+				}
 				
-			mediaPlayerInit(bookId, chid);
+				@Override
+				public void onPostExecute(int[] args)
+				{
+					progressbar.setMax(args[0]);
+					progressbar.setProgress(0);
+					progressbar.setSecondaryProgress(args[1]);					
+				}
+				
+			}
+			new startRoutine().execute();
+			
+			if(!gs.s().connected())
+			{
+				NeedToStartWithFirstDownloadedBytes = false;
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+				builder.setMessage("Для загрузки главы нужен интернет!\nИнтернет не доступен.")
+				       .setCancelable(false)
+				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				                //do things
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+				return;
+			}
 
-
-			//handlePlayPause();
-			int m = gs.s().metaLengthForChapter(bookId, chid);
-			progressbar.setMax(m);
-			progressbar.setProgress(0);
-
-			int sp = (int) calcDownProgressForBook(bookId, chid);
-			progressbar.setSecondaryProgress((progressbar.getMax() * sp) / 100);
+			
+			// set for onProgressChanged to trigger
+			tmpPlayingBookId = bookId;
+			tmpPlayingTrackId = chid;
 		}
 	}
 
@@ -664,9 +747,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				xml = gs.s().fileToString(
 						gs.s().dirsForBook(bookId) + "/bookMeta.xml");
 				
-				if (mediaPlayer == null)
-					CreateMediaPlayer();
-
 				if (server == null) {
 					server = new AudioServer();
 					server.init();
@@ -720,10 +800,14 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		((Button) findViewById(R.id.btn_play))
 		.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if(mediaPlayer.isPlaying())
-					mediaPlayer.pause();
+				
+				if(mediaPlayer==null)
+					startChapter(chapters.get(0).cId);
 				else
-					mediaPlayer.start();
+					if(mediaPlayer.isPlaying())
+						mediaPlayer.pause();
+					else
+						mediaPlayer.start();
 			}
 		});
 		
@@ -731,6 +815,21 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		((Button) findViewById(R.id.btn_buy))
 		.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				if(!gs.s().connected())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+					builder.setMessage("Для совершения покупки нужен интернет.\nИнтернет не доступен.")
+					       .setCancelable(false)
+					       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                //do things
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+					return;
+				}
+
 				try {
 					mHelper.launchPurchaseFlow(PlayerActivity.this, gs.testProduct, 10001,   
 							new IabHelper.OnIabPurchaseFinishedListener() {
@@ -793,6 +892,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 					// pausePlayButton.toggle();
 
 					int seconds = (int) mediaPlayer.getCurrentPosition() / K;
+					seconds+=offsetSecs;
 					currentTime.setText(Formatters.Time(seconds));
 					durationTime.setText(Formatters.Time(progressbar.getMax()-seconds));
 					progressbar.setProgress(seconds);
@@ -832,7 +932,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar)
 			{
-				SeekTo(seekBar.getProgress(), false);		
+				offsetSecs = seekBar.getProgress();
+				int osec = offsetSecs;
+				int max = seekBar.getMax();
+				int sz = gs.s().metaSizeForChapter(playingBookId, playingChapter);
+				//SeekTo(seekBar.getProgress(), false);
+				long range = (long) (((double)osec / max) * (long)sz);
+				mediaPlayerInit(playingBookId,playingChapter,(int)range);
 			}
 
 			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
@@ -898,16 +1004,27 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		return true;
 	}
 
-	String initPlayingBookId;
-	String initPlayingTrackId;
-	public void mediaPlayerInit(String bid, String chid) {
+	static String tmpPlayingBookId;
+	static String tmpPlayingTrackId;
+	public void mediaPlayerInit(String bid, String chid, int range) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+		
+		if (mediaPlayer == null)
+			CreateMediaPlayer();
 
+		// create new server for new track
+		if(server!=null)
+			server.stop();
+		server = null;
+		server = new AudioServer();
+		server.init();
+		server.start();
+		
 		String playUrl = "http://127.0.0.1:" + server.getPort() + "/file://"
 				+ FileManager.PathToAudioFile(bid, chid);
 
 		// TODO: set file size from meta
-		playUrl += "?size="+gs.s().metaSizeForChapter(bid, chid)+"?range=0";
+		playUrl += "?size="+gs.s().metaSizeForChapter(bid, chid)+"?range="+range;
 
 		if (mediaPlayer.isPlaying())
 			mediaPlayer.stop();
@@ -931,20 +1048,20 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			e.printStackTrace();
 		}
 		mediaPlayer.prepareAsync();
-		mediaPlayerState = PlayerState.PL_NOT_READY;
+//		mediaPlayerState = PlayerState.PL_NOT_READY;
 		
-		initPlayingBookId = bid;
-		initPlayingTrackId = chid;
+		tmpPlayingBookId = bid;
+		tmpPlayingTrackId = chid;
 	}
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 
-		mediaPlayerState = PlayerState.PL_ERROR;
+//		mediaPlayerState = PlayerState.PL_ERROR;
 		
-		playingBookId = initPlayingBookId;
-		playingChapter = initPlayingTrackId;
+//		playingBookId = tmpPlayingBookId;
+//		playingChapter = tmpPlayingTrackId;
 		return false;
 	}
 
@@ -960,11 +1077,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		// mediaPlayer.seekTo(playerPosition * K);
 		// tmpPosition = playerPosition;
 		// }
-		mediaPlayerState = PlayerState.PL_READY;
+//		mediaPlayerState = PlayerState.PL_READY;
 		mediaPlayer.start();
 
-		playingBookId = initPlayingBookId;
-		playingChapter = initPlayingTrackId;
+		playingBookId = tmpPlayingBookId;
+		playingChapter = tmpPlayingTrackId;
 	}
 
 	// playing book completed
@@ -1000,6 +1117,24 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	public void onProgressChanged(String bookID, String trackID, int progress) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3() + " progress: "+ progress);
 		
+		
+		if (NeedToStartWithFirstDownloadedBytes && progress > 0)
+		{
+			NeedToStartWithFirstDownloadedBytes = false;
+			// start player
+			class playerInitializer extends AsyncTask<Void,Void,Void>
+			{
+				@Override
+				protected Void doInBackground(Void... arg0) {
+					// TODO Auto-generated method stub
+					mediaPlayerInit(tmpPlayingBookId, tmpPlayingTrackId,0);
+					return null;
+				}
+			}
+			new playerInitializer().execute();
+
+		}
+		
 		if(bookID.equalsIgnoreCase(playingBookId)&&trackID.equalsIgnoreCase(playingChapter))
 		{
 			final int fprogress = progress;
@@ -1010,14 +1145,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 					progressbar.setSecondaryProgress((progressbar.getMax() * fprogress) / 100);
 				}
 			});
-			
-			
-			if (NeedToStartWithFirstDownloadedBytes && progress > 0)
-			{
-				NeedToStartWithFirstDownloadedBytes = false;
-				// start player
-				mediaPlayerInit(bookID, trackID);
-			}
 		}
 
 		if(!bookId.equalsIgnoreCase(playingBookId))
@@ -1075,6 +1202,30 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				created = false;
 			}
 			Assert.assertTrue(created);
+			
+			for (int i = 0; i < chapters.size(); i++) {
+				if( chapters.get(i).cId == trackID)
+				{
+					View v = getListItem(i);
+					if(v != null)
+					{
+						final ProgressBar pb = (ProgressBar) v.findViewById(R.id.chapter_progress);
+						final ToggleButton tbtn = (ToggleButton) v
+								.findViewById(R.id.btn_download);
+						 
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run()
+							{
+								tbtn.setVisibility(View.GONE);
+								pb.setVisibility(View.GONE);
+							}
+						});
+						 
+					}
+				}
+			}
+
 		}
 
 	}
