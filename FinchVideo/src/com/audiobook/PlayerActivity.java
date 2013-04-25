@@ -70,6 +70,9 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
+	
+	private static ProgressDialog playerDialog;
+
 	int offsetSecs = 0;
 	XPathFactory factory = XPathFactory.newInstance();
 	XPath xPath = factory.newXPath();
@@ -325,6 +328,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				        b.putInt("chProgress", chProgress);
 				        boolean inProgress = DownloadManager.s(getContext()).IsHaveTrack(bookId, chapters.get(pos).cId);
 				        b.putBoolean("inProgress", inProgress);
+				        b.putString("chapterName", ch.name);
 				        return b;
 					}
 					@Override
@@ -348,6 +352,15 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 							tbtn.setVisibility(View.GONE);
 							progress.setVisibility(View.GONE);
 						}
+						else
+						{
+							tbtn.setVisibility(View.VISIBLE);
+							progress.setVisibility(View.VISIBLE);
+						}
+						// set chapter time
+				        ((TextView) row.findViewById(R.id.chapter_name))
+						.setText(b.getString("chapterName"));
+
 						if(b.getBoolean("inProgress"))
 							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
 					}
@@ -665,12 +678,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
-		
-		
-		
-		
-		// setup in-app purchases
-	   // ...
+				
 	   
 	   // compute your public key and store it in base64EncodedPublicKey
 	   mHelper = new IabHelper(this, gs.pk);
@@ -1009,6 +1017,18 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	public void mediaPlayerInit(String bid, String chid, int range) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run()
+			{
+				playerDialog = null;
+				playerDialog = new ProgressDialog(
+						PlayerActivity.this);	
+				playerDialog.setMessage("Загрузка главы\nПожалуйста подождите...");
+				playerDialog.show();
+			}
+		});
+		
 		if (mediaPlayer == null)
 			CreateMediaPlayer();
 
@@ -1060,14 +1080,38 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 //		mediaPlayerState = PlayerState.PL_ERROR;
 		
-//		playingBookId = tmpPlayingBookId;
-//		playingChapter = tmpPlayingTrackId;
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run()
+			{
+				if(playerDialog.isShowing())
+					playerDialog.dismiss();
+			}
+		});
+		
+		// message box
+		 Toast.makeText(getApplicationContext(),
+		 "Ошибка загрузки главы",
+		 Toast.LENGTH_LONG)
+		 .show();
+
 		return false;
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer arg0) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
+
+		
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run()
+				{
+					if(playerDialog.isShowing())
+						playerDialog.dismiss();					
+				}
+			});
+		
 		// TODO Auto-generated method stub
 		// synchronized (this)
 		// {
