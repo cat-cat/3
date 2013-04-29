@@ -1,6 +1,8 @@
 package com.audiobook;
 
 public class CatalogItem {
+	public String authors;
+	public String price;
 	public String ID;
 	public String name;
 	public String subgenresCount;

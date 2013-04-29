@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -115,7 +116,7 @@ public class SearchActivity extends Activity {
     {
         //char* sqlStatement = 0;
         
-        String query = " SELECT t_abooks.abook_id AS id, title, GROUP_CONCAT(t_authors.name, ',') authors, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios,  t_abooks.abook_id AS _id  FROM t_abooks"
+        String query = " SELECT t_abooks.abook_id AS id, title, GROUP_CONCAT(t_authors.name, ',') authors, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceandroid END price,  t_abooks.abook_id AS _id  FROM t_abooks"
         +" LEFT JOIN"
         +" t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
         +" JOIN"
@@ -151,12 +152,16 @@ public class SearchActivity extends Activity {
 	        
 			int idxname = c.getColumnIndex("title");
 			int idxid = c.getColumnIndex("id");
+			int idxauthors = c.getColumnIndex("authors");
+			int idxprice = c.getColumnIndex("price");
 			items = new ArrayList<CatalogItem>();
 			if (c.moveToFirst()) {
 				do { 
 						CatalogItem ci = new CatalogItem();
 						ci.name = c.getString(idxname);
 						ci.ID = c.getString(idxid);
+						ci.price = c.getString(idxprice);
+						ci.authors = c.getString(idxauthors);
 						items.add(ci);
 					}
 				while (c.moveToNext());
@@ -170,6 +175,25 @@ public class SearchActivity extends Activity {
     	public void onResume()
     	{
     		super.onResume();
+
+			
+			if(gs.shouldShowPlayerButton)
+			{
+				Button button = (Button) findViewById(R.id.btn_go_player_search);
+				button.setVisibility(View.VISIBLE);
+				button.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View v) {
+						Intent myIntentA1A2 = new Intent(SearchActivity.this, PlayerActivity.class);
+						Bundle myData = new Bundle();
+						myData.putString("bid", "0");
+						myIntentA1A2.putExtras(myData);
+		
+						startActivity(myIntentA1A2);
+					}
+				});
+			}
+
+    		
 	        final ListView searchList = (ListView) findViewById(R.id.video_list);
 	        searchList.setClickable(true);
 	        searchList.setOnItemClickListener(new Clicker1());
@@ -180,9 +204,11 @@ public class SearchActivity extends Activity {
 	            null,
 	            new String[] {
 	            "id",
-	            "title"
+	            "title",
+	            "authors",
+	            "price"
 	        },
-	        new int[] { R.id.video_thumb_icon,  R.id.video_text});
+	        new int[] { R.id.video_thumb_icon,  R.id.video_text, R.id.authors_text, R.id.price_text});
 
 	        SimpleCursorAdapter.ViewBinder savb =
 	            new SimpleCursorAdapter.ViewBinder() {
@@ -201,6 +227,19 @@ public class SearchActivity extends Activity {
 	                        view.findViewById(R.id.video_thumb_icon);
 	                        gs.s().displayBookImage(items.get(cursor.getPosition()).ID, iv);
 	                        break;
+	                        
+	                    case 3: // price
+	                    	TextView pv = (TextView)
+	                    	view.findViewById(R.id.price_text);
+	                    	String priceText = cursor.getString(i);
+	                    	pv.setText(priceText);
+	                    	break;
+	                    case 2: // authors
+	                    	TextView av = (TextView)
+	                    	view.findViewById(R.id.authors_text);
+	                    	String authorsText = cursor.getString(i);
+	                    	av.setText(authorsText);
+	                    	break;
 	                }
 
 	                return true;

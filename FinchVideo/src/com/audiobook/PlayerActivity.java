@@ -86,6 +86,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	
 //	private static PlayerState mediaPlayerState = PlayerState.PL_NOT_READY;
 
+	private static int playingProgressMax = 0;
 	private static String playingBookId = "";
 	private static String playingChapter = "";
 	ArrayList<Chapter> chapters;
@@ -118,49 +119,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	 */
 	private Thread postTimeThread;
 
-//	static int metaSizeReturnValue = 0;
-//	static String metaSizePrevBid = "";
-//	static String metaSizePrevChid = "";
-//	public int metaSizeForChapter(String bid, String chid) {
-//		if (!bid.equalsIgnoreCase(metaSizePrevBid)
-//				|| !chid.equalsIgnoreCase(metaSizePrevChid)) { // ratake
-//			// metasize from
-//			// xml for new
-//			// chapter
-//			metaSizePrevBid = bid;
-//			metaSizePrevChid = chid;
-//		} else {
-//			return metaSizeReturnValue;
-//		}
-//
-//		String strMetaSize = "";
-//		for (Chapter c : chapters)
-//		{
-//			if(c.cId.equalsIgnoreCase(chid))
-//				try {
-//					strMetaSize = xPath.evaluate("file/size", c.node);
-//				} catch (XPathExpressionException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				
-//		}
-////		ArrayList<String> as =  gs.s()
-////					.getNodeList(
-////							String.format(
-////									"//abook[@id='%s']/content/track[@number='%s']/file/size",
-////									bid, chid), xml);
-//
-////		if (as.size() != 1) {
-////			Log.e("**err:", String.format(
-////					"**err: invalid meta size for book: %s, chpater: %s", bid,
-////					chid));
-////		} else
-////			metaSizeReturnValue = Integer.parseInt(as.get(0));
-//		metaSizeReturnValue = Integer.parseInt(strMetaSize);
-//
-//		return metaSizeReturnValue;
-//	}
 
 	private float calcDownProgressForBook(String bid, String chid) {
 		synchronized (this) {
@@ -209,6 +167,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		Assert.assertEquals(0, gs.s().handleSrvError(responseString));
 		Header h = response.getFirstHeader("Bought");
 		String bt = h.getValue();
+		
+		if(bt.equalsIgnoreCase("yes"))
+			gs.s().db_setBuyBook(bookId, 1);
+
 		String contents = String.format("<r><bt>%s</bt></r>", bt);
 		String fileName = gs.s().pathForBuy(bookId);
 		boolean success = gs.s().createFileAtPath(fileName, contents);
@@ -279,8 +241,23 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			}
 		});
 
-		// assigh to chapters
 		chapters = cl;
+		
+		// display chapter if return to playing book
+		if(playingChapter!=null&&bookId.equalsIgnoreCase(playingBookId)) // set chapter if not null
+		{
+			for (int i = 0; i < chapters.size(); i++) {
+				final Chapter c = chapters.get(i);
+				if( c.cId.equalsIgnoreCase(playingChapter))
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run()
+						{					
+							((TextView) findViewById(R.id.titleChapter)).setText(c.name);
+						}
+					});					
+			}				
+		}
 
 		class ChaptersAdapter extends ArrayAdapter<Chapter> {
 			private ArrayList<Chapter> chapters = new ArrayList<Chapter>();
@@ -429,7 +406,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 							// return;
 
 							downloadManager.Stop(bookId, c.cId,true,true);
-							downloadManager.RemoveFromQuery(bookId, c.cId);
+							//downloadManager.RemoveFromQuery(bookId, c.cId);
 
 							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.download));
 						}
@@ -516,7 +493,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	private void startChapter(final String chid) {
 		if (!chid.equalsIgnoreCase(playingChapter)
 				|| !bookId.equalsIgnoreCase(playingBookId)) {
-			checkChapter(chid);
 
 			
 			class startRoutine extends AsyncTask<Void,Void,int[]>
@@ -524,6 +500,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 				@Override
 				protected int[] doInBackground(Void... arg0) {
+					
+					currentTime.postDelayed(postTimeThread, 1000);
+					checkChapter(chid);
+					
 					// stop current download
 					downloadManager.Stop(playingBookId, playingChapter, true, true);
 					
@@ -595,20 +575,19 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	static int rowIdx = 0;
 
 	private class Clicker1 implements AdapterView.OnItemClickListener {
-		public void onItemClick(AdapterView<?> a, View view, int position,
+		public void onItemClick(AdapterView<?> a, View view, final int position,
 				long id) {
-
-			// message box
-			// Toast.makeText(getApplicationContext(),
-			// "Click ListItem Number " + position, Toast.LENGTH_SHORT)
-			// .show();
 
 			//
 
-			try {
-				Chapter c = chapters.get(position); // category
+//			try {
+			
+				final Chapter c = chapters.get(position); // category
+				// make row selected
+				((TextView) findViewById(R.id.titleChapter)).setText(c.name);
+				
 				int cc = chapters.size();
-
+	
 				if (position >= cc) {
 					--rowIdx; // leave at last position
 					return;
@@ -617,26 +596,39 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 					return;
 				}
 
-				// make row selected
-				((TextView) findViewById(R.id.titleChapter)).setText(c.name);
+			    new AsyncTask<Void,Void,Float>()
+			    {
 
-				// TODO: no check for tableview pointer as it is in ios
 
-				float progress = calcDownProgressForBook(bookId, c.cId);
-				View listItem = getListItem(position);
+					@Override
+					protected Float doInBackground(Void... params) {		
+						// TODO: no check for tableview pointer as it is in ios
+		
+						float progress = calcDownProgressForBook(bookId, c.cId);
+						return progress;
+					}
+					
+					@Override
+					protected void onPostExecute(Float progress)
+					{
+						View listItem = getListItem(position);
+						
+						if (progress < 100.0) {
+							ToggleButton btn = (ToggleButton) listItem
+									.findViewById(R.id.btn_download);
+							if(gs.s().connected())
+								btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+						}
 
-				if (progress < 100.0) {
-					ToggleButton btn = (ToggleButton) listItem
-							.findViewById(R.id.btn_download);
-					btn.performClick();
-				}
+					}
+			    }.execute();
 
 				startChapter(c.cId);
 
-			} catch (Exception e) {
-				Toast.makeText(getBaseContext(), e.getMessage(),
-						Toast.LENGTH_SHORT).show();
-			}
+//			} catch (Exception e) {
+//				Toast.makeText(getBaseContext(), e.getMessage(),
+//						Toast.LENGTH_SHORT).show();
+//			}
 		}
 	}
 	
@@ -653,6 +645,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	@Override
 	public void onDestroy() {
 	   super.onDestroy();
+	   
+	   if(bookId.equalsIgnoreCase(playingBookId))
+		   playingProgressMax = progressbar.getMax();
+	   
 	   if (mHelper != null) mHelper.dispose();
 	   mHelper = null;
 	}
@@ -679,6 +675,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 				
+		gs.shouldShowPlayerButton = true;
 	   
 	   // compute your public key and store it in base64EncodedPublicKey
 	   mHelper = new IabHelper(this, gs.pk);
@@ -735,6 +732,21 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		Intent myLocalIntent = getIntent();
 		Bundle myBundle = myLocalIntent.getExtras();
 		bookId = myBundle.getString("bid");
+		
+
+		currentTime = (TextView) findViewById(R.id.player_current_time);
+		durationTime = (TextView) findViewById(R.id.player_duration_time);
+		progressbar = (SeekBar) findViewById(R.id.player_progressbar);
+		progressbar.setProgress(0);
+		progressbar.setMax(100);
+		currentTime.setText("00:00");
+		durationTime.setText("00:00");
+		progressbar.setSecondaryProgress(0);
+		if(bookId.equalsIgnoreCase("0")) // return to playing book
+		{
+			bookId = playingBookId;
+			progressbar.setMax(playingProgressMax);
+		}
 		
 		class loadTask extends AsyncTask<Void,Void,ArrayAdapter<Chapter>>
 		{
@@ -856,8 +868,22 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								m("Поздравляем, книга куплена!");
 								Log.e("MyTrace:", "++Поздравляем, книга ваша! " + result);
 								
-								// check is useless because at this point payment already collected
-								MyShop.s().startWithBook(purchase.getSku(), false);
+								final String sku = purchase.getSku();
+								new AsyncTask<Void,Void,Void>()
+								{
+
+									@Override
+									protected Void doInBackground(Void... arg0) {
+										// TODO Auto-generated method stub
+										//
+										gs.s().db_setBuyBook(sku, 1);
+										
+										// check is useless because at this point payment already collected
+										MyShop.s().startWithBook(sku, false);
+										return null;
+									}
+									
+								}.execute();
 							}
 							//					      else if (purchase.getSku().equals(SKU_PREMIUM)) {
 							//					         // give user access to premium content and update the UI
@@ -879,16 +905,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				startActivity(myIntentA1A2);
 			}
 		});
-
-		currentTime = (TextView) findViewById(R.id.player_current_time);
-		durationTime = (TextView) findViewById(R.id.player_duration_time);
-		progressbar = (SeekBar) findViewById(R.id.player_progressbar);
-		// TODO: init progress controls
-		progressbar.setProgress(0);
-		progressbar.setMax(100);
-		currentTime.setText("00:00");
-		durationTime.setText("00:00");
-		progressbar.setSecondaryProgress(0);
 
 		postTimeThread = new Thread(new Runnable() {
 			@Override
@@ -931,15 +947,25 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				// }
 				// }
 
-				currentTime.postDelayed(postTimeThread, 1000);
+				currentTime.postDelayed(postTimeThread, K);
 			}
 
 		});
-		currentTime.postDelayed(postTimeThread, 1000);
+		
+		if(bookId.equalsIgnoreCase(playingBookId))
+			currentTime.postDelayed(postTimeThread, K);
+		
 		progressbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar)
 			{
+				
+				if(!bookId.equalsIgnoreCase(playingBookId))
+				{
+					seekBar.setProgress(0);
+					return;
+				}
+
 				offsetSecs = seekBar.getProgress();
 				int osec = offsetSecs;
 				int max = seekBar.getMax();
@@ -1049,26 +1075,46 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		if (mediaPlayer.isPlaying())
 			mediaPlayer.stop();
 
-		mediaPlayer.reset();
-		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
+		boolean error = false;
 		try {
+			mediaPlayer.reset();
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.setDataSource(playUrl);
+			mediaPlayer.prepareAsync();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			error = true;
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			error = true;
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			error = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			error = true;			
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			error = true;			
 		}
-		mediaPlayer.prepareAsync();
 //		mediaPlayerState = PlayerState.PL_NOT_READY;
+		
+		if(error)
+		{
+			// message box
+			 Toast.makeText(getApplicationContext(),
+			 "Ошибка плеера\nПопроуйте ещё раз",
+			 Toast.LENGTH_LONG)
+			 .show();
+			 
+			 return;
+		}
 		
 		tmpPlayingBookId = bid;
 		tmpPlayingTrackId = chid;
@@ -1092,7 +1138,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		// message box
 		 Toast.makeText(getApplicationContext(),
 		 "Ошибка загрузки главы",
-		 Toast.LENGTH_LONG)
+		 Toast.LENGTH_SHORT)
 		 .show();
 
 		return false;
@@ -1102,15 +1148,15 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	public void onPrepared(MediaPlayer arg0) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 
-		
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run()
-				{
-					if(playerDialog.isShowing())
-						playerDialog.dismiss();					
-				}
-			});
+	
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run()
+			{
+				if(playerDialog.isShowing())
+					playerDialog.dismiss();					
+			}
+		});
 		
 		// TODO Auto-generated method stub
 		// synchronized (this)
@@ -1179,6 +1225,12 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 		}
 		
+		if(!bookId.equalsIgnoreCase(playingBookId))
+		{ 
+			Log.i("MyTrace:","++ Отображается оглавление другой книги!");
+			return;
+		}
+		
 		if(bookID.equalsIgnoreCase(playingBookId)&&trackID.equalsIgnoreCase(playingChapter))
 		{
 			final int fprogress = progress;
@@ -1190,19 +1242,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				}
 			});
 		}
-
-		if(!bookId.equalsIgnoreCase(playingBookId))
-		{ 
-			Log.i("MyTrace:","++ Отображается оглавление другой книги!");
-			return;
-		}
 		
 		// TODO: sometimes chapters is null
 		if(chapters==null)
 			return;
 		
 		for (int i = 0; i < chapters.size(); i++) {
-			if( chapters.get(i).cId == trackID)
+			if( chapters.get(i).cId.equalsIgnoreCase(trackID))
 			{
 				View v = getListItem(i);
 				if(v != null)
@@ -1246,6 +1292,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				created = false;
 			}
 			Assert.assertTrue(created);
+			
+			if(!bookId.equalsIgnoreCase(bookID))
+				return;
 			
 			for (int i = 0; i < chapters.size(); i++) {
 				if( chapters.get(i).cId == trackID)

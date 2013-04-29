@@ -20,6 +20,14 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@color/medium_gray"
                 >
+        <Button
+            android:id="@+id/btn_go_player_search"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="player"
+            android:visibility="gone" />
+        
             <com.audiobook.MesgEditText
                     android:id="@+id/video_search_box"
                     android:width="0px"

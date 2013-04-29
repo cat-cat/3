@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -57,6 +58,7 @@ import android.widget.Toast;
 
 
 public class gs extends Handler {
+	public static boolean shouldShowPlayerButton = false;
 	XPathFactory factory = XPathFactory.newInstance();
 	XPath xPath = factory.newXPath();
 
@@ -105,6 +107,21 @@ public class gs extends Handler {
 		return true;
 	}
 
+	public void db_setBuyBook(String bid, int bought)
+	{
+		String sql = String.format("UPDATE t_abooks"
+				+" SET bought=%d WHERE abook_id='%s'", bought, bid);
+		
+
+		SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+				SQLiteDatabase.OPEN_READWRITE
+				| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+		
+		db.execSQL(sql);
+
+		db.close();		
+	}
+	
 	private String db_GetLastUpdate()
 	{
 		String sql = "SELECT id, id _id"
@@ -177,11 +194,33 @@ public class gs extends Handler {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			// TODO: if connection bad ar will be null
+			if(ar==null)
+				return false;
+			
 			if (ar.size()>0) {
-				int nc = Integer.parseInt( ar.get(0));
+				final int nc = Integer.parseInt( ar.get(0));
 
 				if (nc > 0) {
-					m(String.format("Обновление! Получено новых книг: %d", nc));
+					
+					new AsyncTask<Void,Void,Void>()
+					{
+
+						@Override
+						protected Void doInBackground(Void... arg0) {
+							// TODO Auto-generated method stub
+							return null;
+						}
+						
+						@Override
+						protected void onPostExecute(Void args)
+						{
+							m(String.format("Обновление! Получено новых книг: %d", nc));							
+						}
+						
+					}.execute();
+					 
 				}
 			}
 		} catch (ClientProtocolException e1) {
@@ -216,7 +255,16 @@ public class gs extends Handler {
 		{
 			Log.e("MyTrace:", "++ update catalog is called");
 
-			updateCatalog();
+			new AsyncTask<Void,Void,Void>()
+			{
+
+				@Override
+				protected Void doInBackground(Void... arg0) {
+					updateCatalog();
+					return null;
+				}
+				
+			}.execute();
 		}
 	}
 

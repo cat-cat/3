@@ -35,9 +35,10 @@ public class MesgEditText extends EditText {
     @Override
     public Editable getText() {
         CharSequence current = super.getText();
-        if ((current != null) && mMesgText.equals(current)) {
+        if ((current != null) && mMesgText!=null && mMesgText.equals(current)) {
             current = "";
         }
+    	
         return Editable.Factory.getInstance().newEditable(current);
     }
 

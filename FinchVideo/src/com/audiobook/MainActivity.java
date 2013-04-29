@@ -15,6 +15,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -44,6 +45,30 @@ public class MainActivity extends Activity {
 
 	private ArrayList<CatalogItem> items;
 
+
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		if(gs.shouldShowPlayerButton)
+		{
+			Button button = (Button) findViewById(R.id.btn_go_player_main);
+			button.setVisibility(View.VISIBLE);
+			button.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					Intent myIntentA1A2 = new Intent(MainActivity.this, PlayerActivity.class);
+					Bundle myData = new Bundle();
+					myData.putString("bid", "0");
+					myIntentA1A2.putExtras(myData);
+	
+					startActivity(myIntentA1A2);
+				}
+			});
+		}
+	}
+
+	
 	@Override
 	public void onDestroy()
 	{

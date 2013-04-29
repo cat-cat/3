@@ -32,48 +32,44 @@ public final class R {
         public static final int video_reload=0x7f020005;
     }
     public static final class id {
+        public static final int authors_text=0x7f080023;
         public static final int btn_buy=0x7f080008;
-        public static final int btn_delete=0x7f080014;
-        public static final int btn_download=0x7f08000e;
+        public static final int btn_delete=0x7f080015;
+        public static final int btn_download=0x7f08000f;
         public static final int btn_downloads=0x7f080007;
+        public static final int btn_go_player=0x7f08000b;
+        public static final int btn_go_player_main=0x7f08001a;
+        public static final int btn_go_player_my=0x7f08001c;
+        public static final int btn_go_player_search=0x7f08001d;
         public static final int btn_nfo=0x7f080009;
         public static final int btn_play=0x7f080005;
-        public static final int btn_restore=0x7f080018;
-        public static final int chapter_list_item=0x7f08000d;
-        public static final int chapter_name=0x7f080011;
-        public static final int chapter_progress=0x7f08000f;
-        public static final int chapter_time=0x7f080010;
-        public static final int chapters_list_item=0x7f08000c;
+        public static final int btn_restore=0x7f080019;
+        public static final int chapter_list_item=0x7f08000e;
+        public static final int chapter_name=0x7f080012;
+        public static final int chapter_progress=0x7f080010;
+        public static final int chapter_time=0x7f080011;
+        public static final int chapters_list_item=0x7f08000d;
         public static final int chapters_list_view=0x7f080004;
-        public static final int downloads_list=0x7f080012;
-        public static final int downloads_list_item=0x7f080013;
-        public static final int menu_settings=0x7f080029;
-        public static final int mybooks_list_item=0x7f080019;
+        public static final int downloads_list=0x7f080013;
+        public static final int downloads_list_item=0x7f080014;
+        public static final int menu_settings=0x7f080025;
+        public static final int mybooks_list_item=0x7f08001b;
         public static final int player_current_time=0x7f080002;
         public static final int player_duration_time=0x7f080001;
         public static final int player_progressbar=0x7f080000;
-        public static final int simple_video_description_edit=0x7f08001f;
-        public static final int simple_video_description_label=0x7f08001e;
-        public static final int simple_video_insert_button=0x7f080022;
-        public static final int simple_video_list=0x7f080023;
-        public static final int simple_video_list_item=0x7f080024;
-        public static final int simple_video_media_id_edit=0x7f080021;
-        public static final int simple_video_media_id_label=0x7f080020;
-        public static final int simple_video_title_edit=0x7f08001d;
-        public static final int simple_video_title_label=0x7f08001c;
-        public static final int simple_video_title_text=0x7f080025;
-        public static final int text_title=0x7f080016;
+        public static final int price_text=0x7f080024;
+        public static final int text_title=0x7f080017;
         public static final int title=0x7f080003;
         public static final int titleChapter=0x7f080006;
-        public static final int title_chapter=0x7f080015;
+        public static final int title_chapter=0x7f080016;
         public static final int video_layout=0x7f08000a;
-        public static final int video_list=0x7f08000b;
-        public static final int video_list_item=0x7f080027;
-        public static final int video_search_box=0x7f08001a;
-        public static final int video_text=0x7f080017;
-        public static final int video_thumb_icon=0x7f080028;
-        public static final int video_update_button=0x7f08001b;
-        public static final int videos_list_item=0x7f080026;
+        public static final int video_list=0x7f08000c;
+        public static final int video_list_item=0x7f080021;
+        public static final int video_search_box=0x7f08001e;
+        public static final int video_text=0x7f080018;
+        public static final int video_thumb_icon=0x7f080022;
+        public static final int video_update_button=0x7f08001f;
+        public static final int videos_list_item=0x7f080020;
     }
     public static final class layout {
         public static final int activity_player=0x7f030000;
@@ -86,9 +82,7 @@ public final class R {
         public static final int mybooks_list_item=0x7f030007;
         public static final int mybooks_query_activity=0x7f030008;
         public static final int search_query_activity=0x7f030009;
-        public static final int simple_video_activity=0x7f03000a;
-        public static final int simple_video_list_item=0x7f03000b;
-        public static final int video_list_item=0x7f03000c;
+        public static final int video_list_item=0x7f03000a;
     }
     public static final class menu {
         public static final int activity_player=0x7f070000;

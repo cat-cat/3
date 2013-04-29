@@ -39,6 +39,28 @@ public class MyBooksActivity extends Activity {
 		db.execSQL(sql, new String[]{bid});
 		db.close();
     }
+
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		if(gs.shouldShowPlayerButton)
+		{
+			Button button = (Button) findViewById(R.id.btn_go_player_my);
+			button.setVisibility(View.VISIBLE);
+			button.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					Intent myIntentA1A2 = new Intent(MyBooksActivity.this, PlayerActivity.class);
+					Bundle myData = new Bundle();
+					myData.putString("bid", "0");
+					myIntentA1A2.putExtras(myData);
+	
+					startActivity(myIntentA1A2);
+				}
+			});
+		}
+	}
     
     @Override
     public void onDestroy()

@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 //import android.util.Log;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * <p>   Менеджер обеспечивающий загрузку файлов из Интернет.
@@ -545,6 +546,13 @@ public class DownloadManager
 							{
 								audio.Start();
 								canStartAudioLoad = Boolean.FALSE;
+							} else
+							{
+								// TODO:
+								 //message box
+//								 Toast.makeText(null,
+//								 "добавлено в очередь загрузки", Toast.LENGTH_SHORT)
+//								 .show();
 							}
 					}
 				}
