@@ -253,7 +253,7 @@ public class gs extends Handler {
 	{
 		if(nlistener.getState()==NetworkConnectivityListener.State.CONNECTED)
 		{
-			Log.e("MyTrace:", "++ update catalog is called");
+			Log.i("MyTrace:", "++ update catalog is called");
 
 			new AsyncTask<Void,Void,Void>()
 			{

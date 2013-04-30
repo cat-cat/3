@@ -70,7 +70,7 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
-	
+	private boolean isBought = false;
 	private static ProgressDialog playerDialog;
 
 	int offsetSecs = 0;
@@ -157,6 +157,22 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		mediaPlayer.setOnErrorListener(this);
 	}
 
+	private boolean checkBuyBook()
+	{
+		boolean res = false;
+		String pathb = gs.s().pathForBuy(bookId);
+		File f = new File(pathb);
+
+		if(f.exists())
+		{
+			String fc = gs.s().fileToString(pathb);
+			if(fc.contains("yes"))
+				res = true;
+		}
+		
+		return res;
+	}
+	
 	private String requestBookMeta() {
 		// TODO: alert user about loading chapters
 
@@ -178,8 +194,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		success = gs.s().createFileAtPath(gs.s().pathForBookMeta(bookId),
 				responseString);
 		Assert.assertTrue(success);
-
-		// TODO: checkBuyBook
 
 		return responseString;
 	}
@@ -464,6 +478,44 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		}
 	}
 
+	// TODO:
+//	int getPossibleProgressVal()
+//	{
+//		int actual = gs.s().actualSizeForChapter(tmpPlayingBookId, tmpPlayingTrackId);
+//		int meta = gs.s().metaSizeForChapter(tmpPlayingBookId, tmpPlayingTrackId);
+//		float procSize = ((float)actual/(float)meta)*100;
+//		int length = gs.s().metaLengthForChapter(tmpPlayingBookId, tmpPlayingTrackId);
+//		int val =(int) (procSize/100)*length;
+//		
+//		return val;
+//	}
+	
+	float db_GetTrackProgress() {
+		float id = 0.0f;
+	    if (mediaPlayer==null || playingChapter==null || playingChapter.length()==0 || !bookId.equalsIgnoreCase(tmpPlayingBookId)) {
+	        return id;
+	    }
+		
+		String sql = String.format("SELECT current_progress, current_progress _id from t_tracks where track_id='%s' AND abook_id='%s'"
+               + " LIMIT 0,1", tmpPlayingTrackId, tmpPlayingBookId);
+
+		SQLiteDatabase  db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+				SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+		Cursor c = db.rawQuery(sql, null);
+
+		int idxid = c.getColumnIndex("current_progress");
+		if (c.moveToFirst()) {
+			do { 
+				id = c.getFloat(idxid);
+			}
+			while (c.moveToNext());
+		}
+
+		db.close();
+		
+		return id;
+	}
+	
 	private void db_SaveTrackProgress() {
 		// [self runOnce];
 
@@ -493,6 +545,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	private void startChapter(final String chid) {
 		if (!chid.equalsIgnoreCase(playingChapter)
 				|| !bookId.equalsIgnoreCase(playingBookId)) {
+
+			tmpPlayingBookId = bookId;
+			tmpPlayingTrackId = chid;
 
 			
 			class startRoutine extends AsyncTask<Void,Void,int[]>
@@ -525,7 +580,25 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								bookId, chid);
 						
 					if(!NeedToStartWithFirstDownloadedBytes)
-						mediaPlayerInit(bookId, chid, 0);
+					{
+					    float stps = db_GetTrackProgress();
+						offsetSecs = (int) stps;
+						int osec = offsetSecs;
+						int max = playingProgressMax;
+						int sz = gs.s().metaSizeForChapter(tmpPlayingBookId, tmpPlayingTrackId);
+						//SeekTo(seekBar.getProgress(), false);
+						long range = (long) (((double)osec / max) * (long)sz);
+
+						// TODO: calculate possible progress val
+//					    if(range!=0)
+//					    {
+//					        int val = getPossibleProgressVal();
+//					        if(range >= val)
+//					        	range = val;
+//					    }
+
+						mediaPlayerInit(bookId, chid, (int)range);
+					}
 		
 		
 					//handlePlayPause();
@@ -540,7 +613,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				@Override
 				public void onPostExecute(int[] args)
 				{
-					progressbar.setMax(args[0]);
+					playingProgressMax = args[0];
+					progressbar.setMax(playingProgressMax);
 					progressbar.setProgress(0);
 					progressbar.setSecondaryProgress(args[1]);					
 				}
@@ -552,7 +626,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			{
 				NeedToStartWithFirstDownloadedBytes = false;
 				
-				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
 				builder.setMessage("Для загрузки главы нужен интернет!\nИнтернет не доступен.")
 				       .setCancelable(false)
 				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -564,11 +638,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				alert.show();
 				return;
 			}
-
 			
-			// set for onProgressChanged to trigger
-			tmpPlayingBookId = bookId;
-			tmpPlayingTrackId = chid;
 		}
 	}
 
@@ -648,6 +718,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	   
 	   if(bookId.equalsIgnoreCase(playingBookId))
 		   playingProgressMax = progressbar.getMax();
+	   
+	   if(mediaPlayer!=null && mediaPlayer.isPlaying())
+		   db_SaveTrackProgress();
 	   
 	   if (mHelper != null) mHelper.dispose();
 	   mHelper = null;
@@ -748,6 +821,79 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			progressbar.setMax(playingProgressMax);
 		}
 		
+		// setup buy button
+		final Button btnBuy = ((Button) findViewById(R.id.btn_buy));
+		btnBuy.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if(!gs.s().connected())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+					builder.setMessage("Для совершения покупки нужен интернет.\nИнтернет не доступен.")
+					       .setCancelable(false)
+					       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                //do things
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+					return;
+				}
+
+				try {
+					// TODO: REMOVE gs.testProduct !!!
+					mHelper.launchPurchaseFlow(PlayerActivity.this, gs.testProduct, 10001,   
+							new IabHelper.OnIabPurchaseFinishedListener() {
+						@Override
+						public void onIabPurchaseFinished(IabResult result, Purchase purchase) 
+						{
+							if (result.isFailure()) {
+								Log.e("MyTrace:", "**Error purchasing: " + result);
+								//mHelper.handleActivityResult(0, 0, null);
+								return;
+							}      
+							else if (purchase.getSku().equals(gs.testProduct)) {
+								// TODO: check developer payload
+								String dp = purchase.getDeveloperPayload();
+								// consume the gas and update the UI
+								m("Поздравляем, книга куплена!");
+								Log.e("MyTrace:", "++Поздравляем, книга ваша! " + result);
+								
+								btnBuy.setVisibility(View.GONE);
+								isBought = true;
+								
+								final String sku = purchase.getSku();
+								new AsyncTask<Void,Void,Void>()
+								{
+
+									@Override
+									protected Void doInBackground(Void... arg0) {
+										// TODO Auto-generated method stub
+										//
+										gs.s().db_setBuyBook(sku, 1);
+										
+										// check is useless because at this point payment already collected
+										MyShop.s().startWithBook(sku, false);
+										return null;
+									}
+									
+								}.execute();
+							}
+							//					      else if (purchase.getSku().equals(SKU_PREMIUM)) {
+							//					         // give user access to premium content and update the UI
+							//					      }
+						}
+					},  bookId);
+				} catch (java.lang.IllegalStateException e) {
+					e.printStackTrace();
+					m("Ошибка при покупке. Обратитесь в поддержку.");
+					Log.e("MyTrace:","**err: unable to start purchase flow");
+				}
+
+			}
+		});
+		
+				
 		class loadTask extends AsyncTask<Void,Void,ArrayAdapter<Chapter>>
 		{
 			private final ProgressDialog dialog = new ProgressDialog(
@@ -755,7 +901,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 			// can use UI thread here
 			protected void onPreExecute() {
-				this.dialog.setMessage("обновление списка...");
+				this.dialog.setMessage("загрузка оглавления...");
 				this.dialog.show();
 			}
 
@@ -763,7 +909,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			protected ArrayAdapter<Chapter> doInBackground(Void... params) {
 				db_InsertMyBook(bookId);
 				// ///////////////////////////////////////////
-
+								
+				isBought = checkBuyBook();
+				
 				xml = gs.s().fileToString(
 						gs.s().dirsForBook(bookId) + "/bookMeta.xml");
 				
@@ -802,7 +950,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				}
 				
 				((TextView) findViewById(R.id.title)).setText(bookTitle);				
-				searchList.setAdapter(aac);				
+				searchList.setAdapter(aac);
+				
+				if(!isBought)
+					btnBuy.setVisibility(View.VISIBLE);
 			}
 		}
 		new loadTask().execute();
@@ -830,73 +981,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 						mediaPlayer.start();
 			}
 		});
-		
-		// setup buy button
-		((Button) findViewById(R.id.btn_buy))
-		.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(!gs.s().connected())
-				{
-					AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
-					builder.setMessage("Для совершения покупки нужен интернет.\nИнтернет не доступен.")
-					       .setCancelable(false)
-					       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					           public void onClick(DialogInterface dialog, int id) {
-					                //do things
-					           }
-					       });
-					AlertDialog alert = builder.create();
-					alert.show();
-					return;
-				}
 
-				try {
-					mHelper.launchPurchaseFlow(PlayerActivity.this, gs.testProduct, 10001,   
-							new IabHelper.OnIabPurchaseFinishedListener() {
-						@Override
-						public void onIabPurchaseFinished(IabResult result, Purchase purchase) 
-						{
-							if (result.isFailure()) {
-								Log.e("MyTrace:", "**Error purchasing: " + result);
-								//mHelper.handleActivityResult(0, 0, null);
-								return;
-							}      
-							else if (purchase.getSku().equals(gs.testProduct)) {
-								// TODO: check developer payload
-								String dp = purchase.getDeveloperPayload();
-								// consume the gas and update the UI
-								m("Поздравляем, книга куплена!");
-								Log.e("MyTrace:", "++Поздравляем, книга ваша! " + result);
-								
-								final String sku = purchase.getSku();
-								new AsyncTask<Void,Void,Void>()
-								{
 
-									@Override
-									protected Void doInBackground(Void... arg0) {
-										// TODO Auto-generated method stub
-										//
-										gs.s().db_setBuyBook(sku, 1);
-										
-										// check is useless because at this point payment already collected
-										MyShop.s().startWithBook(sku, false);
-										return null;
-									}
-									
-								}.execute();
-							}
-							//					      else if (purchase.getSku().equals(SKU_PREMIUM)) {
-							//					         // give user access to premium content and update the UI
-							//					      }
-						}
-					},  bookId);
-				} catch (java.lang.IllegalStateException e) {
-					e.printStackTrace();
-					Log.e("MyTrace:","**err: unable to start purchase flow");
-				}
-
-			}
-		});
 
 		Button button2 = (Button) findViewById(R.id.btn_downloads);
 		button2.setOnClickListener(new View.OnClickListener() {
@@ -905,8 +991,21 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				startActivity(myIntentA1A2);
 			}
 		});
+		
+		Button btnBook = (Button) findViewById(R.id.btn_book);
+		btnBook.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Intent myIntentA1A2 = new Intent(PlayerActivity.this, BookActivity.class);
+				Bundle b = new Bundle();
+				b.putString("bid", bookId);
+				myIntentA1A2.putExtras(b);
+				startActivity(myIntentA1A2);
+			}
+		});
+
 
 		postTimeThread = new Thread(new Runnable() {
+			boolean buyQueryStarted = false;
 			@Override
 			public void run() {
 //				if (Thread.interrupted())
@@ -917,6 +1016,52 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 					int seconds = (int) mediaPlayer.getCurrentPosition() / K;
 					seconds+=offsetSecs;
+					
+					// check buy book
+					if(!isBought && bookId.equalsIgnoreCase(playingBookId))
+					{
+						float actual = seconds;
+						float max = progressbar.getMax();
+						float procSize = (actual/max)*100;
+						
+						if(procSize>70.0 && actual>350.0 && !buyQueryStarted)
+						{
+							buyQueryStarted = true;
+							mediaPlayer.pause();
+														
+							AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
+							builder.setMessage("Для продолжения прослушивания необходимо купить книгу.")
+									.setTitle("Ограничение прослушивания")
+							       .setCancelable(false)
+							       .setPositiveButton("Купить", new DialogInterface.OnClickListener() {
+							           public void onClick(DialogInterface dialog, int id) {
+							        	   buyQueryStarted = false;
+							                //do things
+						        		   ((Button) findViewById(R.id.btn_buy)).performClick();
+						        		   buyQueryStarted = false;
+							           }
+							       	})
+					               .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+					                   public void onClick(DialogInterface dialog, int id) {
+					                       // User cancelled the dialog
+						        		   buyQueryStarted = false;
+					                   }
+					               });
+
+							try {
+								AlertDialog alert = builder.create();
+								alert.show();
+							}catch(Exception e)
+							{
+								// TODO: probably this activity is invisible when come here
+								e.printStackTrace();
+						         Log.e("MyTrace:", "**err: Error showing buy dialog, is activity visible?");
+							}
+
+						}
+					}
+					
+					
 					currentTime.setText(Formatters.Time(seconds));
 					durationTime.setText(Formatters.Time(progressbar.getMax()-seconds));
 					progressbar.setProgress(seconds);
