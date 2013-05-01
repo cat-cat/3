@@ -25,6 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MyBooksActivity extends Activity {
+    final String selection = "SELECT mb.abook_id id, title, mb.abook_id _id"
+            +" FROM mybooks mb"
+            +" JOIN t_abooks ab ON ab.abook_id = mb.abook_id"
+            +" ORDER BY last_touched DESC";
+
 	private Cursor c = null;
 	private SQLiteDatabase db = null;
     private ArrayList<CatalogItem> items;
@@ -37,6 +42,12 @@ public class MyBooksActivity extends Activity {
 				SQLiteDatabase.OPEN_READWRITE|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
 		db.execSQL(sql, new String[]{bid});
+		
+		// delete chapters
+		sql = "DELETE FROM t_tracks WHERE abook_id = ?";
+
+		db.execSQL(sql, new String[]{bid});
+		
 		db.close();
     }
 
@@ -44,7 +55,29 @@ public class MyBooksActivity extends Activity {
 	public void onResume()
 	{
 		super.onResume();
+
+		if (db == null)
+			db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+					SQLiteDatabase.OPEN_READONLY
+							| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+		c = db.rawQuery(selection, null);
+
+		int idxname = c.getColumnIndex("title");
+		int idxid = c.getColumnIndex("id");
+		items = new ArrayList<CatalogItem>();
+		if (c.moveToFirst()) {
+			do {
+				CatalogItem ci = new CatalogItem();
+				ci.name = c.getString(idxname);
+				ci.ID = c.getString(idxid);
+				items.add(ci);
+			} while (c.moveToNext());
+		}
+		startManagingCursor(c);
+		mAdapter.changeCursor(c);	
 		
+		
+		// set up player button
 		if(gs.shouldShowPlayerButton)
 		{
 			Button button = (Button) findViewById(R.id.btn_go_player_my);
@@ -128,36 +161,6 @@ public class MyBooksActivity extends Activity {
         searchList.setClickable(true);
         searchList.setOnItemClickListener(new Clicker1());
                 
-        final String selection = "SELECT mb.abook_id id, title, mb.abook_id _id"
-                                   +" FROM mybooks mb"
-                                   +" JOIN t_abooks ab ON ab.abook_id = mb.abook_id"
-                                   +" ORDER BY last_touched DESC";
-        
-        Intent myLocalIntent = getIntent();
-        Bundle myBundle = myLocalIntent.getExtras();
-
-        String parent = myBundle.getString("bid");
-
-    	if(db==null)
-	        db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-					SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-		c = db.rawQuery(selection, null);
-        
-		int idxname = c.getColumnIndex("title");
-		int idxid = c.getColumnIndex("id");
-		items = new ArrayList<CatalogItem>();
-		if (c.moveToFirst()) {
-			do { 
-					CatalogItem ci = new CatalogItem();
-					ci.name = c.getString(idxname);
-					ci.ID = c.getString(idxid);
-					items.add(ci);
-				}
-			while (c.moveToNext());
-		}
-		startManagingCursor(c);
-        // have to reset this on a new search
-
         // Maps video entries from the database to views
         mAdapter = new SimpleCursorAdapter(this,
             R.layout.mybooks_list_item,
