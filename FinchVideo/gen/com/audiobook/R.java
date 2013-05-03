@@ -42,7 +42,7 @@ public final class R {
     public static final class id {
         public static final int authors_h=0x7f0a0011;
         public static final int authors_label=0x7f0a0012;
-        public static final int authors_text=0x7f0a0035;
+        public static final int authors_text=0x7f0a0034;
         public static final int authors_value=0x7f0a0013;
         public static final int bookd_description=0x7f0a000d;
         public static final int bookd_image=0x7f0a000c;
@@ -53,12 +53,12 @@ public final class R {
         public static final int btn_download=0x7f0a0021;
         public static final int btn_downloads=0x7f0a0007;
         public static final int btn_go_player=0x7f0a001e;
-        public static final int btn_go_player_main=0x7f0a002c;
-        public static final int btn_go_player_my=0x7f0a002e;
-        public static final int btn_go_player_search=0x7f0a002f;
+        public static final int btn_go_player_main=0x7f0a002b;
+        public static final int btn_go_player_my=0x7f0a002d;
+        public static final int btn_go_player_search=0x7f0a002e;
         public static final int btn_nfo=0x7f0a000a;
         public static final int btn_play=0x7f0a0005;
-        public static final int btn_restore=0x7f0a002b;
+        public static final int btn_restore=0x7f0a002a;
         public static final int chapter_name=0x7f0a0024;
         public static final int chapter_progress=0x7f0a0022;
         public static final int chapter_time=0x7f0a0023;
@@ -69,14 +69,14 @@ public final class R {
         public static final int length_h=0x7f0a0017;
         public static final int length_label=0x7f0a0018;
         public static final int length_value=0x7f0a0019;
-        public static final int menu_settings=0x7f0a0036;
-        public static final int mybooks_list_item=0x7f0a002d;
+        public static final int menu_settings=0x7f0a0035;
+        public static final int mybooks_list_item=0x7f0a002c;
         public static final int player_current_time=0x7f0a0003;
         public static final int player_duration_time=0x7f0a0002;
         public static final int player_progressbar=0x7f0a0000;
         public static final int price_h=0x7f0a000e;
         public static final int price_label=0x7f0a000f;
-        public static final int price_text=0x7f0a0034;
+        public static final int price_text=0x7f0a0033;
         public static final int price_value=0x7f0a0010;
         public static final int readers_h=0x7f0a0014;
         public static final int readers_label=0x7f0a0015;
@@ -84,17 +84,16 @@ public final class R {
         public static final int size_h=0x7f0a001a;
         public static final int size_label=0x7f0a001b;
         public static final int size_value=0x7f0a001c;
-        public static final int text_title=0x7f0a0029;
+        public static final int text_title=0x7f0a0028;
         public static final int title=0x7f0a0001;
         public static final int titleChapter=0x7f0a0006;
-        public static final int title_chapter=0x7f0a0028;
         public static final int video_layout=0x7f0a001d;
         public static final int video_list=0x7f0a001f;
-        public static final int video_list_item=0x7f0a0032;
-        public static final int video_search_box=0x7f0a0030;
-        public static final int video_text=0x7f0a002a;
-        public static final int video_thumb_icon=0x7f0a0033;
-        public static final int video_update_button=0x7f0a0031;
+        public static final int video_list_item=0x7f0a0031;
+        public static final int video_search_box=0x7f0a002f;
+        public static final int video_text=0x7f0a0029;
+        public static final int video_thumb_icon=0x7f0a0032;
+        public static final int video_update_button=0x7f0a0030;
     }
     public static final class layout {
         public static final int activity_player=0x7f030000;
