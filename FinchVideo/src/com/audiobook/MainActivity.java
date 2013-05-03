@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.audiobook.MainActivity;
 import com.audiobook.R;
+import com.google.analytics.tracking.android.EasyTracker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +34,8 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 /**
  * Slightly more sophisticated FinchVideo search application that allows a user
  * to type a search query and see network results update as they are received
@@ -40,11 +43,26 @@ import java.util.ArrayList;
  * one in the graphical list display as they are parsed from network data.
  */
 public class MainActivity extends Activity {
-	private SQLiteDatabase db = null;
 	private SimpleCursorAdapter mAdapter;
 
 	private ArrayList<CatalogItem> items;
 
+
+	@Override
+	  public void onStart() {
+	    super.onStart();
+	    // The rest of your onStart() code.
+	    EasyTracker.getInstance().activityStart(this); // Add this method.
+	    
+	    
+	  }
+
+	  @Override
+	  public void onStop() {
+	    super.onStop();
+	    // The rest of your onStop() code.
+	    EasyTracker.getInstance().activityStop(this); // Add this method.
+	  }
 
 	@Override
 	public void onResume()
@@ -57,6 +75,7 @@ public class MainActivity extends Activity {
 			button.setVisibility(View.VISIBLE);
 			button.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
+					
 					Intent myIntentA1A2 = new Intent(MainActivity.this, PlayerActivity.class);
 					Bundle myData = new Bundle();
 					myData.putString("bid", "0");
@@ -73,9 +92,9 @@ public class MainActivity extends Activity {
 	public void onDestroy()
 	{
 		super.onDestroy();
-		if(db!=null)
-			db.close();
-
+    	if(gs.db!=null){
+	        gs.db.close();
+    	}
 	}
 
 	private class Clicker1 implements AdapterView.OnItemClickListener {
@@ -89,6 +108,7 @@ public class MainActivity extends Activity {
 			// 
 
 			try {
+				
 				Intent myIntentA1A2;
 				if(position == 0) // search books
 					myIntentA1A2 = new Intent(MainActivity.this, SearchActivity.class);
@@ -102,7 +122,7 @@ public class MainActivity extends Activity {
 				//				int pos = Integer.parseInt(v.getText().toString());
 				//				myData.putInt("pos", pos);
 				String name = items.get(position).name;
-				Log.i("MainActivity:CategoriIDClick:", name);
+				Log.i("MainActivity:CategoryIDClick:", name);
 				String bid = items.get(position).ID;
 				myData.putInt("pos", position);
 				myData.putString("name", name);
@@ -178,9 +198,10 @@ public class MainActivity extends Activity {
 				null,
 				new String[] {
 				"id",
-				"name"
+				"name",
+				"type"
 		},
-		new int[] { R.id.video_thumb_icon,  R.id.video_text});
+		new int[] { R.id.video_thumb_icon,  R.id.video_text, R.id.video_list_item});
 
 		class loadTask extends AsyncTask<Void,Void,Cursor>
 		{
@@ -287,6 +308,8 @@ public class MainActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
+				
+				gs.s().setDatabase();
 
 				String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
 						+ " UNION"
@@ -307,10 +330,7 @@ public class MainActivity extends Activity {
 						+ " GROUP BY name"
 						+ " ORDER BY  type, name DESC  LIMIT ?, ?";
 
-				if(db==null)
-					db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-				Cursor c = db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
+				Cursor c = gs.db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
 
 				int idxname = c.getColumnIndex("name");
 				int idxid = c.getColumnIndex("id");
@@ -338,11 +358,17 @@ public class MainActivity extends Activity {
 						view.findViewById(R.id.video_text);
 						String videoText = cursor.getString(i);
 						tv.setText(videoText);
+						((View)view.getParent()).setBackgroundColor(0xFFFFFFFF );
 
 						break;
 						case 0: // id
 							// TODO:
 							//setThumbResource(view, cursor);
+							break;
+						case 3: // type
+							int typeInt = cursor.getInt(i);
+							if(typeInt==-2||typeInt==0)
+								view.setBackgroundColor(0xFFC0C0C0 );
 							break;
 						}
 
@@ -362,6 +388,8 @@ public class MainActivity extends Activity {
 				}
 				searchList.setAdapter(mAdapter);
 				mAdapter.changeCursor(c);
+				
+				gs.s().initNetNotifier();
 			}      	
 		} // loadTask
 		new loadTask().execute();

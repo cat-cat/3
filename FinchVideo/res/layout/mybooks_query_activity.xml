@@ -19,7 +19,8 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="player"
+            android:layout_gravity="center_horizontal"
+            android:text="Плеер"
             android:visibility="gone" />
 
         <LinearLayout

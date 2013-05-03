@@ -3,6 +3,8 @@ package com.audiobook;
 import java.io.File;
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SearchActivity extends Activity {
-	private SQLiteDatabase db = null;
     private ArrayList<CatalogItem> items;
     private SimpleCursorAdapter mAdapter;
 
@@ -61,8 +62,6 @@ public class SearchActivity extends Activity {
     public void onDestroy()
     {
     	super.onDestroy();
-    	if(db!=null)
-    		db.close();
     }
     
 	private class Clicker1 implements AdapterView.OnItemClickListener {
@@ -85,6 +84,7 @@ public class SearchActivity extends Activity {
 			}
             
 			try {
+		    	
 				Intent myIntentA1A2;
 				myIntentA1A2 = new Intent(SearchActivity.this, PlayerActivity.class);
 
@@ -139,16 +139,13 @@ public class SearchActivity extends Activity {
 //            
 //            query = [query stringByAppendingString:[NSString stringWithFormat:@" GROUP BY t_abooks.abook_id ORDER BY  title"]];
         
-        	if(db==null)
-		        db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-						SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
             String lsf = sf.toLowerCase();
             
             String[] sa = null;
             if (sf!=null && !sf.isEmpty())
     			sa = new String[] {"%"+scope+"%", "%"+lsf+"%"};
     			
-    		Cursor	c = db.rawQuery(query, sa);
+    		Cursor	c = gs.db.rawQuery(query, sa);
 	        
 			int idxname = c.getColumnIndex("title");
 			int idxid = c.getColumnIndex("id");
@@ -166,7 +163,7 @@ public class SearchActivity extends Activity {
 					}
 				while (c.moveToNext());
 			}
-			startManagingCursor(c);
+			//startManagingCursor(c);
 			//db.close();
 			return c;
     }
@@ -183,6 +180,7 @@ public class SearchActivity extends Activity {
 				button.setVisibility(View.VISIBLE);
 				button.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
+				    	
 						Intent myIntentA1A2 = new Intent(SearchActivity.this, PlayerActivity.class);
 						Bundle myData = new Bundle();
 						myData.putString("bid", "0");

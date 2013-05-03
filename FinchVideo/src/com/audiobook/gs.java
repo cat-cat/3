@@ -44,6 +44,8 @@ import dataProvider.internetProvider.helpers.SourceProvider;
 import ru.old.Errors;
 
 import java.util.ArrayList;
+
+import junit.framework.Assert;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -58,12 +60,13 @@ import android.widget.Toast;
 
 
 public class gs extends Handler {
+	static public SQLiteDatabase db=null;
 	public static boolean shouldShowPlayerButton = false;
 	XPathFactory factory = XPathFactory.newInstance();
 	XPath xPath = factory.newXPath();
 
 	//public static final String testProduct = "001.trash";
-	public static final String testProduct = "android.test.purchased";
+	//public static final String testProduct = "android.test.purchased";
 
 	public static final String pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDISZUCTLy5BM4YW9p4gAkS+4FH24zB2ecBWGQ4VQN9OLgc//lH5/evqXkyKkQl5PWDrY0jWpRSf4hxlsmbEl5qpOZ6hev7Wi4SitK6paShnFSe8GEpJ5GmYlU04I66CJW8q4eqKtqupCuXWfV01DKVgrSlGrQfjcVs5Z4SRkfbxEOFmOgkSKdtlrdvSBkavfvvkFC9KM7RTRx56WWAkm7JyV0w2xzBcNGNXQ8IXamYi+08QaJPnYYClEITStfWQRPdMQHHTEF1kfb2YaZ/UBQNqSY0ltBloERwV0d1m4/0siTW8EW77ogncBIghYWmi4bWtaLuL1QuQWJz8DfRXuwIDAQAB";
 
@@ -83,9 +86,6 @@ public class gs extends Handler {
 		if(array.length == 0 || array[0].isEmpty())
 			return false;
 
-		SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READWRITE
-				| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 		try {
 			db.beginTransaction();
 
@@ -100,9 +100,8 @@ public class gs extends Handler {
 
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
+			gs.db.endTransaction();
 		}
-		db.close();
 
 		return true;
 	}
@@ -111,15 +110,8 @@ public class gs extends Handler {
 	{
 		String sql = String.format("UPDATE t_abooks"
 				+" SET bought=%d WHERE abook_id='%s'", bought, bid);
-		
-
-		SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READWRITE
-				| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-		
+				
 		db.execSQL(sql);
-
-		db.close();		
 	}
 	
 	private String db_GetLastUpdate()
@@ -129,8 +121,6 @@ public class gs extends Handler {
 				+ " ORDER BY id DESC"
 				+ " LIMIT 0,1";
 
-		SQLiteDatabase  db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 		Cursor c = db.rawQuery(sql, null);
 
 		int idxid = c.getColumnIndex("id");
@@ -142,12 +132,11 @@ public class gs extends Handler {
 			while (c.moveToNext());
 		}
 
-		db.close();
 		return id;
 	}
 
 	private boolean updateCatalog()
-	{
+	{		
 		if(!new File(dbp()).exists())
 			return false;
 
@@ -605,9 +594,21 @@ public class gs extends Handler {
 	public void setContext(Context inContext)
 	{
 		ctx = inContext;
+	}
+	
+	public void initNetNotifier()
+	{		 
+		// uses db on notifications
 		nlistener = new NetworkConnectivityListener();
 		nlistener.registerHandler(this, 1);
-		nlistener.startListening(ctx);
+		nlistener.startListening(ctx);		
+	}
+	
+	public void setDatabase()
+	{
+		 db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
+					SQLiteDatabase.OPEN_READWRITE
+							| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 	}
 
 	public String dbname()

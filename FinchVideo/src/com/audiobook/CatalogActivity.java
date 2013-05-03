@@ -3,6 +3,8 @@ package com.audiobook;
 import java.io.File;
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CatalogActivity extends Activity {
-	private SQLiteDatabase db = null;
+	ListView searchList;
 	private ArrayList<CatalogItem> items;
 	private SimpleCursorAdapter mAdapter;
 
@@ -30,6 +32,8 @@ public class CatalogActivity extends Activity {
 	public void onResume()
 	{
 		super.onResume();
+
+
 		
 		if(gs.shouldShowPlayerButton)
 		{
@@ -52,8 +56,12 @@ public class CatalogActivity extends Activity {
 	public void onDestroy()
 	{
 		super.onDestroy();
-		if(db!=null)
-			db.close();
+	}
+	
+	@Override
+	public void onPause()
+	{
+		super.onPause();
 	}
 
 	private class Clicker1 implements AdapterView.OnItemClickListener {
@@ -76,6 +84,7 @@ public class CatalogActivity extends Activity {
 			}
 
 			try {
+								
 				Intent myIntentA1A2;
 				if(items.get(position).type.equalsIgnoreCase("1")) // category
 					myIntentA1A2 = new Intent(CatalogActivity.this, CatalogActivity.class);
@@ -113,7 +122,7 @@ public class CatalogActivity extends Activity {
 		setContentView(R.layout.catalog_query_activity);
 		//Resources r = getResources();
 
-		final ListView searchList = (ListView) findViewById(R.id.video_list);
+		searchList = (ListView) findViewById(R.id.video_list);
 		searchList.setClickable(true);
 		searchList.setOnItemClickListener(new Clicker1());
 
@@ -153,10 +162,7 @@ public class CatalogActivity extends Activity {
 
 				String parent = myBundle.getString("bid");
 
-				if(db==null)
-					db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-				Cursor c = db.rawQuery(selection, new String[] {parent, parent, "0", "20000"});
+				Cursor c = gs.db.rawQuery(selection, new String[] {parent, parent, "0", "20000"});
 
 				int idxname = c.getColumnIndex("name");
 				int idxid = c.getColumnIndex("id");
@@ -176,7 +182,7 @@ public class CatalogActivity extends Activity {
 					}
 					while (c.moveToNext());
 				}
-				startManagingCursor(c);
+				//startManagingCursor(c);
 				// have to reset this on a new search
 
 				SimpleCursorAdapter.ViewBinder savb =

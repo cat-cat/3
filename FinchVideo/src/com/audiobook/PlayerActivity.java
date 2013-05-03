@@ -36,6 +36,9 @@ import com.android.vending.billing.util.IabResult;
 import com.android.vending.billing.util.Inventory;
 import com.android.vending.billing.util.Purchase;
 import com.audiobook.R;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Tracker;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -71,6 +74,10 @@ import android.widget.ToggleButton;
 
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
+
+	private Tracker mGaTracker;
+	private GoogleAnalytics mGaInstance;
+
 	
 	static AlertDialog.Builder dPurchaseBuilder = null;
 
@@ -147,12 +154,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 	private void db_InsertMyBook(String bid) {
 		String query = "INSERT OR REPLACE INTO mybooks (abook_id, last_touched) VALUES (?, CURRENT_TIMESTAMP)";
-		SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READWRITE
-						| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
-		db.execSQL(query, new String[] { bid });
-		db.close();
+		gs.db.execSQL(query, new String[] { bid });
 	}
 
 	private void CreateMediaPlayer() {
@@ -187,6 +190,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				String.format("http://%s/bookmeta.php?bid=%s&dev=%s", gs.s()
 						.Host(), bookId, gs.s().deviceId()));
 		String responseString = gs.s().responseString(response);
+		
+		// TODO: Гаргантюа и Пантагюэль - заходим, ждем загрузки главы, выходим не включая,
+		// идем до мейн активити, нажимаем кнопку плеер, падаем на нижней строке.
 		Assert.assertEquals(0, gs.s().handleSrvError(responseString));
 		Header h = response.getFirstHeader("Bought");
 		String bt = h.getValue();
@@ -360,7 +366,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 						.setText(b.getString("chapterName"));
 
 						if(b.getBoolean("inProgress"))
-							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+							//tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+							tbtn.setChecked(true);
+						else
+							tbtn.setChecked(false);
 					}
 				}
 				AsyncTask<Void,Void,Bundle> mt = new taskCR();
@@ -429,7 +438,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								}.execute();
 								// removeDownqObject(chapterIdentity);
 	
-								tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+								//tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
 							} 
 							else
 							{
@@ -448,7 +457,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 						} else { // cancel download
 
 							// TODO: if no internet
-							// tbtn.setChecked(true);
+							//tbtn.setChecked(false);
 							// return;
 
 							new AsyncTask<Void,Void,Void>()
@@ -462,7 +471,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								}
 							}.execute();
 
-							tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.download));
+							//tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.download));
 						}
 					}
 				});
@@ -539,9 +548,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		String sql = String.format("SELECT current_progress, current_progress _id from t_tracks where track_id='%s' AND abook_id='%s'"
                + " LIMIT 0,1", tmpPlayingTrackId, tmpPlayingBookId);
 
-		SQLiteDatabase  db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-		Cursor c = db.rawQuery(sql, null);
+		Cursor c = gs.db.rawQuery(sql, null);
 
 		int idxid = c.getColumnIndex("current_progress");
 		if (c.moveToFirst()) {
@@ -551,8 +558,6 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			while (c.moveToNext());
 		}
 
-		db.close();
-		
 		return id;
 	}
 	
@@ -571,15 +576,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		String.format("Progress : %f", valToSave);
 
 		String query = "INSERT OR REPLACE INTO t_tracks (abook_id, track_id, current_progress) VALUES (?, ?, ?)";
-		SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READWRITE
-						| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
-		db.execSQL(
+		gs.db.execSQL(
 				query,
 				new String[] { playingBookId, playingChapter,
 						String.valueOf(valToSave) });
-		db.close();
 	}
 
 	private void startChapter(final String chid) {
@@ -733,7 +734,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 							if(gs.s().connected())
 							{
 								btn.setChecked(true);
-								btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
+								//btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
 							}
 						}
 
@@ -779,6 +780,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	   
 	   if (mHelper != null) mHelper.dispose();
 	   mHelper = null;
+	   
 	}
 	
 	IabHelper mHelper;    
@@ -830,8 +832,17 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
-				
-		gs.shouldShowPlayerButton = true;
+		
+		// Get the GoogleAnalytics singleton. Note that the SDK uses
+	    // the application context to avoid leaking the current context.
+	    mGaInstance = GoogleAnalytics.getInstance(this);
+
+	    // Use the GoogleAnalytics singleton to get a Tracker.
+	    mGaTracker = mGaInstance.getTracker("UA-39335784-1"); // Placeholder tracking ID.
+	    // The rest of your onCreate() code.
+
+		if (android.os.Build.VERSION.SDK_INT >= 11)
+			getActionBar().hide();
 		
 		dPurchaseBuilder = new AlertDialog.Builder(PlayerActivity.this)
 		.setMessage("Для продолжения прослушивания необходимо купить книгу.")
@@ -866,7 +877,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		      
 		         // Hooray, IAB is fully set up!  
 			   List<String> additionalSkuList = new ArrayList<String>();
-			   additionalSkuList.add(gs.testProduct);
+			   //additionalSkuList.add(gs.testProduct);
+			   additionalSkuList.add(bookId);
 			   mHelper.queryInventoryAsync(true, additionalSkuList,
 					   new IabHelper.QueryInventoryFinishedListener() {
 				   @Override
@@ -878,11 +890,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				         return;
 				       }
 
-				       String applePrice =
-				          inventory.getSkuDetails(gs.testProduct).getPrice();
-
-						// message box
-						m("Price: " + applePrice);
+//				       String applePrice =
+//						  inventory.getSkuDetails(gs.testProduct).getPrice();
+//				          inventory.getSkuDetails(bookId).getPrice();
+//
+//						// message box
+//				       if(!isBought)
+//				    	   m("Цена: " + applePrice);
 
 				   }});
 		   }
@@ -945,7 +959,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 				try {
 					// TODO: REMOVE gs.testProduct !!!
-					mHelper.launchPurchaseFlow(PlayerActivity.this, gs.testProduct, 10001,   
+//					mHelper.launchPurchaseFlow(PlayerActivity.this, gs.testProduct, 10001,   
+					mHelper.launchPurchaseFlow(PlayerActivity.this, bookId, 10001,   
 							new IabHelper.OnIabPurchaseFinishedListener() {
 						@Override
 						public void onIabPurchaseFinished(IabResult result, Purchase purchase) 
@@ -955,7 +970,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								//mHelper.handleActivityResult(0, 0, null);
 								return;
 							}      
-							else if (purchase.getSku().equals(gs.testProduct)) {
+//							else if (purchase.getSku().equals(gs.testProduct)) {
+							else if (purchase.getSku().equalsIgnoreCase(bookId)) {
 								// TODO: check developer payload
 								String dp = purchase.getDeveloperPayload();
 								// consume the gas and update the UI
@@ -1054,6 +1070,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				
 				((TextView) findViewById(R.id.title)).setText(bookTitle);				
 				searchList.setAdapter(aac);
+				
+				 // Send a screen view when the Activity is displayed to the user.
+			    mGaTracker.sendView(bookTitle);
+
 				
 				if(!isBought)
 					btnBuy.setVisibility(View.VISIBLE);
@@ -1456,6 +1476,29 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 	}
 
+	@Override
+	  public void onStart() {
+	    super.onStart();
+	    // The rest of your onStart() code.
+	    EasyTracker.getInstance().activityStart(this); // Add this method.	    
+	  }
+	
+	@Override
+		public void onPause() {
+		super.onPause();
+		
+	   //
+	   if(tmpPlayingBookId!=null)
+		   gs.shouldShowPlayerButton = true;
+	}
+
+	  @Override
+	  public void onStop() {
+	    super.onStop();
+	    // The rest of your onStop() code.
+	    EasyTracker.getInstance().activityStop(this); // Add this method.
+	  }
+	
 	static boolean NeedToStartWithFirstDownloadedBytes = false;
 	@Override
 	public void onProgressChanged(String bookID, String trackID, int progress) {

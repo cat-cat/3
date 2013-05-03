@@ -11,6 +11,6 @@
     <string name="media_id">Media ID</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_player">Плеер</string>
+    <string name="title_activity_player">BookSmile</string>
 
 </resources>

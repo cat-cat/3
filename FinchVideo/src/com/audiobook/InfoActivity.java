@@ -88,13 +88,14 @@ public class InfoActivity extends Activity {
 							      }
 							      else {
 							        // does the user have the premium upgrade?
-							        boolean ok = inventory.hasPurchase(gs.testProduct);
-							        if(ok)
-							        {
-								        mHelper.consumeAsync(inventory.getPurchase(gs.testProduct), null);
-								        // update UI accordingly
-								        m("ready restoring!");
-							        }
+							    	  m("Этот код отключен! InfoActivity:91");
+//							        boolean ok = inventory.hasPurchase(gs.testProduct);
+//							        if(ok)
+//							        {
+//								        mHelper.consumeAsync(inventory.getPurchase(gs.testProduct), null);
+//								        // update UI accordingly
+//								        m("ready restoring!");
+//							        }
 							      }
 							   }
 							});

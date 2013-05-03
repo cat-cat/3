@@ -3,6 +3,8 @@ package com.audiobook;
 import java.io.File;
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 import com.audiobook.R;
 
 import dataProvider.dbProvider.fileManager.FileManager;
@@ -31,24 +33,20 @@ public class MyBooksActivity extends Activity {
             +" ORDER BY last_touched DESC";
 
 	private Cursor c = null;
-	private SQLiteDatabase db = null;
     private ArrayList<CatalogItem> items;
     private SimpleCursorAdapter mAdapter;
 
     void db_MybooksRemove(String bid)
     {
         String sql = "DELETE FROM mybooks WHERE abook_id = ?";
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-				SQLiteDatabase.OPEN_READWRITE|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
-		db.execSQL(sql, new String[]{bid});
+        gs.db.execSQL(sql, new String[]{bid});
 		
 		// delete chapters
 		sql = "DELETE FROM t_tracks WHERE abook_id = ?";
 
-		db.execSQL(sql, new String[]{bid});
+		gs.db.execSQL(sql, new String[]{bid});
 		
-		db.close();
     }
 
 	@Override
@@ -56,11 +54,7 @@ public class MyBooksActivity extends Activity {
 	{
 		super.onResume();
 
-		if (db == null)
-			db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
-					SQLiteDatabase.OPEN_READONLY
-							| SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-		c = db.rawQuery(selection, null);
+		c = gs.db.rawQuery(selection, null);
 
 		int idxname = c.getColumnIndex("title");
 		int idxid = c.getColumnIndex("id");
@@ -73,7 +67,7 @@ public class MyBooksActivity extends Activity {
 				items.add(ci);
 			} while (c.moveToNext());
 		}
-		startManagingCursor(c);
+		//startManagingCursor(c);
 		mAdapter.changeCursor(c);	
 		
 		
@@ -99,8 +93,6 @@ public class MyBooksActivity extends Activity {
     public void onDestroy()
     {
     	super.onDestroy();
-    	if(db!=null)
-	        db.close();
     }
     
 	private class Clicker1 implements AdapterView.OnItemClickListener {
@@ -198,9 +190,9 @@ public class MyBooksActivity extends Activity {
                                     String bid = items.get(index.intValue()).ID;
                                     items.remove(index.intValue());
                                     db_MybooksRemove(bid);
-                            		c = db.rawQuery(selection, null);
+                            		c = gs.db.rawQuery(selection, null);
                             		mAdapter.changeCursor(c);
-                            		startManagingCursor(c);
+                            		//startManagingCursor(c);
                                     //mAdapter.notifyDataSetChanged();
                                     FileManager.DeleteBook(bid);
                                     //FileManager.DropAllFiles();

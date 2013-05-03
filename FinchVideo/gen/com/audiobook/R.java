@@ -10,18 +10,26 @@ package com.audiobook;
 public final class R {
     public static final class attr {
     }
+    public static final class bool {
+        /** Enable automatic activity tracking
+         */
+        public static final int ga_autoActivityTracking=0x7f050000;
+        /** Enable automatic exception tracking
+         */
+        public static final int ga_reportUncaughtExceptions=0x7f050001;
+    }
     public static final class color {
-        public static final int black=0x7f040003;
-        public static final int blue=0x7f040002;
-        public static final int medium_gray=0x7f040001;
-        public static final int white=0x7f040000;
+        public static final int black=0x7f060003;
+        public static final int blue=0x7f060002;
+        public static final int medium_gray=0x7f060001;
+        public static final int white=0x7f060000;
     }
     public static final class dimen {
-        public static final int insert_button_size=0x7f050001;
-        public static final int insert_size=0x7f050003;
-        public static final int reload_size=0x7f050000;
-        public static final int text_edit_height=0x7f050004;
-        public static final int thumb_size=0x7f050002;
+        public static final int insert_button_size=0x7f070001;
+        public static final int insert_size=0x7f070003;
+        public static final int reload_size=0x7f070000;
+        public static final int text_edit_height=0x7f070004;
+        public static final int thumb_size=0x7f070002;
     }
     public static final class drawable {
         public static final int download=0x7f020000;
@@ -32,63 +40,61 @@ public final class R {
         public static final int video_reload=0x7f020005;
     }
     public static final class id {
-        public static final int authors_h=0x7f080011;
-        public static final int authors_label=0x7f080012;
-        public static final int authors_text=0x7f080036;
-        public static final int authors_value=0x7f080013;
-        public static final int bookd_description=0x7f08000d;
-        public static final int bookd_image=0x7f08000c;
-        public static final int bookd_title=0x7f08000b;
-        public static final int btn_book=0x7f08000a;
-        public static final int btn_buy=0x7f080008;
-        public static final int btn_delete=0x7f080028;
-        public static final int btn_download=0x7f080022;
-        public static final int btn_downloads=0x7f080007;
-        public static final int btn_go_player=0x7f08001e;
-        public static final int btn_go_player_main=0x7f08002d;
-        public static final int btn_go_player_my=0x7f08002f;
-        public static final int btn_go_player_search=0x7f080030;
-        public static final int btn_nfo=0x7f080009;
-        public static final int btn_play=0x7f080005;
-        public static final int btn_restore=0x7f08002c;
-        public static final int chapter_list_item=0x7f080021;
-        public static final int chapter_name=0x7f080025;
-        public static final int chapter_progress=0x7f080023;
-        public static final int chapter_time=0x7f080024;
-        public static final int chapters_list_item=0x7f080020;
-        public static final int chapters_list_view=0x7f080004;
-        public static final int downloads_list=0x7f080026;
-        public static final int downloads_list_item=0x7f080027;
-        public static final int length_h=0x7f080017;
-        public static final int length_label=0x7f080018;
-        public static final int length_value=0x7f080019;
-        public static final int menu_settings=0x7f080038;
-        public static final int mybooks_list_item=0x7f08002e;
-        public static final int player_current_time=0x7f080002;
-        public static final int player_duration_time=0x7f080001;
-        public static final int player_progressbar=0x7f080000;
-        public static final int price_h=0x7f08000e;
-        public static final int price_label=0x7f08000f;
-        public static final int price_text=0x7f080037;
-        public static final int price_value=0x7f080010;
-        public static final int readers_h=0x7f080014;
-        public static final int readers_label=0x7f080015;
-        public static final int readers_value=0x7f080016;
-        public static final int size_h=0x7f08001a;
-        public static final int size_label=0x7f08001b;
-        public static final int size_value=0x7f08001c;
-        public static final int text_title=0x7f08002a;
-        public static final int title=0x7f080003;
-        public static final int titleChapter=0x7f080006;
-        public static final int title_chapter=0x7f080029;
-        public static final int video_layout=0x7f08001d;
-        public static final int video_list=0x7f08001f;
-        public static final int video_list_item=0x7f080034;
-        public static final int video_search_box=0x7f080031;
-        public static final int video_text=0x7f08002b;
-        public static final int video_thumb_icon=0x7f080035;
-        public static final int video_update_button=0x7f080032;
-        public static final int videos_list_item=0x7f080033;
+        public static final int authors_h=0x7f0a0011;
+        public static final int authors_label=0x7f0a0012;
+        public static final int authors_text=0x7f0a0035;
+        public static final int authors_value=0x7f0a0013;
+        public static final int bookd_description=0x7f0a000d;
+        public static final int bookd_image=0x7f0a000c;
+        public static final int bookd_title=0x7f0a000b;
+        public static final int btn_book=0x7f0a0008;
+        public static final int btn_buy=0x7f0a0009;
+        public static final int btn_delete=0x7f0a0027;
+        public static final int btn_download=0x7f0a0021;
+        public static final int btn_downloads=0x7f0a0007;
+        public static final int btn_go_player=0x7f0a001e;
+        public static final int btn_go_player_main=0x7f0a002c;
+        public static final int btn_go_player_my=0x7f0a002e;
+        public static final int btn_go_player_search=0x7f0a002f;
+        public static final int btn_nfo=0x7f0a000a;
+        public static final int btn_play=0x7f0a0005;
+        public static final int btn_restore=0x7f0a002b;
+        public static final int chapter_name=0x7f0a0024;
+        public static final int chapter_progress=0x7f0a0022;
+        public static final int chapter_time=0x7f0a0023;
+        public static final int chapters_list_item=0x7f0a0020;
+        public static final int chapters_list_view=0x7f0a0004;
+        public static final int downloads_list=0x7f0a0025;
+        public static final int downloads_list_item=0x7f0a0026;
+        public static final int length_h=0x7f0a0017;
+        public static final int length_label=0x7f0a0018;
+        public static final int length_value=0x7f0a0019;
+        public static final int menu_settings=0x7f0a0036;
+        public static final int mybooks_list_item=0x7f0a002d;
+        public static final int player_current_time=0x7f0a0003;
+        public static final int player_duration_time=0x7f0a0002;
+        public static final int player_progressbar=0x7f0a0000;
+        public static final int price_h=0x7f0a000e;
+        public static final int price_label=0x7f0a000f;
+        public static final int price_text=0x7f0a0034;
+        public static final int price_value=0x7f0a0010;
+        public static final int readers_h=0x7f0a0014;
+        public static final int readers_label=0x7f0a0015;
+        public static final int readers_value=0x7f0a0016;
+        public static final int size_h=0x7f0a001a;
+        public static final int size_label=0x7f0a001b;
+        public static final int size_value=0x7f0a001c;
+        public static final int text_title=0x7f0a0029;
+        public static final int title=0x7f0a0001;
+        public static final int titleChapter=0x7f0a0006;
+        public static final int title_chapter=0x7f0a0028;
+        public static final int video_layout=0x7f0a001d;
+        public static final int video_list=0x7f0a001f;
+        public static final int video_list_item=0x7f0a0032;
+        public static final int video_search_box=0x7f0a0030;
+        public static final int video_text=0x7f0a002a;
+        public static final int video_thumb_icon=0x7f0a0033;
+        public static final int video_update_button=0x7f0a0031;
     }
     public static final class layout {
         public static final int activity_player=0x7f030000;
@@ -105,19 +111,27 @@ public final class R {
         public static final int video_list_item=0x7f03000b;
     }
     public static final class menu {
-        public static final int activity_player=0x7f070000;
+        public static final int activity_player=0x7f090000;
     }
     public static final class string {
-        public static final int app_name=0x7f060003;
-        public static final int description=0x7f060006;
-        public static final int finch_video_app_name=0x7f060000;
-        public static final int finch_video_search=0x7f060002;
-        public static final int finch_video_update_content=0x7f060001;
-        public static final int hello_world=0x7f060008;
-        public static final int media_id=0x7f060007;
-        public static final int menu_settings=0x7f060009;
-        public static final int simple_insert_text=0x7f060004;
-        public static final int title=0x7f060005;
-        public static final int title_activity_player=0x7f06000a;
+        public static final int app_name=0x7f040004;
+        public static final int description=0x7f040007;
+        public static final int finch_video_app_name=0x7f040001;
+        public static final int finch_video_search=0x7f040003;
+        public static final int finch_video_update_content=0x7f040002;
+        /** Replace placeholder ID with your tracking ID
+         */
+        public static final int ga_trackingId=0x7f040000;
+        public static final int hello_world=0x7f040009;
+        public static final int media_id=0x7f040008;
+        public static final int menu_settings=0x7f04000a;
+        public static final int simple_insert_text=0x7f040005;
+        public static final int title=0x7f040006;
+        public static final int title_activity_player=0x7f04000b;
+    }
+    public static final class style {
+        /**  <item name="android:colorBackground">@color/custom_theme_color</item> 
+         */
+        public static final int LightThemeSelector=0x7f080000;
     }
 }

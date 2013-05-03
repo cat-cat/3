@@ -8,31 +8,32 @@
         android:id="@+id/bookd_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="заголовок"
+        android:layout_gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
         android:id="@+id/bookd_image"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
 
-    <EditText
+    <TextView
         android:id="@+id/bookd_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:inputType="textMultiLine"
+        android:maxLines="3"
         android:text="lorem ipsum ..." >
 
         <requestFocus />
-    </EditText>
+    </TextView>
 
     <LinearLayout
         android:id="@+id/price_h"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/price_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +41,7 @@
             android:ems="10"
             android:text="Цена" />
 
-        <EditText
+        <TextView android:text="TextView"
             android:id="@+id/price_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/authors_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,7 +62,7 @@
             android:ems="10"
             android:text="Авторы" />
 
-        <EditText
+        <TextView android:text="TextView"
             android:id="@+id/authors_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,7 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/readers_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,7 +83,7 @@
             android:ems="10"
             android:text="Чтецы" />
 
-        <EditText
+        <TextView android:text="TextView"
             android:id="@+id/readers_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/length_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -103,7 +104,7 @@
             android:ems="10"
             android:text="Длительность" />
 
-        <EditText
+        <TextView android:text="TextView"
             android:id="@+id/length_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,7 +117,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/size_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -124,7 +125,7 @@
             android:ems="10"
             android:text="Размер" />
 
-        <EditText
+        <TextView android:text="TextView"
             android:id="@+id/size_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

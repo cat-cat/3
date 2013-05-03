@@ -7,6 +7,16 @@
         android:id="@+id/video_layout"
         android:orientation="vertical"
         >
+
+    <Button
+        android:id="@+id/btn_go_player_search"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Плеер"
+        android:visibility="gone" />
+
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -20,13 +30,6 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@color/medium_gray"
                 >
-        <Button
-            android:id="@+id/btn_go_player_search"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="player"
-            android:visibility="gone" />
         
             <com.audiobook.MesgEditText
                     android:id="@+id/video_search_box"
@@ -49,6 +52,7 @@
     </LinearLayout>
 
     <!--The list of videos-->
+
     <ListView
             android:id="@+id/video_list"
             android:layout_width="match_parent"

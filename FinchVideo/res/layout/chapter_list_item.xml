@@ -1,51 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chapters_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="50dip"
+    android:orientation="vertical" >
 
-<LinearLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
+    <!-- android:layout_gravity="center_horizontal" -->
+
+    <ToggleButton
+        android:id="@+id/btn_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:textOff="((*))"
+        android:textOn="X" />
+
+    <ProgressBar
+        android:id="@+id/chapter_progress"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:id="@+id/chapters_list_item"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-    <!--android:layout_gravity="center_horizontal"-->
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/chapter_time" />
 
-    <LinearLayout
-            android:id="@+id/chapter_list_item"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            >
+    <TextView
+        android:id="@+id/chapter_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="false"
+        android:layout_toRightOf="@+id/btn_download"
+        android:text="Small Text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <ToggleButton
-            android:id="@+id/btn_download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-	        android:textOn="" android:textOff="" android:layout_alignParentLeft="true"
-	        android:background="@drawable/selector_download"
-	        android:focusable="false"/>
+    <TextView
+        android:id="@+id/chapter_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="false"
+        android:layout_below="@+id/chapter_time"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="7dp"
+        android:layout_toRightOf="@+id/btn_download"
+        android:gravity="center_vertical"
+        android:paddingLeft="5dip"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <ProgressBar
-            android:id="@+id/chapter_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/chapter_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView 
-                  android:id="@+id/chapter_name"
-                  android:layout_width="match_parent"
-                  android:layout_height="?android:attr/listPreferredItemHeight"
-                  android:textAppearance="?android:attr/textAppearanceLarge"
-                  android:gravity="center_vertical"
-                  android:paddingLeft="5dip"
-                  android:singleLine="true"
-                  android:layout_gravity="center_vertical"
-                />
-    </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
