@@ -73,7 +73,7 @@ public class gs extends Handler {
 	// The Android's default system path of your application database.
 	private final String basePath = "/Android/data/com.audiobook/";
 	private Context ctx;
-	private String DB_NAME = "database.db";
+	private String DB_NAME = "books.db";
 
 	private static gs   _instance;
 
@@ -131,7 +131,7 @@ public class gs extends Handler {
 			}
 			while (c.moveToNext());
 		}
-
+		c.close();
 		return id;
 	}
 

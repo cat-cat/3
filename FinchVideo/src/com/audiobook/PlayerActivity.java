@@ -52,6 +52,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Camera.PreviewCallback;
@@ -75,6 +76,7 @@ import android.widget.ToggleButton;
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
 
+	boolean isDebuggable;
 	private Tracker mGaTracker;
 	private GoogleAnalytics mGaInstance;
 
@@ -430,13 +432,16 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 									@Override
 									protected Void doInBackground(
 											Void... params) {
-										
+
 										downloadManager.LoadTrack(LoadingType.Chapter, bookId, c.cId);
 										return null;
 									}
 									
 								}.execute();
+								
 								// removeDownqObject(chapterIdentity);
+								Toast.makeText(getContext(), "добавлено в очередь загрузки",
+								Toast.LENGTH_SHORT).show();
 	
 								//tbtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.stop));
 							} 
@@ -833,13 +838,20 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 		
-		// Get the GoogleAnalytics singleton. Note that the SDK uses
-	    // the application context to avoid leaking the current context.
-	    mGaInstance = GoogleAnalytics.getInstance(this);
+		
+	    isDebuggable = (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
-	    // Use the GoogleAnalytics singleton to get a Tracker.
-	    mGaTracker = mGaInstance.getTracker("UA-39335784-1"); // Placeholder tracking ID.
-	    // The rest of your onCreate() code.
+		
+	    if(!isDebuggable)
+	    {
+			// Get the GoogleAnalytics singleton. Note that the SDK uses
+		    // the application context to avoid leaking the current context.
+		    mGaInstance = GoogleAnalytics.getInstance(this);
+	
+		    // Use the GoogleAnalytics singleton to get a Tracker.
+		    mGaTracker = mGaInstance.getTracker("UA-39335784-1"); // Placeholder tracking ID.
+		    // The rest of your onCreate() code.
+	    }
 
 		if (android.os.Build.VERSION.SDK_INT >= 11)
 			getActionBar().hide();
@@ -1072,7 +1084,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				searchList.setAdapter(aac);
 				
 				 // Send a screen view when the Activity is displayed to the user.
-			    mGaTracker.sendView(bookTitle);
+				if(!isDebuggable)
+					mGaTracker.sendView(bookTitle);
 
 				
 				if(!isBought)
@@ -1504,8 +1517,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	public void onProgressChanged(String bookID, String trackID, int progress) {
 		Log.d("MyTrace", "PlayerActivity: " + MyStackTrace.func3() + " progress: "+ progress);
 		
-		
-		if (NeedToStartWithFirstDownloadedBytes && progress > 0)
+		File f = new File(gs.s().pathForBookAndChapter(bookID, trackID));
+		long fl = f.length();
+		if (NeedToStartWithFirstDownloadedBytes && fl > 12000)
 		{
 			NeedToStartWithFirstDownloadedBytes = false;
 			// start player
@@ -1522,7 +1536,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 		}
 		
-		if(!bookId.equalsIgnoreCase(playingBookId))
+		if(playingBookId.length()!=0 && !bookId.equalsIgnoreCase(playingBookId))
 		{ 
 			Log.i("MyTrace:","++ Отображается оглавление другой книги!");
 			return;

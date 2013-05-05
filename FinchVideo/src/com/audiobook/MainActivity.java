@@ -1,10 +1,19 @@
 package com.audiobook;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+
+import junit.framework.Assert;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -21,20 +30,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.audiobook.MainActivity;
-import com.audiobook.R;
 import com.google.analytics.tracking.android.EasyTracker;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
-import junit.framework.Assert;
 
 /**
  * Slightly more sophisticated FinchVideo search application that allows a user
@@ -43,6 +39,7 @@ import junit.framework.Assert;
  * one in the graphical list display as they are parsed from network data.
  */
 public class MainActivity extends Activity {
+	boolean isDebuggable;
 	private SimpleCursorAdapter mAdapter;
 
 	private ArrayList<CatalogItem> items;
@@ -51,8 +48,10 @@ public class MainActivity extends Activity {
 	@Override
 	  public void onStart() {
 	    super.onStart();
-	    // The rest of your onStart() code.
-	    EasyTracker.getInstance().activityStart(this); // Add this method.
+	    
+	    if(!isDebuggable)
+		    // The rest of your onStart() code.
+		    EasyTracker.getInstance().activityStart(this); // Add this method.
 	    
 	    
 	  }
@@ -61,7 +60,9 @@ public class MainActivity extends Activity {
 	  public void onStop() {
 	    super.onStop();
 	    // The rest of your onStop() code.
-	    EasyTracker.getInstance().activityStop(this); // Add this method.
+	    
+	    if(!isDebuggable)
+	    	EasyTracker.getInstance().activityStop(this); // Add this method.
 	  }
 
 	@Override
@@ -180,6 +181,9 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_query_activity);
+		
+	    isDebuggable = (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+
 
 
 		final ListView searchList = (ListView) findViewById(R.id.video_list);
@@ -281,30 +285,15 @@ public class MainActivity extends Activity {
 
 
 				// check database existence
-				SQLiteDatabase checkDB = null;
-				try {
-					String myPath = gs.s().dbp();
-					checkDB = SQLiteDatabase.openDatabase(myPath, null,
-							SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+				File checkDB = new File(gs.s().dbp());
 
-				} catch (SQLiteException e) {
-
-					// database does't exist yet.
-
-				}
-
-				if (checkDB != null) {
-
-					checkDB.close();
-
-				}
-
-				if (checkDB == null)
+				if (!checkDB.exists())
 				{
 					try {
 						CopyDatabase();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
+						Assert.assertTrue(false);
 						e.printStackTrace();
 					}
 				}
