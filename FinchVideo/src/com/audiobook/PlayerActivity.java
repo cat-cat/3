@@ -76,6 +76,7 @@ import android.widget.ToggleButton;
 public class PlayerActivity extends Activity implements OnCompletionListener,
 		OnPreparedListener, OnErrorListener, IManagerObserver {
 
+	static String previousBookIdHolder = "";
 	boolean isDebuggable;
 	private Tracker mGaTracker;
 	private GoogleAnalytics mGaInstance;
@@ -946,9 +947,15 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		progressbar.setSecondaryProgress(0);
 		if(bookId.equalsIgnoreCase("0")) // return to playing book
 		{
-			bookId = playingBookId;
 			progressbar.setMax(playingProgressMax);
+			
+			if(playingBookId.length()>0)
+				bookId = playingBookId;
+			else
+				bookId = previousBookIdHolder;
 		}
+		
+		previousBookIdHolder = bookId;
 		
 		// setup buy button
 		final Button btnBuy = ((Button) findViewById(R.id.btn_buy));
