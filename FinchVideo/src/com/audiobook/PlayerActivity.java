@@ -1073,13 +1073,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 				if (dir.exists() == false)
 				{
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run()
-						{
-							dialog.setMessage("загрузка каталога из интернета\nпожалуйста подождите...");
-						}
-					});
+//					runOnUiThread(new Runnable() {
+//						@Override
+//						public void run()
+//						{
+//							dialog.setMessage("загрузка каталога из интернета\nпожалуйста подождите...");
+//						}
+//					});
 					
 					requestBookMeta();
 				}
@@ -1090,8 +1090,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			@Override
 			protected void onPostExecute(final ArrayAdapter<Chapter> aac)
 			{
-				if (this.dialog.isShowing()) {
-					this.dialog.dismiss();
+				try {
+					if (this.dialog.isShowing()) {
+						this.dialog.dismiss();
+					}
+				} catch (IllegalArgumentException  e) {
+					// TODO: handle exception
+					e.printStackTrace();
 				}
 				
 				((TextView) findViewById(R.id.title)).setText(bookTitle);				
