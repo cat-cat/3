@@ -158,7 +158,12 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	private void db_InsertMyBook(String bid) {
 		String query = "INSERT OR REPLACE INTO mybooks (abook_id, last_touched) VALUES (?, CURRENT_TIMESTAMP)";
 
-		gs.db.execSQL(query, new String[] { bid });
+		try {
+			gs.db.execSQL(query, new String[] { bid });
+		} catch (NullPointerException  e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 
 	private void CreateMediaPlayer() {
@@ -879,7 +884,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	   
 	   // compute your public key and store it in base64EncodedPublicKey
 	   mHelper = new IabHelper(this, gs.pk);
-	   mHelper.enableDebugLogging(true);
+	   mHelper.enableDebugLogging(false);
 	   mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
 		   public void onIabSetupFinished(IabResult result) {
 		      if (!result.isSuccess()) {
@@ -889,20 +894,20 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		      }
 		      
 		         // Hooray, IAB is fully set up!  
-			   List<String> additionalSkuList = new ArrayList<String>();
-			   //additionalSkuList.add(gs.testProduct);
-			   additionalSkuList.add(bookId);
-			   mHelper.queryInventoryAsync(true, additionalSkuList,
-					   new IabHelper.QueryInventoryFinishedListener() {
-				   @Override
-				   public void onQueryInventoryFinished(IabResult result, Inventory inventory)   
-				   {
-				      if (result.isFailure()) {
-				         // handle error
-				    	 Log.e("MyTrace:","** error getting in-app purchase");  
-				         return;
-				       }
-
+//			   List<String> additionalSkuList = new ArrayList<String>();
+//			   //additionalSkuList.add(gs.testProduct);
+//			   additionalSkuList.add(bookId);
+//			   mHelper.queryInventoryAsync(true, additionalSkuList,
+//					   new IabHelper.QueryInventoryFinishedListener() {
+//				   @Override
+//				   public void onQueryInventoryFinished(IabResult result, Inventory inventory)   
+//				   {
+//				      if (result.isFailure()) {
+//				         // handle error
+//				    	 Log.e("MyTrace:","** error getting in-app purchase");  
+//				         return;
+//				       }
+//
 //				       String applePrice =
 //						  inventory.getSkuDetails(gs.testProduct).getPrice();
 //				          inventory.getSkuDetails(bookId).getPrice();
@@ -910,8 +915,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 //						// message box
 //				       if(!isBought)
 //				    	   m("Цена: " + applePrice);
-
-				   }});
+//
+//				   }
+//				   
+//			   });
 		   }
 		});
 		
@@ -1053,11 +1060,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				xml = gs.s().fileToString(
 						gs.s().dirsForBook(bookId) + "/bookMeta.xml");
 				
-				if (server == null) {
-					server = new AudioServer();
-					server.init();
-					server.start();
-				}
+//				if (server == null) {
+//					server = new AudioServer();
+//					server.init();
+//					server.start();
+//				}
 
 				downloadManager = DownloadManager.s(getApplicationContext());
 				downloadManager.BindGlobalListener(PlayerActivity.this);
@@ -1115,8 +1122,14 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				
-				if(mediaPlayer==null)
-					startChapter(chapters.get(0).cId);
+				if(mediaPlayer==null || (bookId!=playingBookId))
+					if(chapters==null || chapters.size()==0)
+						 Toast.makeText(getApplicationContext(),
+								 "Главы не загружены.\nНажмите назад и заново выберите книгу.",
+								 Toast.LENGTH_LONG)
+								 .show();
+					else
+						startChapter(chapters.get(0).cId);
 				else
 					if(mediaPlayer.isPlaying())
 						mediaPlayer.pause();
@@ -1359,6 +1372,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		server = new AudioServer();
 		server.init();
 		server.start();
+		
+//		if(server==null)
+//		{
+//			server = new AudioServer();
+//			server.init();
+//			server.start();
+//		}
 		
 		String playUrl = "http://127.0.0.1:" + server.getPort() + "/file://"
 				+ FileManager.PathToAudioFile(bid, chid);

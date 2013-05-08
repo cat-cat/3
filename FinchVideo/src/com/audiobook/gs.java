@@ -121,7 +121,14 @@ public class gs extends Handler {
 				+ " ORDER BY id DESC"
 				+ " LIMIT 0,1";
 
-		Cursor c = db.rawQuery(sql, null);
+		Cursor c = null;
+		try {
+			c = db.rawQuery(sql, null);
+		} catch (IllegalStateException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return "10000";
+		}
 
 		int idxid = c.getColumnIndex("id");
 		String id = "";

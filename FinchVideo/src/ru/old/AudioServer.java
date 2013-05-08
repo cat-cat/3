@@ -198,15 +198,15 @@ public class AudioServer implements Runnable
 		}
 //		Log.d(TAG, "Stopping server.");
 		thread.interrupt();
-		try
-		{
-			thread.join(5000);
-		}
-		catch (InterruptedException e)
-		{
+//		try
+//		{
+//			thread.join(5000);
+//		}
+//		catch (InterruptedException e)
+//		{
 //			Log.w(TAG, "Server was interrupted while stopping", e);
 //			e.printStackTrace();
-		}
+//		}
 	}
 
 	public boolean isRunning()
