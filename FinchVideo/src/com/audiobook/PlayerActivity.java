@@ -682,16 +682,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			{
 				NeedToStartWithFirstDownloadedBytes = false;
 				
-				AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-				builder.setMessage("Для загрузки главы нужен интернет!\nИнтернет не доступен.")
-				       .setCancelable(false)
-				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-				                //do things
-				           }
-				       });
-				AlertDialog alert = builder.create();
-				alert.show();
+				m("Для загрузки главы нужен интернет!\nИнтернет не доступен.");
 				return;
 			}
 			
@@ -1472,8 +1463,13 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			@Override
 			public void run()
 			{
-				if(playerDialog.isShowing())
-					playerDialog.dismiss();					
+				try {
+					if(playerDialog.isShowing())
+						playerDialog.dismiss();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}					
 			}
 		});
 		
