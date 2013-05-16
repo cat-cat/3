@@ -3,7 +3,7 @@
     android:id="@+id/chapters_list_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minHeight="50dip"
+    android:minHeight="60dip"
     android:orientation="vertical" >
 
     <!-- android:layout_gravity="center_horizontal" -->
@@ -12,8 +12,7 @@
         android:id="@+id/btn_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:focusable="false"
         android:textOff="((*))"
         android:textOn="X" />
@@ -23,17 +22,21 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/chapter_time"
+        android:layout_alignParentTop="false"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_toRightOf="@+id/chapter_time" />
+        android:layout_toLeftOf="@+id/btn_download"
+        android:layout_toRightOf="@+id/chapter_time"
+        android:minHeight="10dp" />
 
     <TextView
         android:id="@+id/chapter_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="false"
-        android:layout_toRightOf="@+id/btn_download"
+        android:layout_below="@+id/chapter_name"
+        android:paddingLeft="10dp"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -41,14 +44,12 @@
         android:id="@+id/chapter_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="false"
-        android:layout_below="@+id/chapter_time"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="7dp"
-        android:layout_toRightOf="@+id/btn_download"
+        android:layout_toLeftOf="@+id/btn_download"
         android:gravity="center_vertical"
-        android:paddingLeft="5dip"
+        android:paddingLeft="10dp"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

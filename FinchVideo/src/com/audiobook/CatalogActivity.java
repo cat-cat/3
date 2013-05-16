@@ -3,6 +3,10 @@ package com.audiobook;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
 import junit.framework.Assert;
 
 import android.app.Activity;
@@ -23,33 +27,79 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CatalogActivity extends Activity {
+public class CatalogActivity extends SherlockActivity {
 	ListView searchList;
 	private ArrayList<CatalogItem> items;
 	private SimpleCursorAdapter mAdapter;
+	
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Used to put dark icons on light action bar
+        //boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
+        boolean isLight = true;
 
+//        menu.add(0, 0, 0, "search")
+//            .setIcon(isLight ? android.R.drawable.ic_menu_search : android.R.drawable.ic_menu_agenda)
+//            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//        menu.add(0, 1, 0, "recent")
+//        	.setIcon(isLight ? android.R.drawable.ic_menu_more : android.R.drawable.ic_menu_more)
+//            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+
+		if(gs.shouldShowPlayerButton)
+		{
+			menu.add(0, 2, 0, "player")
+	            .setIcon(isLight ? android.R.drawable.ic_media_play : android.R.drawable.ic_menu_compass)
+	            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		}
+
+        return true;
+    }
+
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent myIntentA1A2 = null;
+		switch (item.getItemId()) {
+		case 0:
+			myIntentA1A2 = new Intent(CatalogActivity.this, SearchActivity.class);
+			break;
+		case 1:
+			myIntentA1A2 = new Intent(CatalogActivity.this, MyBooksActivity.class);
+			break;
+		case 2:			
+			myIntentA1A2 = new Intent(CatalogActivity.this, PlayerActivity.class);
+			Bundle myData = new Bundle();
+			myData.putString("bid", "0");
+			myIntentA1A2.putExtras(myData);
+			break;
+		}
+
+		startActivity(myIntentA1A2);
+		return super.onOptionsItemSelected(item);
+	}
+    
 	@Override
 	public void onResume()
 	{
 		super.onResume();
 
-
+		invalidateOptionsMenu();
 		
-		if(gs.shouldShowPlayerButton)
-		{
-			Button button = (Button) findViewById(R.id.btn_go_player);
-			button.setVisibility(View.VISIBLE);
-			button.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View v) {
-					Intent myIntentA1A2 = new Intent(CatalogActivity.this, PlayerActivity.class);
-					Bundle myData = new Bundle();
-					myData.putString("bid", "0");
-					myIntentA1A2.putExtras(myData);
-	
-					startActivity(myIntentA1A2);
-				}
-			});
-		}
+//		if(gs.shouldShowPlayerButton)
+//		{
+//			Button button = (Button) findViewById(R.id.btn_go_player);
+//			button.setVisibility(View.VISIBLE);
+//			button.setOnClickListener(new View.OnClickListener() {
+//				public void onClick(View v) {
+//					Intent myIntentA1A2 = new Intent(CatalogActivity.this, PlayerActivity.class);
+//					Bundle myData = new Bundle();
+//					myData.putString("bid", "0");
+//					myIntentA1A2.putExtras(myData);
+//	
+//					startActivity(myIntentA1A2);
+//				}
+//			});
+//		}
 	}
 	
 	@Override
@@ -200,6 +250,11 @@ public class CatalogActivity extends Activity {
 						case 0: // id
 							ImageView iv = (ImageView)
 							view.findViewById(R.id.video_thumb_icon);
+							if(cursor.getString(i).equalsIgnoreCase("n/a")) // catalog subitem
+							{
+								iv.invalidate();
+								break;
+							}
 							gs.s().displayBookImage(items.get(cursor.getPosition()).ID, iv);
 							break;
 	                        
@@ -207,6 +262,8 @@ public class CatalogActivity extends Activity {
 	                    	TextView pv = (TextView)
 	                    	view.findViewById(R.id.price_text);
 	                    	String priceText = cursor.getString(i);
+	                    	if(priceText.equalsIgnoreCase("n/a"))
+	                    		priceText = "";
 	                    	pv.setText(priceText);
 	                    	break;
 	                    	
@@ -214,6 +271,8 @@ public class CatalogActivity extends Activity {
 	                    	TextView av = (TextView)
 	                    	view.findViewById(R.id.authors_text);
 	                    	String authorsText = cursor.getString(i);
+	                    	if(authorsText.equalsIgnoreCase("-"))
+	                    		authorsText = "";
 	                    	av.setText(authorsText);
 	                    	break;
 						}

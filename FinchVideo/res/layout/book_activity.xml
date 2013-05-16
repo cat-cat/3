@@ -1,136 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/bookd_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:id="@+id/bookd_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/bookd_image"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ImageView
-        android:id="@+id/bookd_image"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/authors_value"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_below="@+id/bookd_title"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/bookd_image"
+        android:layout_weight="1"
+        android:ems="10"
+        android:maxLines="2"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/readers_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bookd_image"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/size_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/readers_value"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/length_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/size_value"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/price_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bookd_description"
+        android:layout_toRightOf="@+id/length_value"
+        android:layout_weight="1"
+        android:ems="10"
+        android:text="TextView" />
 
     <TextView
         android:id="@+id/bookd_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/length_value"
+        android:layout_marginLeft="10dp"
         android:inputType="textMultiLine"
-        android:maxLines="3"
-        android:text="lorem ipsum ..." >
+        android:scrollHorizontally="true"
+        android:text="lorem ipsum ..." />
 
-        <requestFocus />
-    </TextView>
-
-    <LinearLayout
-        android:id="@+id/price_h"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/price_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:text="Цена" />
-
-        <TextView android:text="TextView"
-            android:id="@+id/price_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/authors_h"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/authors_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:text="Авторы" />
-
-        <TextView android:text="TextView"
-            android:id="@+id/authors_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/readers_h"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/readers_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:text="Чтецы" />
-
-        <TextView android:text="TextView"
-            android:id="@+id/readers_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/length_h"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/length_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:text="Длительность" />
-
-        <TextView android:text="TextView"
-            android:id="@+id/length_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/size_h"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/size_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:text="Размер" />
-
-        <TextView android:text="TextView"
-            android:id="@+id/size_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" />
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

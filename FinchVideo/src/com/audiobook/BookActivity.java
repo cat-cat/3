@@ -131,12 +131,12 @@ public class BookActivity extends Activity {
 				((TextView)  findViewById(R.id.bookd_title)).setText(b.getString("title"));
 				((TextView)  findViewById(R.id.bookd_description)).setText(b.getString("description"));
 				((TextView)  findViewById(R.id.authors_value)).setText(b.getString("authors"));
-				((TextView)  findViewById(R.id.readers_value)).setText(b.getString("readers"));
+				((TextView)  findViewById(R.id.readers_value)).setText("Чтец(ы): "+b.getString("readers"));
 				((TextView)  findViewById(R.id.price_value)).setText("$"+b.getString("price"));
 				
-				((TextView)  findViewById(R.id.length_value)).setText(b.getString("length"));
+				((TextView)  findViewById(R.id.length_value)).setText("Длительность: "+b.getString("length"));
 
-				((TextView)  findViewById(R.id.size_value)).setText(b.getString("size"));
+				((TextView)  findViewById(R.id.size_value)).setText("Размер: "+b.getString("size"));
 				
 			}
         	

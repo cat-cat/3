@@ -9,14 +9,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import junit.framework.Assert;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -24,12 +21,14 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 
 /**
@@ -38,13 +37,58 @@ import com.google.analytics.tracking.android.EasyTracker;
  * from RESTful web services like gdata.youtube.com.  The results appear one by
  * one in the graphical list display as they are parsed from network data.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends SherlockActivity {
 	boolean isDebuggable;
 	private SimpleCursorAdapter mAdapter;
 
 	private ArrayList<CatalogItem> items;
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Used to put dark icons on light action bar
+        //boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
+        boolean isLight = true;
 
+        menu.add(0, 0, 0, "search")
+            .setIcon(isLight ? android.R.drawable.ic_menu_search : android.R.drawable.ic_menu_agenda)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+        menu.add(0, 1, 0, "recent")
+        	.setIcon(isLight ? android.R.drawable.ic_menu_more : android.R.drawable.ic_menu_more)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+
+		if(gs.shouldShowPlayerButton)
+		{
+			menu.add(0, 2, 0, "player")
+	            .setIcon(isLight ? android.R.drawable.ic_media_play : android.R.drawable.ic_menu_compass)
+	            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		}
+
+        return true;
+    }
+
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent myIntentA1A2 = null;
+		switch (item.getItemId()) {
+		case 0:
+			myIntentA1A2 = new Intent(MainActivity.this, SearchActivity.class);
+			break;
+		case 1:
+			myIntentA1A2 = new Intent(MainActivity.this, MyBooksActivity.class);
+			break;
+		case 2:			
+			myIntentA1A2 = new Intent(MainActivity.this, PlayerActivity.class);
+			Bundle myData = new Bundle();
+			myData.putString("bid", "0");
+			myIntentA1A2.putExtras(myData);
+			break;
+		}
+
+		startActivity(myIntentA1A2);
+		return super.onOptionsItemSelected(item);
+	}
+    
 	@Override
 	  public void onStart() {
 	    super.onStart();
@@ -70,22 +114,24 @@ public class MainActivity extends Activity {
 	{
 		super.onResume();
 		
-		if(gs.shouldShowPlayerButton)
-		{
-			Button button = (Button) findViewById(R.id.btn_go_player_main);
-			button.setVisibility(View.VISIBLE);
-			button.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View v) {
-					
-					Intent myIntentA1A2 = new Intent(MainActivity.this, PlayerActivity.class);
-					Bundle myData = new Bundle();
-					myData.putString("bid", "0");
-					myIntentA1A2.putExtras(myData);
-	
-					startActivity(myIntentA1A2);
-				}
-			});
-		}
+		invalidateOptionsMenu();
+		
+//		if(gs.shouldShowPlayerButton)
+//		{
+//			Button button = (Button) findViewById(R.id.btn_go_player_main);
+//			button.setVisibility(View.VISIBLE);
+//			button.setOnClickListener(new View.OnClickListener() {
+//				public void onClick(View v) {
+//					
+//					Intent myIntentA1A2 = new Intent(MainActivity.this, PlayerActivity.class);
+//					Bundle myData = new Bundle();
+//					myData.putString("bid", "0");
+//					myIntentA1A2.putExtras(myData);
+//	
+//					startActivity(myIntentA1A2);
+//				}
+//			});
+//		}
 	}
 
 	
@@ -110,13 +156,7 @@ public class MainActivity extends Activity {
 
 			try {
 				
-				Intent myIntentA1A2;
-				if(position == 0) // search books
-					myIntentA1A2 = new Intent(MainActivity.this, SearchActivity.class);
-				else if(position == 1) // mybooks
-					myIntentA1A2 = new Intent(MainActivity.this, MyBooksActivity.class);
-				else
-					myIntentA1A2 = new Intent(MainActivity.this, CatalogActivity.class);
+				Intent 	myIntentA1A2 = new Intent(MainActivity.this, CatalogActivity.class);
 
 				Bundle myData = new Bundle();
 				//				TextView v = (TextView)  view.findViewById(R.id.idx_init);
@@ -180,6 +220,11 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+//		if (android.os.Build.VERSION.SDK_INT >= 11)
+//			getActionBar().hide();
+
+		
 		setContentView(R.layout.main_query_activity);
 		
 	    isDebuggable = (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
@@ -198,7 +243,7 @@ public class MainActivity extends Activity {
 
 		// Maps video entries from the database to views
 		mAdapter = new SimpleCursorAdapter(MainActivity.this,
-				R.layout.video_list_item,
+				R.layout.catalog_list_item,
 				null,
 				new String[] {
 				"id",
@@ -300,11 +345,12 @@ public class MainActivity extends Activity {
 				
 				gs.s().setDatabase();
 
-				String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
-						+ " UNION"
-						+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
-						+ " UNION"
-						+ " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
+//				String selection = " SELECT -2 id, 'Найти книгу' name, 0 subgenres, -2 type , 'n/a' priceos, '-' authors, -2 _id"
+//						+ " UNION"
+//						+" SELECT 0 id, 'Недавние' name, 0 subgenres, 0 type , 'n/a' priceos, '-' authors, 0 _id"
+//						+ " UNION"
+//						+ " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
+				String selection = " SELECT t_abooks.abook_id AS id, title AS name, -1 AS subgenres, 2 AS type, CASE t_abooks.bought WHEN 1 THEN '+' ELSE priceios END priceios, GROUP_CONCAT(t_authors.name, ',') authors, t_abooks.abook_id AS _id FROM t_abooks"
 						+ " LEFT JOIN"
 						+ " t_abooks_authors ON t_abooks_authors.abook_id=t_abooks.abook_id"
 						+ " JOIN"

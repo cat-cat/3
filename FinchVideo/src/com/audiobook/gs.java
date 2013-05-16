@@ -566,7 +566,7 @@ public class gs extends Handler {
 	}
 
 	DisplayImageOptions options = new DisplayImageOptions.Builder()
-	.showStubImage(R.drawable.loader)
+	//.showStubImage(R.drawable.loader)
 	//.showImageForEmptyUrl(R.drawable.image_for_empty_url)
 	.cacheInMemory()
 	.cacheOnDisc()
@@ -575,6 +575,7 @@ public class gs extends Handler {
 	{
 		String uri = "http://"+gs.s().Host()+"/books/"+bid+"/BookImage.jpg";
 		iv.invalidate();
+		
 		ImageLoader.getInstance().displayImage(uri, iv, options);
 	}
 

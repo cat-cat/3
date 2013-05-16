@@ -64,6 +64,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -219,12 +220,32 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		return responseString;
 	}
 
+	String bookAuthors = "";
+	String bookPrice = "";
 	private ArrayAdapter<Chapter> updateMeta() {
 		final String bookMeta = gs.s().fileToString(gs.s().pathForBookMeta(bookId));
 
 		// first set title
 		try {
 			 bookTitle = xPath.evaluate("/abooks/abook/title",
+					new InputSource(new StringReader(bookMeta)));
+		} catch (XPathExpressionException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		// authors
+		try {
+			 bookAuthors = xPath.evaluate("/abooks/abook/authors",
+					new InputSource(new StringReader(bookMeta)));
+		} catch (XPathExpressionException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		// authors
+		try {
+			 bookPrice = xPath.evaluate("/abooks/abook/price",
 					new InputSource(new StringReader(bookMeta)));
 		} catch (XPathExpressionException e2) {
 			// TODO Auto-generated catch block
@@ -669,6 +690,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				@Override
 				public void onPostExecute(int[] args)
 				{
+//					if(mediaPlayer!=null && mediaPlayer.isPlaying())
+//						((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_pause);
+//					else
+//						((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_play);
+
 					playingProgressMax = args[0];
 					progressbar.setMax(playingProgressMax);
 					progressbar.setProgress(0);
@@ -780,7 +806,12 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 	   }
 
 	   
-	   if (mHelper != null) mHelper.dispose();
+	   try {
+		if (mHelper != null) mHelper.dispose();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	   mHelper = null;
 	   
 	}
@@ -850,8 +881,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		    // The rest of your onCreate() code.
 	    }
 
-		if (android.os.Build.VERSION.SDK_INT >= 11)
-			getActionBar().hide();
+//		if (android.os.Build.VERSION.SDK_INT >= 11)
+//			getActionBar().hide();
 		
 		dPurchaseBuilder = new AlertDialog.Builder(PlayerActivity.this)
 		.setMessage("Для продолжения прослушивания необходимо купить книгу.")
@@ -957,6 +988,8 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		
 		// setup buy button
 		final Button btnBuy = ((Button) findViewById(R.id.btn_buy));
+		final View priceView = findViewById(R.id.price_view);
+		
 		btnBuy.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if(!gs.s().connected())
@@ -996,6 +1029,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								Log.e("MyTrace:", "++Поздравляем, книга ваша! " + result);
 								
 								btnBuy.setVisibility(View.GONE);
+								priceView.setVisibility(View.GONE);
 								isBought = true;
 								
 								final String sku = purchase.getSku();
@@ -1091,6 +1125,9 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 				}
 				
 				((TextView) findViewById(R.id.title)).setText(bookTitle);				
+				((TextView) findViewById(R.id.authors_view)).setText(bookAuthors);				
+				((TextView) findViewById(R.id.price_view)).setText("$"+bookPrice);
+				
 				searchList.setAdapter(aac);
 				
 				 // Send a screen view when the Activity is displayed to the user.
@@ -1099,13 +1136,16 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 				
 				if(!isBought)
+				{
 					btnBuy.setVisibility(View.VISIBLE);
+					priceView.setVisibility(View.VISIBLE);
+				}
 			}
 		}
 		new loadTask().execute();
 
 		// setup restore button
-		Button button = (Button) findViewById(R.id.btn_nfo);
+		ImageButton button = (ImageButton) findViewById(R.id.btn_nfo);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent myIntentA1A2 = new Intent(PlayerActivity.this, InfoActivity.class);
@@ -1114,7 +1154,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		});
 
 		// setup play button
-		((Button) findViewById(R.id.btn_play))
+		((ImageButton) findViewById(R.id.btn_play))
 		.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				
@@ -1125,18 +1165,27 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 								 Toast.LENGTH_LONG)
 								 .show();
 					else
+					{
+						((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_pause);
 						startChapter(chapters.get(0).cId);
+					}
 				else
 					if(mediaPlayer.isPlaying())
+					{
 						mediaPlayer.pause();
+						((ImageButton)v).setImageResource(android.R.drawable.ic_media_play);
+					}
 					else
+					{
 						mediaPlayer.start();
+						((ImageButton)v).setImageResource(android.R.drawable.ic_media_pause);
+					}
 			}
 		});
 
 
 
-		Button button2 = (Button) findViewById(R.id.btn_downloads);
+		ImageButton button2 = (ImageButton) findViewById(R.id.btn_downloads);
 		button2.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent myIntentA1A2 = new Intent(PlayerActivity.this, DownloadsActivity.class);
@@ -1144,7 +1193,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			}
 		});
 		
-		Button btnBook = (Button) findViewById(R.id.btn_book);
+		ImageButton btnBook = (ImageButton) findViewById(R.id.btn_book);
 		btnBook.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent myIntentA1A2 = new Intent(PlayerActivity.this, BookActivity.class);
@@ -1383,7 +1432,10 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		playUrl += "?size="+gs.s().metaSizeForChapter(bid, chid)+"?range="+range;
 
 		if (mediaPlayer.isPlaying())
+		{
 			mediaPlayer.stop();
+			//((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_play);
+		}
 
 		boolean error = false;
 		try {
@@ -1440,6 +1492,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			@Override
 			public void run()
 			{
+				((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_play);
 				if(playerDialog.isShowing())
 					playerDialog.dismiss();
 			}
@@ -1464,6 +1517,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			public void run()
 			{
 				try {
+					((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_pause);
 					if(playerDialog.isShowing())
 						playerDialog.dismiss();
 				} catch (IllegalArgumentException e) {
@@ -1675,6 +1729,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 		if(mediaPlayer!=null&&mediaPlayer.isPlaying()&&!isBought)
 		{
+			((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_play);
 			mediaPlayer.pause();
 			pendingPurchaseBookId=playingBookId;
 		}
