@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="LightThemeSelector" parent="android:Theme.Holo.Light">
+<style name="LightThemeSelector" parent="Theme.Sherlock.Light">
 <!-- <item name="android:colorBackground">@color/custom_theme_color</item> -->
 </style>    
 </resources>
