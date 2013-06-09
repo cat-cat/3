@@ -56,8 +56,13 @@ public class SearchActivity  extends SherlockActivity {
 
 		// can use UI thread here
 		protected void onPostExecute(final Cursor cursor) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
+			try {
+				if (this.dialog.isShowing()) {
+					this.dialog.dismiss();
+				}
+			} catch (IllegalArgumentException  e) {
+				// TODO: handle exception
+				e.printStackTrace();
 			}
 			mAdapter.changeCursor(cursor);
 		}

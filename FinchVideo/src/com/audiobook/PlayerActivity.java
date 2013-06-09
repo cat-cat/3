@@ -55,12 +55,14 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDiskIOException;
 import android.hardware.Camera.PreviewCallback;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -164,6 +166,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		} catch (NullPointerException  e) {
 			// TODO: handle exception
 			e.printStackTrace();
+		}
+		catch (SQLiteDiskIOException e) // TODO:
+		{
+			// TODO: handle exception
+			e.printStackTrace();			
 		}
 	}
 
@@ -1394,7 +1401,14 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 					playerDialog = new ProgressDialog(
 							PlayerActivity.this);	
 					playerDialog.setMessage("Загрузка главы\nПожалуйста подождите...");
-					playerDialog.show();
+					
+					try {	
+						playerDialog.show();
+					} catch (BadTokenException  e) {
+						// TODO: handle exception
+						e.printStackTrace();
+					}
+
 				}
 			});
 		}
@@ -1488,15 +1502,20 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 
 //		mediaPlayerState = PlayerState.PL_ERROR;
 		
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run()
-			{
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run()
+//			{
 				((ImageButton) findViewById(R.id.btn_play)).setImageResource(android.R.drawable.ic_media_play);
-				if(playerDialog.isShowing())
-					playerDialog.dismiss();
-			}
-		});
+				try {
+					if(playerDialog.isShowing())
+						playerDialog.dismiss();
+				} catch (IllegalArgumentException  e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+//			}
+//		});
 		
 		// message box
 		 Toast.makeText(getApplicationContext(),

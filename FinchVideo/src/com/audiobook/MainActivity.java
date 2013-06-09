@@ -418,9 +418,15 @@ public class MainActivity extends SherlockActivity {
 			@Override
 			protected void onPostExecute(final Cursor c)
 			{
-				if (this.dialog.isShowing()) {
-					this.dialog.dismiss();
+				try {
+					if (this.dialog.isShowing()) {
+						this.dialog.dismiss();
+					}
+				} catch (IllegalArgumentException  e) {
+					// TODO: handle exception
+					e.printStackTrace();
 				}
+				
 				searchList.setAdapter(mAdapter);
 				mAdapter.changeCursor(c);
 				
