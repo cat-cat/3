@@ -31,7 +31,7 @@
                 android:background="@color/medium_gray"
                 >
         
-            <com.audiobook.MesgEditText
+            <EditText
                     android:id="@+id/video_search_box"
                     android:width="0px"
                     android:height="40px"

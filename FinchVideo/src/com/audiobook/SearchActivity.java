@@ -36,7 +36,7 @@ public class SearchActivity  extends SherlockActivity {
     private ArrayList<CatalogItem> items;
     private SimpleCursorAdapter mAdapter;
 
-    private MesgEditText mSearchText;
+    private EditText mSearchText;
 	private class QueryTask extends AsyncTask<String, Void, Cursor> {
 		private final ProgressDialog dialog = new ProgressDialog(
 				SearchActivity.this);
@@ -312,9 +312,9 @@ public class SearchActivity  extends SherlockActivity {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.search_query_activity);
 	        
-	        mSearchText = (MesgEditText) findViewById(R.id.video_search_box);
+	        mSearchText = (EditText) findViewById(R.id.video_search_box);
 	        Resources r = getResources();
-	        mSearchText.setMesgText(r.getString(R.string.finch_video_search));
+	        mSearchText.setText(r.getString(R.string.finch_video_search));
 	        mSearchText.setOnEditorActionListener(
 	            new EditText.OnEditorActionListener() {
 	                @Override
@@ -350,7 +350,8 @@ public class SearchActivity  extends SherlockActivity {
 
 	    // sends the query to the finch video content provider
 	    void query() {
-	        if (!mSearchText.searchEmpty()) {
+	    	CharSequence actualText = mSearchText.getText();
+	        if (!"".equalsIgnoreCase(actualText.toString())) {
 	            Cursor c = db_GetBooksWithScope("Новые",mSearchText.getText().toString());
 	            mAdapter.changeCursor(c);
 	        }
