@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.audiobook"
-    android:versionCode="25"
-    android:versionName="Аудиокниги" >
+    android:versionCode="26"
+    android:versionName="Аудио книги" >
         <supports-screens android:smallScreens="true"
                       android:normalScreens="true"
                       android:largeScreens="true"

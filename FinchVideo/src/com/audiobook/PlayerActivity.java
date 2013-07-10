@@ -1454,8 +1454,11 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 		boolean error = false;
 		try {
 			mediaPlayer.reset();
-			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			
+			// TODO:
+//			mediaPlayer.setDataSource(playUrl);
 			mediaPlayer.setDataSource(playUrl);
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.prepareAsync();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
