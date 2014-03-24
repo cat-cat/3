@@ -311,35 +311,35 @@ public class FileManager {
 	 * @param bookId ид книги. 
 	 * @param trackId ид трека.
 	 */
-	public void SaveAudio(InputStream inStream, String bookId, String trackId){
-		if(!this.mExternalStorageWriteable) return;
-		File dir = new File(Environment.getExternalStorageDirectory()+audio);
-		if(!dir.exists()){
-			dir.mkdirs();
-		}
-		try {
-			this.lastUse = FileManager.audio;
-			String fileName = makeName(bookId, trackId);
-			String st = Environment.getExternalStorageDirectory()+fileName; 
-			File f = new File(st);			
-			FileOutputStream stream = new FileOutputStream(f);
-			BufferedOutputStream outbf = new BufferedOutputStream(stream);
-			BufferedInputStream inbf = new BufferedInputStream(inStream);
-			byte[] buf = new byte[256]; 
-			int count;
-			while((count = inbf.read(buf))!=-1){
-				outbf.write(buf, 0, count);
-			}
-			outbf.close();
-			inbf.close();
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	public void SaveAudio(InputStream inStream, String bookId, String trackId){
+//		if(!this.mExternalStorageWriteable) return;
+//		File dir = new File(Environment.getExternalStorageDirectory()+audio);
+//		if(!dir.exists()){
+//			dir.mkdirs();
+//		}
+//		try {
+//			this.lastUse = FileManager.audio;
+//			String fileName = makeName(bookId, trackId);
+//			String st = Environment.getExternalStorageDirectory()+fileName; 
+//			File f = new File(st);			
+//			FileOutputStream stream = new FileOutputStream(f);
+//			BufferedOutputStream outbf = new BufferedOutputStream(stream);
+//			BufferedInputStream inbf = new BufferedInputStream(inStream);
+//			byte[] buf = new byte[256]; 
+//			int count;
+//			while((count = inbf.read(buf))!=-1){
+//				outbf.write(buf, 0, count);
+//			}
+//			outbf.close();
+//			inbf.close();
+//		} 
+//		catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	/**
 	 * Метод сохранения текста.

@@ -534,14 +534,15 @@ public class AudioServer implements Runnable
 				buff = bbuffer.array();
 				
 				//TODO Перенести в нормальный класс.
-		    	for(int i = 0; i < readBytes; i++)
-		    	{
-		    		buff[i] = (byte) (buff[i] ^ key[keyIndex]);
-		    		if(keyIndex < keyLength)
-			        	keyIndex++;
-			        else
-			        	keyIndex = 0;
-		    	}
+				// commented to support v2 API
+//		    	for(int i = 0; i < readBytes; i++)
+//		    	{
+//		    		buff[i] = (byte) (buff[i] ^ key[keyIndex]);
+//		    		if(keyIndex < keyLength)
+//			        	keyIndex++;
+//			        else
+//			        	keyIndex = 0;
+//		    	}
 		    	clientStream.write(buff, 0, readBytes);
 				
 				bbuffer.rewind();

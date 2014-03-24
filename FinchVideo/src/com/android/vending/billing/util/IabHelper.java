@@ -621,6 +621,26 @@ public class IabHelper {
     }
 
 
+    // mychanges
+    public int consumePurchase(int One, String package_name, String token) {
+    	int res = 0;
+    	try {
+	        int response = mService.consumePurchase(3, mContext.getPackageName(), token);
+	        if (response == BILLING_RESPONSE_RESULT_OK) {
+	           logDebug("Successfully consumed token: " + token);
+	        }
+	        else {
+	           logDebug("Error consuming consuming sku " + token + ". " + getResponseDesc(response));
+	           res = 1;
+	        }    	
+	    }
+	    catch (RemoteException e) {
+	    	logDebug("Remote exception while consuming. token/exception: " + token + e);
+	    	res = 1;
+	    }
+    	return res;
+    }
+    
     /**
      * Consumes a given in-app product. Consuming can only be done on an item
      * that's owned, and as a result of consumption, the user will no longer own it.

@@ -313,51 +313,22 @@ public class AudioLoad extends Load
 //		Server server = new Server(context);
 //		downloadInfo = server.getTrackDownloadUrl(cb.GetCommand());
 		//downloadInfo = getTrackDownloadUrl(cb.GetCommand());
-		String url = String.format("http://%s/chapter.php?bid=%s&ch=%s",gs.s().Host(),bookId,trackNumber);
+		String devid = gs.s().deviceId();
+		String url = String.format("http://%s/lrs_get_mm_file.php?bid=%s&fileid=%s&devid=%s",gs.s().Host(),bookId,trackNumber,devid);
 		// DOWNLOAD THE PROJECT JSON FILE
-
-				HttpClient trackhttpclient = new DefaultHttpClient();
-
-		        try {
-
-		            HttpGet httpget = new HttpGet(url);
-
-		            // Create a response handler
-
-		            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-
-		            String responseBody = trackhttpclient.execute(httpget, responseHandler);
+		HttpResponse response = gs.s().srvResponse(url);
+		String responseBody = gs.s().responseString(response);								
 		            
-		            try {
-		            	gs.s().handleSrvError(responseBody);
-						ArrayList<String> nl = gs.s().getNodeList("//chapter_path", responseBody);
-						url = nl.get(0);
-						url.toString();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+        try {
+        	gs.s().handleSrvError(responseBody);
+			ArrayList<String> nl = gs.s().getNodeList("//chapter_path", responseBody);
+			url = nl.get(0);
+			url.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-
-		        } catch (ClientProtocolException e) {
-
-					e.printStackTrace();
-
-				} catch (IOException e) {
-
-					e.printStackTrace();
-
-				} finally {
-
-		            // When HttpClient instance is no longer needed,
-
-		            // shut down the connection manager to ensure
-
-		            // immediate deallocation of all system resources
-
-		            trackhttpclient.getConnectionManager().shutdown();
-
-		        }
 
 		
 //		if(downloadInfo.url == null)
@@ -460,8 +431,8 @@ public class AudioLoad extends Load
 			httpRequest.addHeader("Range", "bytes=" + Long.toString(downloadedBytes) + "-");
 
 		AbstractHttpClient httpclient = new DefaultHttpClient();
-		httpclient.setCookieStore(SourceProvider.GetSessionCookies());
-		HttpResponse response = null;
+//		httpclient.setCookieStore(SourceProvider.GetSessionCookies());
+//		HttpResponse response = null;
 		try
 		{
 			response = (HttpResponse)httpclient.execute(httpRequest);
@@ -494,7 +465,7 @@ public class AudioLoad extends Load
 
 		track = new Track();
 		//track.audioDownloadProcentage = (int) gs.s().calcDownProgressForBook(bookId, trackNumber);
-		track.bookId = Integer.parseInt(bookId);
+		track.bookId = bookId;
 		track.created_at = null;
 //		track.file.bitrate = 192;
 		track.file.size = gs.s().metaSizeForChapter(bookId, trackNumber);
@@ -724,28 +695,29 @@ public class AudioLoad extends Load
 //		    final byte[] key = Crypt.GenerateRekey();
 //		    final short keyLength = (short) (key.length - 2);
 //		    short keyIndex = (short) (downloadedBytes % (keyLength + 1));
-		    
+
+		    // mychange: commented to support v2 API
 			byte[] buffer = new byte[BUFFER_SIZE];
 			int readed = -1;		
 			while(isRunning && (readed = is.read(buffer)) != -1)
 			{
-				for(int i = 0; i < readed; i++)
-		    	{
-					buffer[i] = (byte) (buffer[i] ^ transportKey[transportKeyIndex] ^ storeKey[storeKeyIndex]);
-		    		if(transportKeyIndex < transportKeyLength)
-		    			transportKeyIndex++;
-			        else
-			        	transportKeyIndex = 0;
-		    		if(storeKeyIndex < storeKeyLength)
-		    			storeKeyIndex++;
-		    		else
-		    			storeKeyIndex = 0;
-//					buffer[i] = (byte) (buffer[i] ^ key[keyIndex]);
-//					if(keyIndex < keyLength)
-//						keyIndex++;
+//				for(int i = 0; i < readed; i++)
+//		    	{
+//					buffer[i] = (byte) (buffer[i] ^ transportKey[transportKeyIndex] ^ storeKey[storeKeyIndex]);
+//		    		if(transportKeyIndex < transportKeyLength)
+//		    			transportKeyIndex++;
+//			        else
+//			        	transportKeyIndex = 0;
+//		    		if(storeKeyIndex < storeKeyLength)
+//		    			storeKeyIndex++;
 //		    		else
-//		    			keyIndex = 0;
-		    	}
+//		    			storeKeyIndex = 0;
+////					buffer[i] = (byte) (buffer[i] ^ key[keyIndex]);
+////					if(keyIndex < keyLength)
+////						keyIndex++;
+////		    		else
+////		    			keyIndex = 0;
+//		    	}
 
 				try
 				{

@@ -78,7 +78,7 @@ public class Track {
 	/** 
 	 * Получение строкового представления.
 	 */
-	public int bookId;
+	public String bookId;
 	public Date from;
 	/**
 	 * Для купленного трека - значение не известно.

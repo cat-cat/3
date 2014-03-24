@@ -108,7 +108,7 @@ public class SourceProvider {
 		
 		AbstractHttpClient httpclient = new DefaultHttpClient();
 		
-        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
+//        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
         
 		HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
 		HttpEntity entity = response.getEntity();
@@ -206,24 +206,24 @@ public class SourceProvider {
 			httpRequest.addHeader(HEADER_USER_AGENT, USER_AGENT);
 			
 			AbstractHttpClient httpclient = new DefaultHttpClient();
-	        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
+//	        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
 	        
 			try
 			{
 				response = (HttpResponse) httpclient.execute(httpRequest);
-				Header h = response.getFirstHeader("Librofon-Errcode");
-				if ( h != null )
-				{
-					try
-					{
-						if ( Integer.parseInt(h.getValue()) == ConnectionErrorCodes.WRONG_SESSION )
-							response = null;
-					}
-					catch (NumberFormatException e)
-					{
-						response = null;
-					}
-				}
+//				Header h = response.getFirstHeader("Librofon-Errcode");
+//				if ( h != null )
+//				{
+//					try
+//					{
+//						if ( Integer.parseInt(h.getValue()) == ConnectionErrorCodes.WRONG_SESSION )
+//							response = null;
+//					}
+//					catch (NumberFormatException e)
+//					{
+//						response = null;
+//					}
+//				}
 			}
 			catch (ClientProtocolException e)
 			{
@@ -264,7 +264,7 @@ public class SourceProvider {
 		    httpRequest.addHeader(HEADER_DEVICE, deviceId);
 		    httpRequest.addHeader(HEADER_USER_AGENT, USER_AGENT);
 	        AbstractHttpClient httpclient = new DefaultHttpClient();
-	        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
+//	        httpclient.setCookieStore(SourceProvider.GetSessionCookies());
 	        
 	        HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
 	        HttpEntity entity = response.getEntity();
@@ -316,7 +316,7 @@ public class SourceProvider {
 		AbstractHttpClient client = new DefaultHttpClient();
         client.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
         client.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, Boolean.FALSE);
-        client.setCookieStore(SourceProvider.GetSessionCookies());
+//        client.setCookieStore(SourceProvider.GetSessionCookies());
         
         HttpResponse response = client.execute(request);
         HttpEntity entity = response.getEntity();
@@ -391,18 +391,18 @@ public class SourceProvider {
 		}
 	}
 
-	synchronized public static CookieStore GetSessionCookies()
-	{
-		if(cookies != null)
-		{
-//			if(cookies.clearExpired(new Date()) && cookies.getCookies().size() < 1)
-			if(cookies.clearExpired(new Date()))
-				Reconnect();
-		}
-		else
-			Reconnect();
-		return cookies;
-	}
+//	synchronized public static CookieStore GetSessionCookies()
+//	{
+//		if(cookies != null)
+//		{
+////			if(cookies.clearExpired(new Date()) && cookies.getCookies().size() < 1)
+//			if(cookies.clearExpired(new Date()))
+//				Reconnect();
+//		}
+//		else
+//			Reconnect();
+//		return cookies;
+//	}
 	
 	/**
 	 * Проверяется доступность интернет, путём 'дёрганья' google.ru.

@@ -363,7 +363,7 @@ public class MainActivity extends SherlockActivity {
 						+ " t_abooks_genres"
 						+ " WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
 						+ " GROUP BY name"
-						+ " ORDER BY  type, name DESC  LIMIT ?, ?";
+						+ " ORDER BY  t_genres.genre_id, name ASC  LIMIT ?, ?";
 
 				Cursor c = gs.db.rawQuery(selection, new String[] {"-1", "-1", "0", "20000"});
 
@@ -393,7 +393,7 @@ public class MainActivity extends SherlockActivity {
 						view.findViewById(R.id.video_text);
 						String videoText = cursor.getString(i);
 						tv.setText(videoText);
-						((View)view.getParent()).setBackgroundColor(0xFFFFFFFF );
+//						((View)view.getParent()).setBackgroundColor(0xFFFFFFFF );
 
 						break;
 						case 0: // id

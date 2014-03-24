@@ -19,11 +19,13 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -65,15 +67,16 @@ public class gs extends Handler {
 	XPathFactory factory = XPathFactory.newInstance();
 	XPath xPath = factory.newXPath();
 
-	//public static final String testProduct = "001.trash";
-	//public static final String testProduct = "android.test.purchased";
+//	public static final String testProduct = "lrs0";
+	public static final String testProduct = "android.test.purchased";
 
 	public static final String pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDISZUCTLy5BM4YW9p4gAkS+4FH24zB2ecBWGQ4VQN9OLgc//lH5/evqXkyKkQl5PWDrY0jWpRSf4hxlsmbEl5qpOZ6hev7Wi4SitK6paShnFSe8GEpJ5GmYlU04I66CJW8q4eqKtqupCuXWfV01DKVgrSlGrQfjcVs5Z4SRkfbxEOFmOgkSKdtlrdvSBkavfvvkFC9KM7RTRx56WWAkm7JyV0w2xzBcNGNXQ8IXamYi+08QaJPnYYClEITStfWQRPdMQHHTEF1kfb2YaZ/UBQNqSY0ltBloERwV0d1m4/0siTW8EW77ogncBIghYWmi4bWtaLuL1QuQWJz8DfRXuwIDAQAB";
 
 	// The Android's default system path of your application database.
 	private final String basePath = "/Android/data/com.audiobook/";
 	private Context ctx;
-	private String DB_NAME = "books.db";
+//	private String DB_NAME = "books.db";
+	private String DB_NAME = "database_lrs.db";
 
 	private static gs   _instance;
 
@@ -153,79 +156,63 @@ public class gs extends Handler {
 		String url = String.format("http://%s/update.php?dev=%s&updateid=%s",gs.s().Host(),android_id, updateid);
 		// DOWNLOAD THE PROJECT JSON FILE
 
-		HttpClient trackhttpclient = new DefaultHttpClient();
+		HttpResponse response = gs.s().srvResponse(url);
+		String responseBody = gs.s().responseString(response);
 
 		try {
-
-			HttpGet httpget = new HttpGet(url);
-
-			// Create a response handler
-
-			ResponseHandler<String> responseHandler = new BasicResponseHandler();
-
-			String responseBody = trackhttpclient.execute(httpget, responseHandler);
-
-			try {
-				gs.s().handleSrvError(responseBody);
-				ArrayList<String> nl = gs.s().getNodeList("//sql", responseBody);
-				if(nl.size()>0)
-				{
-					String sql = nl.get(0);
-					db_PerformUpdate(sql);
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}finally
+			gs.s().handleSrvError(responseBody);
+			ArrayList<String> nl = gs.s().getNodeList("//sql", responseBody);
+			if(nl.size()>0)
 			{
-
+				String sql = nl.get(0);
+				db_PerformUpdate(sql);
 			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally
+		{
+
+		}
 
 
 
-			ArrayList<String> ar = null;
-			try {
-				ar = gs.s().getNodeList("//sql/@newbooks", responseBody);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			// TODO: if connection bad ar will be null
-			if(ar==null)
-				return false;
-			
-			if (ar.size()>0) {
-				final int nc = Integer.parseInt( ar.get(0));
+		ArrayList<String> ar = null;
+		try {
+			ar = gs.s().getNodeList("//sql/@newbooks", responseBody);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// TODO: if connection bad ar will be null
+		if(ar==null)
+			return false;
+		
+		if (ar.size()>0) {
+			final int nc = Integer.parseInt( ar.get(0));
 
-				if (nc > 0) {
+			if (nc > 0) {
+				
+				new AsyncTask<Void,Void,Void>()
+				{
+
+					@Override
+					protected Void doInBackground(Void... arg0) {
+						// TODO Auto-generated method stub
+						return null;
+					}
 					
-					new AsyncTask<Void,Void,Void>()
+					@Override
+					protected void onPostExecute(Void args)
 					{
-
-						@Override
-						protected Void doInBackground(Void... arg0) {
-							// TODO Auto-generated method stub
-							return null;
-						}
-						
-						@Override
-						protected void onPostExecute(Void args)
-						{
-							m(String.format("Обновление! Получено новых книг: %d", nc));							
-						}
-						
-					}.execute();
-					 
-				}
+						m(String.format("Обновление! Получено новых книг: %d", nc));							
+					}
+					
+				}.execute();
+				 
 			}
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}finally{}
+		}
 
 		return true;
 	}
@@ -445,24 +432,25 @@ public class gs extends Handler {
 			//			httpRequest.addHeader(HEADER_USER_AGENT, USER_AGENT);
 
 			AbstractHttpClient httpclient = new DefaultHttpClient();
-			httpclient.setCookieStore(SourceProvider.GetSessionCookies());
-
+//			httpclient.setCookieStore(SourceProvider.GetSessionCookies());
+//			HttpHost proxy = new HttpHost("192.168.0.100", 3128, "http");
+//			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 			try
 			{
 				response = (HttpResponse) httpclient.execute(httpRequest);
-				Header h = response.getFirstHeader("Librofon-Errcode");
-				if ( h != null )
-				{
-					try
-					{
-						if ( Integer.parseInt(h.getValue()) == ConnectionErrorCodes.WRONG_SESSION )
-							response = null;
-					}
-					catch (NumberFormatException e)
-					{
-						response = null;
-					}
-				}
+//				Header h = response.getFirstHeader("Librofon-Errcode");
+//				if ( h != null )
+//				{
+//					try
+//					{
+//						if ( Integer.parseInt(h.getValue()) == ConnectionErrorCodes.WRONG_SESSION )
+//							response = null;
+//					}
+//					catch (NumberFormatException e)
+//					{
+//						response = null;
+//					}
+//				}
 			}
 			catch (ClientProtocolException e)
 			{
@@ -591,8 +579,8 @@ public class gs extends Handler {
 
 	public String Host()
 	{
-		//return "192.168.0.100:8080";
-		return "book-smile.ru";
+//		return "192.168.0.100:8080/v2";
+		return "book-smile.ru/v2";
 	}
 	public String dbp()
 	{
