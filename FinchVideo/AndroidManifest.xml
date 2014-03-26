@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.audiobook"
-    android:versionCode="28"
+    android:versionCode="29"
     android:versionName="Аудиокниги" >
         <supports-screens android:smallScreens="true"
                       android:normalScreens="true"
@@ -9,12 +9,12 @@
                       android:xlargeScreens="true"
                       android:requiresSmallestWidthDp="320" />
         
-    <uses-sdk android:minSdkVersion="8" android:maxSdkVersion="17" android:targetSdkVersion="15"/>    
+    <uses-sdk android:minSdkVersion="8" android:maxSdkVersion="19" android:targetSdkVersion="17"/>    
     <!--<uses-sdk android:minSdkVersion="7" />-->
     
     <!-- Required permission to check licensing. -->
     <!-- <uses-permission android:name="com.android.vending.CHECK_LICENSE" /> -->
-    
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />    
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -22,8 +22,8 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-	<uses-permission android:name="android.permission.GET_TASKS" />
+<!-- 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> -->
+<!-- <uses-permission android:name="android.permission.GET_TASKS" /> -->
 
 	<uses-permission android:name="com.android.vending.BILLING" />
 

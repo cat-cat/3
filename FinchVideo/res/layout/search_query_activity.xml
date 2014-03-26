@@ -32,16 +32,18 @@
                 >
         
             <EditText
-                    android:id="@+id/video_search_box"
-                    android:width="0px"
-                    android:height="40px"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/finch_video_search"
-                    android:lines="1"
-                    android:singleLine="true"
-                    />
+                android:id="@+id/video_search_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:height="40px"
+                android:hint="Введите автора или название"
+                android:lines="1"
+                android:singleLine="true"
+                android:text="@string/finch_video_search"
+                android:textColor="@color/white"
+                android:width="0px" />
+
             <ImageButton
                     android:id="@+id/video_update_button"
                     android:background="@drawable/video_reload"

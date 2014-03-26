@@ -313,8 +313,8 @@ public class AudioLoad extends Load
 //		Server server = new Server(context);
 //		downloadInfo = server.getTrackDownloadUrl(cb.GetCommand());
 		//downloadInfo = getTrackDownloadUrl(cb.GetCommand());
-		String devid = gs.s().deviceId();
-		String url = String.format("http://%s/lrs_get_mm_file.php?bid=%s&fileid=%s&devid=%s",gs.s().Host(),bookId,trackNumber,devid);
+		String possibleEmail = gs.s().possibleEmail();
+		String url = String.format("http://%s/lrs_get_mm_file.php?bid=%s&fileid=%s&devid=%s",gs.s().Host(),bookId,trackNumber,possibleEmail);
 		// DOWNLOAD THE PROJECT JSON FILE
 		HttpResponse response = gs.s().srvResponse(url);
 		String responseBody = gs.s().responseString(response);								

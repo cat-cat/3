@@ -46,8 +46,11 @@ import dataProvider.internetProvider.helpers.SourceProvider;
 import ru.old.Errors;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -57,6 +60,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.util.Patterns;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -408,6 +412,20 @@ public class gs extends Handler {
 		return content;
 	}
 
+	public String possibleEmail()
+	{
+		Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
+		Account[] accounts = AccountManager.get(ctx).getAccounts();
+		String pe = deviceId(); // if email will not be found
+		for (Account account : accounts) {
+		    if (emailPattern.matcher(account.name).matches()) {
+		        pe = account.name;
+		        break;
+		    }
+		}
+		return pe;
+	}
+	
 	public HttpResponse srvResponse(String url)
 	{
 		HttpResponse response = null;

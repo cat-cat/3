@@ -206,7 +206,7 @@ public class CatalogActivity extends SherlockActivity {
 						+" t_abooks_genres"
 						+" WHERE t_genres.genre_parent_id = ? AND t_genres.genre_id = t_abooks_genres.genre_id"
 						+" GROUP BY name"
-						+" ORDER BY  type, name ASC  LIMIT ?, ?";
+						+" ORDER BY  type, name DESC  LIMIT ?, ?";
 				Intent myLocalIntent = getIntent();
 				Bundle myBundle = myLocalIntent.getExtras();
 
