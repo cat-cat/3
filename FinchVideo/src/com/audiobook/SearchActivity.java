@@ -176,7 +176,7 @@ public class SearchActivity  extends SherlockActivity {
         +" t_authors ON t_abooks_authors.author_id=t_authors.author_id"
         +" WHERE (t_abooks.deleted=0 OR t_abooks.bought=1)";
         
-        if (sf!=null && !sf.isEmpty()) {
+        if (sf!=null && sf.length()!=0) {
             query = query + " AND (t_authors.name_lower LIKE ? OR title_lower LIKE ?) ";
         }
         
@@ -195,8 +195,8 @@ public class SearchActivity  extends SherlockActivity {
             String lsf = sf.toLowerCase();
             
             String[] sa = null;
-            if (sf!=null && !sf.isEmpty())
-    			sa = new String[] {"%"+scope+"%", "%"+lsf+"%"};
+            if (sf!=null && sf.length()!=0)
+    			sa = new String[] {"%"+lsf+"%", "%"+lsf+"%"};
     			
     		Cursor	c = gs.db.rawQuery(query, sa);
 	        

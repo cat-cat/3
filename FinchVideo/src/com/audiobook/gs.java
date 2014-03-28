@@ -90,7 +90,7 @@ public class gs extends Handler {
 	{
 
 		String[] array = sql.split(";");
-		if(array.length == 0 || array[0].isEmpty())
+		if(array.length == 0 || array[0].length()==0)
 			return false;
 
 		try {

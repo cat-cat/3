@@ -209,7 +209,7 @@ public class MainActivity extends SherlockActivity {
 		int length;
 
 		// Open your local db as the input stream
-		InputStream myInput = getApplicationContext().getAssets().open(gs.s().dbname());
+		InputStream myInput = getApplicationContext().getAssets().open("database_lrs.jpg");
 		while ((length = myInput.read(buffer)) > 0) {
 			myOutput.write(buffer, 0, length);
 		}
