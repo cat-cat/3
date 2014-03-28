@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.audiobook2.R;
 
 
 public class BookActivity extends Activity {

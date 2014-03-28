@@ -21,8 +21,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.download.HttpClientImageDownloader;
 
-import dataProvider.dbProvider.fileManager.FileManager;
-
 import android.app.Application;
 import android.os.Environment;
 
@@ -57,7 +55,28 @@ public class MyApplication extends Application {
 
 	        ClientConnectionManager manager = new ThreadSafeClientConnManager(params, schemeRegistry);
 
-	        File cacheDir = new File( Environment.getExternalStorageDirectory()+"/Android/data/com.audiobook/cache");
+	        boolean mExternalStorageAvailable = true;
+	        boolean mExternalStorageWriteable = true;
+	        String state = Environment.getExternalStorageState();
+
+	        if (Environment.MEDIA_MOUNTED.equals(state)) {
+	            // We can read and write the media
+	            mExternalStorageAvailable = mExternalStorageWriteable = true;
+	        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+	            // We can only read the media
+	            mExternalStorageAvailable = true;
+	            mExternalStorageWriteable = false;
+	        } else {
+	            // Something else is wrong. It may be one of many other states, but all we need
+	            //  to know is we can neither read nor write
+	            mExternalStorageAvailable = mExternalStorageWriteable = false;
+	        }
+	        File cacheDir = null;
+	        if(mExternalStorageAvailable && mExternalStorageWriteable)
+	        	cacheDir = new File( Environment.getExternalStorageDirectory()+"/Android/data/com.audiobook/cache");
+	        else
+		        cacheDir = new File( getApplicationContext().getFilesDir()+"/Android/data/com.audiobook/cache");	        
+
 	        ImageLoaderConfiguration config =
 	                new ImageLoaderConfiguration
 	                        .Builder(getApplicationContext())

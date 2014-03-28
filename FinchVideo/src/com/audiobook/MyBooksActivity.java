@@ -8,7 +8,7 @@ import junit.framework.Assert;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.audiobook.R;
+import com.audiobook2.R;
 
 import dataProvider.dbProvider.fileManager.FileManager;
 

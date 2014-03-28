@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.android.vending.billing.util.IabHelper;
 import com.android.vending.billing.util.IabResult;
 import com.android.vending.billing.util.Inventory;
+import com.audiobook2.R;
 
 public class InfoActivity extends Activity {
 	private void m(String msg) {

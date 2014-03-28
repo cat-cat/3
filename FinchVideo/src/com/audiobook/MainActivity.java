@@ -16,6 +16,7 @@ import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.audiobook2.R;
 import com.google.analytics.tracking.android.EasyTracker;
 
 /**
@@ -185,8 +187,9 @@ public class MainActivity extends SherlockActivity {
 	private void CopyDatabase() throws IOException 
 	{
 		File dir = new File(gs.s().dbpath());
+		boolean dirsmade = false;
 		if(!dir.exists()){
-			dir.mkdirs();
+			dirsmade = dir.mkdirs();
 		}
 
 		// Path to the just created empty db
@@ -216,7 +219,17 @@ public class MainActivity extends SherlockActivity {
 		myOutput.close();
 		myInput.close();    	
 	}
-
+	
+	public void createShortCut(){
+	    Intent shortcutintent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+	    shortcutintent.putExtra("duplicate", false);
+	    shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "BookSmile");
+	    Parcelable icon = Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.drawable.icon);
+	    shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+	    shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(getApplicationContext(), MainActivity.class));
+	    sendBroadcast(shortcutintent);
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -341,6 +354,8 @@ public class MainActivity extends SherlockActivity {
 						Assert.assertTrue(false);
 						e.printStackTrace();
 					}
+					
+					createShortCut();
 				}
 				
 				gs.s().setDatabase();

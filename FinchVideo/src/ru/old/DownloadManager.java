@@ -586,7 +586,7 @@ public class DownloadManager
 					public void run()
 					{Log.d("MyTrace", "DownloadManager: " + MyStackTrace.func3());
 						Stop(bookId, true);
-						FileManager.DeleteFreeFiles(bookId);
+//						FileManager.DeleteFreeFiles(bookId);
 //						requests.DeleteFreeChapter(bookId);
 //						requests.UpdateFreeBookInfo(bookId);
 						

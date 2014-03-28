@@ -74,7 +74,7 @@ public class gs extends Handler {
 //	public static final String testProduct = "lrs0";
 	public static final String testProduct = "android.test.purchased";
 
-	public static final String pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDISZUCTLy5BM4YW9p4gAkS+4FH24zB2ecBWGQ4VQN9OLgc//lH5/evqXkyKkQl5PWDrY0jWpRSf4hxlsmbEl5qpOZ6hev7Wi4SitK6paShnFSe8GEpJ5GmYlU04I66CJW8q4eqKtqupCuXWfV01DKVgrSlGrQfjcVs5Z4SRkfbxEOFmOgkSKdtlrdvSBkavfvvkFC9KM7RTRx56WWAkm7JyV0w2xzBcNGNXQ8IXamYi+08QaJPnYYClEITStfWQRPdMQHHTEF1kfb2YaZ/UBQNqSY0ltBloERwV0d1m4/0siTW8EW77ogncBIghYWmi4bWtaLuL1QuQWJz8DfRXuwIDAQAB";
+	public static final String pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlxe+n8qC+heGeGEQAaDn0OnTKtW+QbUhGIR6DlVkh7QaCMFcYlaGt0rZelZNexeISsgkPCEZNvVRat9mrfekj8HLf6uv+r0nagiCgvGMSf8M4jTAD6rd2kRWjKmT8tmzb7kjIOcFp8de0KhmpAROMYiyu9/bs/gHTDSdQ5U9H9c+1Xn2LM78UpGccVfBN4b8CyDE+hvfLE8y8vV1kRFFLzVK52hr3t2nrH5pN5FOvCVnBFAzVXJPe2XDP3pwlnZmcxDaD5if5rNL3fyBN531ImhwkmsBL0SaZn3HEFNJw3hSoNgjWRYY0I/UgByn8KMAq5FvRGriIMMMG4wVMchBrwIDAQAB";
 
 	// The Android's default system path of your application database.
 	private final String basePath = "/Android/data/com.audiobook/";
@@ -512,10 +512,8 @@ public class gs extends Handler {
 
 	public String dirsForBook(String bid)
 	{
-		if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
-			return null;
-
-		String bookDirs = Environment.getExternalStorageDirectory() + basePath + bid;
+		String bookDirs = baseDir() + basePath + bid;
+		
 		File dir = new File(bookDirs);
 		if(dir.exists() == false)
 			if(dir.mkdirs() == false)
@@ -618,6 +616,31 @@ public class gs extends Handler {
 		nlistener.startListening(ctx);		
 	}
 	
+	public String baseDir() {
+        boolean mExternalStorageAvailable = true;
+        boolean mExternalStorageWriteable = true;
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            //  to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+        String baseDir = null;
+        if(mExternalStorageAvailable && mExternalStorageWriteable)
+        	baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        else
+        	baseDir = ctx.getFilesDir().getAbsolutePath();	        
+		
+        return baseDir;		
+	}
+	
 	public void setDatabase()
 	{
 		 db = SQLiteDatabase.openDatabase(gs.s().dbp(), null,
@@ -632,7 +655,7 @@ public class gs extends Handler {
 
 	public String dbpath()
 	{
-		return Environment.getExternalStorageDirectory() +  "/Android/data/" + ctx.getPackageName() + "/databases/";
+		return baseDir() +  "/Android/data/" + ctx.getPackageName() + "/databases/";
 	}
 
 	NetworkConnectivityListener nlistener;

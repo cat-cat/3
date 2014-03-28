@@ -3,27 +3,19 @@ package com.audiobook;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
-import junit.framework.Assert;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,6 +23,11 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.audiobook2.R;
 
 public class SearchActivity  extends SherlockActivity {
     private ArrayList<CatalogItem> items;
@@ -223,13 +220,18 @@ public class SearchActivity  extends SherlockActivity {
 			//db.close();
 			return c;
     }
-    
+    	boolean activityResumed = false;
     	@Override
     	public void onResume()
     	{
     		super.onResume();
-
+    		
 			invalidateOptionsMenu();
+			
+    		if(activityResumed)
+    			return;
+    		
+    		activityResumed = true;
 //			if(gs.shouldShowPlayerButton)
 //			{
 //				Button button = (Button) findViewById(R.id.btn_go_player_search);
@@ -323,11 +325,12 @@ public class SearchActivity  extends SherlockActivity {
 	                    KeyEvent keyEvent)
 	                {
 	                    // a null key event observed on some devices
-	                    if (null != keyEvent) {
-	                        int keyCode = keyEvent.getKeyCode();
-	                        if ((keyCode == KeyEvent.KEYCODE_ENTER) &&
-	                            (keyEvent.getAction() ==
-	                                KeyEvent.ACTION_DOWN))
+//	                    if (null != keyEvent) {
+//	                        int keyCode = keyEvent.getKeyCode();
+//	                        if ((keyCode == KeyEvent.KEYCODE_ENTER) &&
+//	                            (keyEvent.getAction() ==
+//	                                KeyEvent.ACTION_DOWN))
+	                        if (textView.getText().length()==0 || actionId==EditorInfo.IME_ACTION_SEARCH)
 	                        {
 	                            // action only causes the provider to ensure
 	                            // the presence of some search results.
@@ -335,7 +338,7 @@ public class SearchActivity  extends SherlockActivity {
 
 	                            return true;
 	                        }
-	                    }
+//	                    }
 	                    return false;
 	                }
 	            });
@@ -354,6 +357,8 @@ public class SearchActivity  extends SherlockActivity {
 	        if (!"".equalsIgnoreCase(actualText.toString())) {
 	            Cursor c = db_GetBooksWithScope("Новые",mSearchText.getText().toString());
 	            mAdapter.changeCursor(c);
+	        } else {
+	        	new QueryTask().execute("Новые", ""); // get all books
 	        }
 	   }	    
 }

@@ -256,32 +256,6 @@ abstract public class Load implements Runnable
 	{Log.d("MyTrace", "Load:" + MyStackTrace.func3());
 
 	}
-	/**
-	 * Проверить доступность сохранения данных на SD-CARD.
-	 * @return true если на карточку можно записать данные, false во всех остальных случаях.
-	 */
-	protected boolean CheckCard()
-	{Log.d("MyTrace", "Load:" + MyStackTrace.func3());
-		boolean result = false;
-		
-		String state = Environment.getExternalStorageState();
-		if(Environment.MEDIA_MOUNTED.equals(state))
-		{
-		    result = true;
-		}
-		else
-		{
-			if(Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
-			{
-				onError(Errors.EXTERNAL_STORAGE_CANT_WRITE);
-			}
-			else
-			{
-				onError(Errors.EXTERNAL_STORAGE_NOT_AVAILABLE);
-			}
-		}
-		return result;
-	}
 	
 	/**
 	 * Получить данные от треке из БД.

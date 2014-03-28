@@ -67,6 +67,7 @@ import com.android.vending.billing.util.IabHelper;
 import com.android.vending.billing.util.IabResult;
 import com.android.vending.billing.util.Inventory;
 import com.android.vending.billing.util.Purchase;
+import com.audiobook2.R;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
@@ -1197,7 +1198,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 									if (result.isFailure()) {
 										Log.e("MyTrace:",
 												"**Error purchasing: " + result);
-										m("**Error purchasing: " + result);
+//										m("**Error purchasing: " + result);
 										// mHelper.handleActivityResult(0, 0,
 										// null);
 										return;
@@ -1794,7 +1795,7 @@ public class PlayerActivity extends Activity implements OnCompletionListener,
 			mediaPlayer.reset();
 
 			// TODO:
-			String filePath = FileManager.PathToAudioFile(bid, chid);
+			String filePath = gs.s().pathForBookAndChapter(bid, chid);
 			File file = new File(filePath);
 			FileInputStream inputStream = new FileInputStream(file);
 			mediaPlayer.setDataSource(inputStream.getFD());

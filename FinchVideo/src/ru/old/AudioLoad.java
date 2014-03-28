@@ -488,14 +488,14 @@ public class AudioLoad extends Load
 			return;
 		}
 		
-		if(CheckCard() == false)
-		{
-		//onError(Errors.EXTERNAL_STORAGE_NOT_AVAILABLE);
-			SaveDataToDB();
-			return;
-		}
+//		if(CheckCard() == false)
+//		{
+//		//onError(Errors.EXTERNAL_STORAGE_NOT_AVAILABLE);
+//			SaveDataToDB();
+//			return;
+//		}
 		
-		String fileName = FileManager.PathToAudioFile(bookId, trackNumber);
+		String fileName = gs.s().pathForBookAndChapter(bookId, trackNumber);
 		RandomAccessFile file = OpenFile(fileName);
 		if(file == null)
 		{
@@ -622,7 +622,7 @@ public class AudioLoad extends Load
 			track.file.size = bytesToDownload + downloadedBytes;
 			SaveDataToDB();
 		}
-		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+		StatFs stat = new StatFs(gs.s().baseDir());
 		long sdAvailSize = (long)stat.getAvailableBlocks() *(long)stat.getBlockSize();
 		if(bytesToDownload >= sdAvailSize)
 		{
@@ -797,7 +797,7 @@ public class AudioLoad extends Load
 			server.start();
 			mediaPlayer = new MediaPlayer();
 			String playUrl = "http://127.0.0.1:" + server.getPort()	+ "/file://" 
-					+ FileManager.PathToAudioFile(bookId, trackNumber);
+					+ gs.s().pathForBookAndChapter(bookId, trackNumber);
 			mediaPlayer.setDataSource(playUrl);
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 	        mediaPlayer.prepare();

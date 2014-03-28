@@ -42,7 +42,9 @@
                 android:singleLine="true"
                 android:text="@string/finch_video_search"
                 android:textColor="@color/white"
-                android:width="0px" />
+                android:width="0px"
+                android:imeOptions="actionSearch" 
+    			android:inputType="text" />
 
             <ImageButton
                     android:id="@+id/video_update_button"
