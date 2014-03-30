@@ -52,6 +52,7 @@ import junit.framework.Assert;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -59,6 +60,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings.Secure;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.ImageView;
@@ -66,6 +68,8 @@ import android.widget.Toast;
 
 
 public class gs extends Handler {
+	public static final String PROPERTY_REG_ID = "registration_id";
+	public static final String PROPERTY_PUSH_ID = "push_id";
 	static public SQLiteDatabase db=null;
 	public static boolean shouldShowPlayerButton = false;
 	XPathFactory factory = XPathFactory.newInstance();
@@ -150,14 +154,16 @@ public class gs extends Handler {
 	}
 
 	private boolean updateCatalog()
-	{		
+	{
+		Log.i("MyTrace:", "++ update catalog is called");
+		
 		if(!new File(dbp()).exists())
 			return false;
 
 		//synchronized(this) {
 
 		String updateid = db_GetLastUpdate();
-		String url = String.format("http://%s/update.php?dev=%s&updateid=%s",gs.s().Host(),android_id, updateid);
+		String url = String.format("http://%s/update_android.php?dev=%s&updateid=%s",gs.s().Host(),android_id, updateid);
 		// DOWNLOAD THE PROJECT JSON FILE
 
 		HttpResponse response = gs.s().srvResponse(url);
@@ -240,7 +246,7 @@ public class gs extends Handler {
 	{
 		if(nlistener.getState()==NetworkConnectivityListener.State.CONNECTED)
 		{
-			Log.i("MyTrace:", "++ update catalog is called");
+			Log.i("MyTrace:", "++ network connected");
 
 			new AsyncTask<Void,Void,Void>()
 			{
@@ -248,6 +254,31 @@ public class gs extends Handler {
 				@Override
 				protected Void doInBackground(Void... arg0) {
 					updateCatalog();
+										
+				    final SharedPreferences prefs = ctx.getSharedPreferences(MainActivity.class.getSimpleName(),
+				            Context.MODE_PRIVATE);
+				    Log.i("MyTrace:", "Reset pushid in handleMessage()");
+				    SharedPreferences.Editor editor = prefs.edit();
+				    String idtosend = prefs.getString(gs.PROPERTY_PUSH_ID, "");
+				    
+				    if(!TextUtils.isEmpty(idtosend))
+				    {						
+						HttpResponse response = gs.s().srvResponse(
+								String.format("http://%s/android_reg_push_id.php?pushid=%s", gs.s()
+										.Host(), idtosend));
+						
+						if(response!=null)
+						{
+							String responseString = gs.s().responseString(response);
+									
+							if(responseString.equals("ok"))
+							{
+								editor.putString(gs.PROPERTY_PUSH_ID, "");
+							    editor.commit();
+							}
+						}
+				    }
+
 					return null;
 				}
 				

@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.http.HttpResponse;
+
 import junit.framework.Assert;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -67,7 +69,6 @@ public class MainActivity extends SherlockActivity {
      */
     String SENDER_ID = "596355437360";
     public static final String EXTRA_MESSAGE = "my extra message";
-    public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	
@@ -147,8 +148,8 @@ public class MainActivity extends SherlockActivity {
 	    if (resultCode != ConnectionResult.SUCCESS) {
 	        if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
 	        	// TODO: remove this dialog
-	            GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-	                    PLAY_SERVICES_RESOLUTION_REQUEST).show();
+//	            GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+//	                    PLAY_SERVICES_RESOLUTION_REQUEST).show();
 	        } else {
 	            Log.i(TAG, "This device is not supported.");
 //	            finish();
@@ -528,7 +529,7 @@ public class MainActivity extends SherlockActivity {
 	 */
 	private String getRegistrationId(Context context) {
 	    final SharedPreferences prefs = getGCMPreferences(context);
-	    String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+	    String registrationId = prefs.getString(gs.PROPERTY_REG_ID, "");
 	    if (TextUtils.isEmpty(registrationId)) {
 	        Log.i(TAG, "Registration not found.");
 	        return "";
@@ -626,6 +627,13 @@ public class MainActivity extends SherlockActivity {
 	private void sendRegistrationIdToBackend() {
 	    // Your implementation here.
 		String idtosend = regid;
+		
+	    final SharedPreferences prefs = getGCMPreferences(context);
+	    int appVersion = getAppVersion(context);
+	    Log.i(TAG, "Saving pushid for gs.java call when inet connected " + appVersion);
+	    SharedPreferences.Editor editor = prefs.edit();
+	    editor.putString(gs.PROPERTY_PUSH_ID, idtosend);
+	    editor.commit();
 	}
 	
 	/**
@@ -640,7 +648,7 @@ public class MainActivity extends SherlockActivity {
 	    int appVersion = getAppVersion(context);
 	    Log.i(TAG, "Saving regId on app version " + appVersion);
 	    SharedPreferences.Editor editor = prefs.edit();
-	    editor.putString(PROPERTY_REG_ID, regId);
+	    editor.putString(gs.PROPERTY_REG_ID, regId);
 	    editor.putInt(PROPERTY_APP_VERSION, appVersion);
 	    editor.commit();
 	}

@@ -19,11 +19,14 @@ package com.audiobook;
 import com.audiobook2.R;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import android.app.AlertDialog;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -61,23 +64,24 @@ public class GcmIntentService extends IntentService {
              * not interested in, or that you don't recognize.
              */
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+//                sendNotification("Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " + extras.toString());
+//                sendNotification("Deleted messages on server: " + extras.toString());
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                // This loop represents the service doing some work.
-                for (int i = 0; i < 5; i++) {
-                    Log.i(TAG, "Working... " + (i + 1)
-                            + "/5 @ " + SystemClock.elapsedRealtime());
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
+//                // This loop represents the service doing some work.
+//                for (int i = 0; i < 5; i++) {
+//                    Log.i(TAG, "Working... " + (i + 1)
+//                            + "/5 @ " + SystemClock.elapsedRealtime());
+//                    try {
+//                        Thread.sleep(5000);
+//                    } catch (InterruptedException e) {
+//                    }
+//                }
+//                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification(extras.toString());
+//                String message = extras.getString("message");
+                sendNotification(extras);
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -88,7 +92,7 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg) {
+    private void sendNotification(Bundle b) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -97,12 +101,36 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-        .setSmallIcon(R.drawable.icon)
-        .setContentTitle("BookSmile")
-        .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-        .setContentText(msg);
-
+        .setSmallIcon(R.drawable.loader)
+        .setContentTitle(b.getString("title"))
+        .setStyle(new NotificationCompat.BigTextStyle().bigText(b.getString("message")))
+        .setTicker(b.getString("ticker"))
+        .setContentText(b.getString("message"))	
+        .setAutoCancel(true)
+        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        
+//        // show alert with notification
+//        AlertDialog alertDialog = new AlertDialog.Builder(
+//                getApplicationContext()).create();
+//
+//		// Setting Dialog Title
+//		alertDialog.setTitle(b.getString("title"));
+//		
+//		// Setting Dialog Message
+//		alertDialog.setMessage(b.getString("message"));
+//		
+//		// Setting OK Button
+//		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+//		        public void onClick(DialogInterface dialog, int which) {
+//		        // Write your code here to execute after dialog closed
+//		//        Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+//		        }
+//		});
+//
+//		// Showing Alert Message
+//		alertDialog.show();
     }
 }
