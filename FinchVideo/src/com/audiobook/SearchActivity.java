@@ -11,6 +11,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -195,7 +196,7 @@ public class SearchActivity  extends SherlockActivity {
             String lsf = sf.toLowerCase();
             
             String[] sa = null;
-            if (sf!=null && sf.length()!=0)
+            if (!TextUtils.isEmpty(sf))
     			sa = new String[] {"%"+lsf+"%", "%"+lsf+"%"};
     			
     		Cursor	c = gs.db.rawQuery(query, sa);
