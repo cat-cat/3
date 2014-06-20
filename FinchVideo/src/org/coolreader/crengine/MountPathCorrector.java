@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import android.util.Log;
+
 public class MountPathCorrector {
 	private final File[] mountedRoots;
 	private LinkCollection rootFileLinks = new LinkCollection(); 
@@ -30,7 +32,7 @@ public class MountPathCorrector {
 	 */
 	public void addRootLink(String from, String to) {
 		if (isRootMountPoint(from) || isRootMountPoint(to)) {
-			L.i("Adding new root link " + from + " => " + to);
+			Log.i("MyTrace", "CoolReader: " + "Adding new root link " + from + " => " + to);
 			rootFileLinks.add(new LinkInfo(from, to));
 		}
 	}

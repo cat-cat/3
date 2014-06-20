@@ -10,8 +10,6 @@ import org.coolreader.crengine.*;
 import java.util.*;
 
 public class MainDB extends BaseDB {
-	public static final Logger log = L.create("mdb");
-	public static final Logger vlog = L.create("mdb", Log.VERBOSE);
 	
 	private boolean pathCorrectionRequired = false;
 	public final int DB_VERSION = 21;
@@ -139,7 +137,7 @@ public class MainDB extends BaseDB {
 	}
 
 	private void dumpStatistics() {
-		log.i("mainDB: " + longQuery("SELECT count(*) FROM author") + " authors, "
+		Log.i("MyTrace", "CoolReader: " + "mainDB: " + longQuery("SELECT count(*) FROM author") + " authors, "
 				 + longQuery("SELECT count(*) FROM series") + " series, "
 				 + longQuery("SELECT count(*) FROM book") + " books, "
 				 + longQuery("SELECT count(*) FROM bookmark") + " bookmarks"
@@ -213,13 +211,14 @@ public class MainDB extends BaseDB {
 	}
 
 	public void removeOPDSCatalogsFromBlackList() {
-		if (OPDSConst.BLACK_LIST_MODE != OPDSConst.BLACK_LIST_MODE_FORCE) {
-		    execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE url='http://flibusta.net/opds/'");
-		} else {
-			for (String url : OPDSConst.BLACK_LIST) {
-			    execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE url=" + quoteSqlString(url));
-			}
-		}
+		// TODO:
+//		if (OPDSConst.BLACK_LIST_MODE != OPDSConst.BLACK_LIST_MODE_FORCE) {
+//		    execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE url='http://flibusta.net/opds/'");
+//		} else {
+//			for (String url : OPDSConst.BLACK_LIST) {
+//			    execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE url=" + quoteSqlString(url));
+//			}
+//		}
 	}
 	
 	public void updateOPDSCatalogLastUsage(String url) {
@@ -235,7 +234,7 @@ public class MainDB extends BaseDB {
 				lastUsage = lastUsage + 1;
 			execSQL("UPDATE opds_catalog SET last_usage="+ lastUsage +" WHERE id=" + existingIdByUrl);
 		} catch (Exception e) {
-			log.e("exception while updating OPDS catalog item", e);
+			Log.e("MyTrace", "CoolReader: " + "exception while updating OPDS catalog item", e);
 		}
 	}
 
@@ -269,14 +268,14 @@ public class MainDB extends BaseDB {
 			updateOPDSCatalogLastUsage(url);
 				
 		} catch (Exception e) {
-			log.e("exception while saving OPDS catalog item", e);
+			Log.e("MyTrace", "CoolReader: " + "exception while saving OPDS catalog item", e);
 			return false;
 		}
 		return true;
 	}
 
 	public boolean loadOPDSCatalogs(ArrayList<FileInfo> list) {
-		log.i("loadOPDSCatalogs()");
+		Log.i("MyTrace", "CoolReader: " + "loadOPDSCatalogs()");
 		boolean found = false;
 		Cursor rs = null;
 		try {
@@ -311,12 +310,12 @@ public class MainDB extends BaseDB {
 	}
 	
 	public void removeOPDSCatalog(Long id) {
-		log.i("removeOPDSCatalog(" + id + ")");
+		Log.i("MyTrace", "CoolReader: " + "removeOPDSCatalog(" + id + ")");
 		execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE id = " + id);
 	}
 
     public ArrayList<FileInfo> loadFavoriteFolders() {
-        log.i("loadFavoriteFolders()");
+        Log.i("MyTrace", "CoolReader: " + "loadFavoriteFolders()");
         Cursor rs = null;
         ArrayList<FileInfo> list = new ArrayList<FileInfo>();
         try {
@@ -837,7 +836,7 @@ public class MainDB extends BaseDB {
 					if (item.exists())
 						continue;
 					if (item.size == fi.size) {
-						log.i("Found record for file of the same name and size: treat as moved " + item.filename + " " + item.size);
+						Log.i("MyTrace", "CoolReader: " + "Found record for file of the same name and size: treat as moved " + item.filename + " " + item.size);
 						// fix and save
 						item.pathname = fi.pathname;
 						item.arcname = fi.arcname;
@@ -956,7 +955,7 @@ public class MainDB extends BaseDB {
 					if (!map.containsKey(key))
 						map.put(key, b);
 					else {
-						log.w("Removing non-unique bookmark " + b + " for " + fileInfo.getPathName());
+						Log.w("MyTrace", "CoolReader: " + "Removing non-unique bookmark " + b + " for " + fileInfo.getPathName());
 						deleteBookmark(b);
 					}
 				}
@@ -1029,7 +1028,7 @@ public class MainDB extends BaseDB {
 			}
 		}
 		if (added + changed + removed > 0)
-			vlog.i("bookmarks added:" + added + ", updated: " + changed + ", removed:" + removed);
+			Log.i("MyTrace", "CoolReader: " + "bookmarks added:" + added + ", updated: " + changed + ", removed:" + removed);
 	}
 
 	private boolean save(FileInfo fileInfo)	{
@@ -1043,7 +1042,7 @@ public class MainDB extends BaseDB {
 			if (oldValue != null) {
 				// found, updating
 				if (!fileInfo.equals(oldValue)) {
-					vlog.d("updating file " + fileInfo.getPathName());
+					Log.d("MyTrace", "CoolReader: " + "updating file " + fileInfo.getPathName());
 					beginChanges();
 					QueryHelper h = new QueryHelper(fileInfo, oldValue);
 					h.update(fileInfo.id);
@@ -1051,7 +1050,7 @@ public class MainDB extends BaseDB {
 				authorsChanged = !eq(fileInfo.authors, oldValue.authors);
 			} else {
 				// inserting
-				vlog.d("inserting new file " + fileInfo.getPathName());
+				Log.d("MyTrace", "CoolReader: " + "inserting new file " + fileInfo.getPathName());
 				beginChanges();
 				QueryHelper h = new QueryHelper(fileInfo, new FileInfo());
 				fileInfo.id = h.insert();
@@ -1061,7 +1060,7 @@ public class MainDB extends BaseDB {
 			fileInfoCache.put(fileInfo);
 			if (fileInfo.id != null) {
 				if ( authorsChanged ) {
-					vlog.d("updating authors for file " + fileInfo.getPathName());
+					Log.d("MyTrace", "CoolReader: " + "updating authors for file " + fileInfo.getPathName());
 					beginChanges();
 					Long[] authorIds = getAuthorIds(fileInfo.authors);
 					saveBookAuthors(fileInfo.id, authorIds);
@@ -1070,7 +1069,7 @@ public class MainDB extends BaseDB {
 			}
 			return false;
 		} catch (SQLiteException e) {
-			log.e("error while writing to DB", e);
+			Log.e("MyTrace", "CoolReader: " + "error while writing to DB", e);
 			return false;
 		}
 	}
@@ -1255,7 +1254,7 @@ public class MainDB extends BaseDB {
 				first = false;
 			}
 			buf.append(" WHERE id=" + id );
-			vlog.v("executing " + buf);
+			Log.v("MyTrace", "CoolReader: " + "executing " + buf);
 			mDB.execSQL(buf.toString(), values.toArray());
 			return true;
 		}
@@ -1283,7 +1282,7 @@ public class MainDB extends BaseDB {
 			add("flags", (long)newValue.flags, (long)oldValue.flags);
 			add("language", newValue.language, oldValue.language);
 			if (fields.size() == 0)
-				vlog.v("QueryHelper: no fields to update");
+				Log.v("MyTrace", "CoolReader: " + "QueryHelper: no fields to update");
 		}
 		QueryHelper( Bookmark newValue, Bookmark oldValue, long bookId )
 		{
@@ -1470,7 +1469,7 @@ public class MainDB extends BaseDB {
 			}
 			endReading();
 		} catch (Exception e) {
-			log.e("Exception while loading books from DB", e);
+			Log.e("MyTrace", "CoolReader: " + "Exception while loading books from DB", e);
 		}
 		return list;
 	}
@@ -1620,7 +1619,7 @@ public class MainDB extends BaseDB {
 				}
 			}
 			flush();
-			log.i("Finished. Rows corrected: " + count);
+			Log.i("MyTrace", "CoolReader: " + "Finished. Rows corrected: " + count);
 		}
 	}
 	

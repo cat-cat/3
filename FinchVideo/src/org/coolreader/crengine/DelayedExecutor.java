@@ -9,8 +9,6 @@ import android.util.Log;
  * When previously scheduled runnable was not yet executed, it's being canceled and being replaced with new one.
  */
 public class DelayedExecutor {
-
-	public static final Logger log = L.create("dt", Log.INFO);
 	
 	private boolean isBackground;
 	private Handler handler;
@@ -58,14 +56,14 @@ public class DelayedExecutor {
 			public void run() {
 				try {
 					if (currentTask != null) {
-						log.v("Running task " + toString());
+						Log.v("MyTrace", "CoolReader: " + "Running task " + toString());
 						task.run();
-						log.v("Done task " + toString());
+						Log.v("MyTrace", "CoolReader: " + "Done task " + toString());
 					} else {
-						log.w("Skipping probably canceled task " + toString());
+						Log.w("MyTrace", "CoolReader: " + "Skipping probably canceled task " + toString());
 					}
 				} catch (Exception e) {
-					log.e("Exception while executing task", e);
+					Log.e("MyTrace", "CoolReader: " + "Exception while executing task", e);
 				}
 			}
 
@@ -76,15 +74,15 @@ public class DelayedExecutor {
 		};
 		synchronized(this) {
 			if (currentTask != null) {
-				log.d("Cancelling pending task " + currentTask);
+				Log.d("MyTrace", "CoolReader: " + "Cancelling pending task " + currentTask);
 				getHandler().removeCallbacks(currentTask); // cancel pending task, replace with new one
 			}
 			currentTask = myTask;
 			if (delay > 0) {
-				log.d("Posting delayed task " + currentTask + " delay=" + delay);
+				Log.d("MyTrace", "CoolReader: " + "Posting delayed task " + currentTask + " delay=" + delay);
 				getHandler().postDelayed(currentTask, delay);
 			} else {
-				log.d("Posting task " + currentTask);
+				Log.d("MyTrace", "CoolReader: " + "Posting task " + currentTask);
 				getHandler().post(currentTask);
 			}
 		}
@@ -93,7 +91,7 @@ public class DelayedExecutor {
 	public void cancel() {
 		synchronized(this) {
 			if (currentTask != null) {
-				log.d("Cancelling pending task " + currentTask);
+				Log.d("MyTrace", "CoolReader: " + "Cancelling pending task " + currentTask);
 				getHandler().removeCallbacks(currentTask); // cancel pending task, replace with new one
 				currentTask = null;
 			}

@@ -98,7 +98,7 @@ public class BookInfo {
 			lastPosition = bm;
 		} else {
 			if (findBookmarkIndex(bm) >= 0) {
-				L.w("duplicate bookmark added " + bm.getUniqueKey());
+				Log.w("MyTrace", "ReaderView: " + "duplicate bookmark added " + bm.getUniqueKey());
 			} else {
 				bookmarks.add(bm);
 			}

@@ -2,7 +2,7 @@ package org.coolreader.crengine;
 
 import java.util.ArrayList;
 
-import org.coolreader.R;
+import com.audiobook2.R;
 
 public class ReaderAction {
 	final public String id;

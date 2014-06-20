@@ -1,6 +1,6 @@
 package org.coolreader.crengine;
 
-import org.coolreader.R;
+import com.audiobook2.R;
 
 public enum DocumentFormat {
 	/// lvtinydom.h: source document formats

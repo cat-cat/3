@@ -15,9 +15,11 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 
 //import org.coolreader.R;
+import com.audiobook2.R;
 import org.coolreader.crengine.DeviceInfo;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
@@ -30,7 +32,6 @@ import android.util.Log;
  */
 public class Engine {
 
-	public static final Logger log = L.create("en");
 	public static final Object lock = new Object();
 
 	
@@ -140,18 +141,18 @@ public class Engine {
 		public void run() {
 			try {
 				if (LOG_ENGINE_TASKS)
-					log.i("running task.work() "
+					Log.i("MyTrace", "CoolReader: " + "running task.work() "
 							+ task.getClass().getName());
 				// run task
 				task.work();
 				if (LOG_ENGINE_TASKS)
-					log.i("exited task.work() "
+					Log.i("MyTrace", "CoolReader: " + "exited task.work() "
 							+ task.getClass().getName());
 				// post success callback
 				BackgroundThread.instance().postGUI(new Runnable() {
 					public void run() {
 						if (LOG_ENGINE_TASKS)
-							log.i("running task.done() "
+							Log.i("MyTrace", "CoolReader: " + "running task.done() "
 									+ task.getClass().getName()
 									+ " in gui thread");
 						task.done();
@@ -176,12 +177,12 @@ public class Engine {
 				// });
 				// }
 			} catch (final Exception e) {
-				log.e("exception while running task "
+				Log.e("MyTrace", "CoolReader: " + "exception while running task "
 						+ task.getClass().getName(), e);
 				// post error callback
 				BackgroundThread.instance().postGUI(new Runnable() {
 					public void run() {
-						log.e("running task.fail(" + e.getMessage()
+						Log.e("MyTrace", "CoolReader: " + "running task.fail(" + e.getMessage()
 								+ ") " + task.getClass().getSimpleName()
 								+ " in gui thread ");
 						task.fail(e);
@@ -199,7 +200,7 @@ public class Engine {
 	 */
 	public void execute(final EngineTask task) {
 		if (LOG_ENGINE_TASKS)
-			log.d("executing task " + task.getClass().getSimpleName());
+			Log.d("MyTrace", "CoolReader: " + "executing task " + task.getClass().getSimpleName());
 		TaskHandler taskHandler = new TaskHandler(task);
 		BackgroundThread.instance().executeBackground(taskHandler);
 	}
@@ -212,7 +213,7 @@ public class Engine {
 	 */
 	public void post(final EngineTask task) {
 		if (LOG_ENGINE_TASKS)
-			log.d("executing task " + task.getClass().getSimpleName());
+			Log.d("MyTrace", "CoolReader: " + "executing task " + task.getClass().getSimpleName());
 		TaskHandler taskHandler = new TaskHandler(task);
 		BackgroundThread.instance().postBackground(taskHandler);
 	}
@@ -264,7 +265,7 @@ public class Engine {
 	// mBackgroundThread.executeGUI( new Runnable() {
 	// public void run() {
 	// // show progress
-	// log.v("showProgress() - in GUI thread");
+	// Log.v("MyTrace", "CoolReader: " + "showProgress() - in GUI thread");
 	// if ( mProgress!=null && progressShown ) {
 	// hideProgress();
 	// progressIcon = drawable;
@@ -349,23 +350,23 @@ public class Engine {
 		mProgressMessage = msg;
 		mProgressPos = mainProgress;
 		if (mainProgress == 10000) {
-			//log.v("mainProgress==10000 : calling hideProgress");
+			//Log.v("MyTrace", "CoolReader: " + "mainProgress==10000 : calling hideProgress");
 			hideProgress();
 			return;
 		}
-		log.v("showProgress(" + mainProgress + ", \"" + msg
+		Log.v("MyTrace", "CoolReader: " + "showProgress(" + mainProgress + ", \"" + msg
 				+ "\") is called : " + Thread.currentThread().getName());
 		if (enable_progress) {
 			BackgroundThread.instance().executeGUI(new Runnable() {
 				public void run() {
 					// show progress
-					//log.v("showProgress() - in GUI thread");
+					//Log.v("MyTrace", "CoolReader: " + "showProgress() - in GUI thread");
 					if (progressId != nextProgressId) {
-						//log.v("showProgress() - skipping duplicate progress event");
+						//Log.v("MyTrace", "CoolReader: " + "showProgress() - skipping duplicate progress event");
 						return;
 					}
 					if (mProgress == null) {
-						//log.v("showProgress() - creating progress window");
+						//Log.v("MyTrace", "CoolReader: " + "showProgress() - creating progress window");
 						try {
 							if (mActivity != null && mActivity.isStarted()) {
 								mProgress = new ProgressDialog(mActivity);
@@ -374,7 +375,7 @@ public class Engine {
 								if (progressIcon != null)
 									mProgress.setIcon(progressIcon);
 								else
-									mProgress.setIcon(R.drawable.cr3_logo);
+									mProgress.setIcon(R.drawable.icon);
 								mProgress.setMax(10000);
 								mProgress.setCancelable(false);
 								mProgress.setProgress(mainProgress);
@@ -413,13 +414,13 @@ public class Engine {
 	 */
 	public void hideProgress() {
 		final int progressId = ++nextProgressId;
-		log.v("hideProgress() - is called : "
+		Log.v("MyTrace", "CoolReader: " + "hideProgress() - is called : "
 				+ Thread.currentThread().getName());
-		// log.v("hideProgress() is called");
+		// Log.v("MyTrace", "CoolReader: " + "hideProgress() is called");
 		BackgroundThread.instance().executeGUI(new Runnable() {
 			public void run() {
 				// hide progress
-//				log.v("hideProgress() - in GUI thread");
+//				Log.v("MyTrace", "CoolReader: " + "hideProgress() - in GUI thread");
 				if (progressId != nextProgressId) {
 //					Log.v("cr3",
 //							"hideProgress() - skipping duplicate progress event");
@@ -433,7 +434,7 @@ public class Engine {
 					if (mProgress.isShowing())
 						mProgress.dismiss();
 					mProgress = null;
-//					log.v("hideProgress() - in GUI thread, finished");
+//					Log.v("MyTrace", "CoolReader: " + "hideProgress() - in GUI thread, finished");
 				}
 			}
 		});
@@ -448,7 +449,7 @@ public class Engine {
 			InputStream is = new FileInputStream(file);
 			return loadResourceUtf8(is);
 		} catch (Exception e) {
-			log.w("cannot load resource from file " + file);
+			Log.w("MyTrace", "CoolReader: " + "cannot load resource from file " + file);
 			return null;
 		}
 	}
@@ -458,7 +459,7 @@ public class Engine {
 			InputStream is = this.mActivity.getResources().openRawResource(id);
 			return loadResourceUtf8(is);
 		} catch (Exception e) {
-			log.e("cannot load resource " + id);
+			Log.e("MyTrace", "CoolReader: " + "cannot load resource " + id);
 			return null;
 		}
 	}
@@ -475,7 +476,7 @@ public class Engine {
 			String utf8 = new String(buf, 0, available, "UTF8");
 			return utf8;
 		} catch (Exception e) {
-			log.e("cannot load resource");
+			Log.e("MyTrace", "CoolReader: " + "cannot load resource");
 			return null;
 		}
 	}
@@ -485,7 +486,7 @@ public class Engine {
 			InputStream is = this.mActivity.getResources().openRawResource(id);
 			return loadResourceBytes(is);
 		} catch (Exception e) {
-			log.e("cannot load resource");
+			Log.e("MyTrace", "CoolReader: " + "cannot load resource");
 			return null;
 		}
 	}
@@ -499,7 +500,7 @@ public class Engine {
 			byte[] res = loadResourceBytes(is);
 			return res;
 		} catch (IOException e) {
-			log.e("Cannot open file " + f);
+			Log.e("MyTrace", "CoolReader: " + "Cannot open file " + f);
 		}
 		return null;
 	}
@@ -515,7 +516,7 @@ public class Engine {
 			is.close();
 			return buf;
 		} catch (Exception e) {
-			log.e("cannot load resource");
+			Log.e("MyTrace", "CoolReader: " + "cannot load resource");
 			return null;
 		}
 	}
@@ -724,7 +725,7 @@ public class Engine {
 
 	public boolean setHyphenationLanguage(final String wanted_language) {
 		String language = getLanguage(wanted_language);
-		log.i("setHyphenationLanguage( " + language + " ) is called");
+		Log.i("MyTrace", "CoolReader: " + "setHyphenationLanguage( " + language + " ) is called");
 		if (language == currentHyphLanguage || currentHyphDict != HyphDict.BOOK_LANGUAGE)
 			return false;
 		currentHyphLanguage = language;
@@ -735,7 +736,7 @@ public class Engine {
 		} else {
 			HyphDict.BOOK_LANGUAGE.language = "";
 		}
-		log.i("setHyphenationLanguage( " + language + " ) set to " + dict);
+		Log.i("MyTrace", "CoolReader: " + "setHyphenationLanguage( " + language + " ) set to " + dict);
 		return true;
 	}
 
@@ -750,7 +751,7 @@ public class Engine {
 	}
 		
 	public boolean setHyphenationDictionary(final HyphDict dict) {
-		log.i("setHyphenationDictionary( " + dict + " ) is called");
+		Log.i("MyTrace", "CoolReader: " + "setHyphenationDictionary( " + dict + " ) is called");
 		if (currentHyphDict == dict)
 			return false;
 		currentHyphDict = dict;
@@ -770,7 +771,7 @@ public class Engine {
 						data = loadResourceBytes(dict.file);
 					}
 				}
-				log.i("Setting engine's hyphenation dictionary to " + dict);
+				Log.i("MyTrace", "CoolReader: " + "Setting engine's hyphenation dictionary to " + dict);
 				setHyphenationMethod(dict.type, data);
 			}
 		});
@@ -781,7 +782,7 @@ public class Engine {
 			long start = android.os.SystemClock.uptimeMillis();
 			boolean res = scanBookPropertiesInternal(info);
 			long duration = android.os.SystemClock.uptimeMillis() - start;
-			L.v("scanBookProperties took " + duration + " ms for " + info.getPathName());
+			Log.v("MyTrace", "CoolReader: " + "scanBookProperties took " + duration + " ms for " + info.getPathName());
 			return res;
 		}
 	}
@@ -791,7 +792,7 @@ public class Engine {
 			long start = Utils.timeStamp();
 			byte[] res = scanBookCoverInternal(path);
 			long duration = Utils.timeInterval(start);
-			L.v("scanBookCover took " + duration + " ms for " + path);
+			Log.v("MyTrace", "CoolReader: " + "scanBookCover took " + duration + " ms for " + path);
 			return res;
 		}
 	}
@@ -814,7 +815,7 @@ public class Engine {
 			long start = Utils.timeStamp();
 			drawBookCoverInternal(bmp, data, fontFace, title, authors, seriesName, seriesNumber, bpp);
 			long duration = Utils.timeInterval(start);
-			L.v("drawBookCover took " + duration + " ms");
+			Log.v("MyTrace", "CoolReader: " + "drawBookCover took " + duration + " ms");
 		}
 	}
 
@@ -854,10 +855,10 @@ public class Engine {
 					}
 				}
 			} else {
-				log.i(baseDir.toString() + " is read only");
+				Log.i("MyTrace", "CoolReader: " + baseDir.toString() + " is read only");
 			}
 		} else {
-			log.i(baseDir.toString() + " is not found");
+			Log.i("MyTrace", "CoolReader: " + baseDir.toString() + " is not found");
 		}
 		return cacheDirName;
 	}
@@ -872,9 +873,9 @@ public class Engine {
 	
 	public static boolean moveFile( File oldPlace, File newPlace ) {
 		boolean removeNewFile = true;
-		log.i("Moving file " + oldPlace.getAbsolutePath() + " to " + newPlace.getAbsolutePath());
+		Log.i("MyTrace", "CoolReader: " + "Moving file " + oldPlace.getAbsolutePath() + " to " + newPlace.getAbsolutePath());
 		if ( !oldPlace.exists() ) {
-			log.e("File " + oldPlace.getAbsolutePath() + " does not exist!");
+			Log.e("MyTrace", "CoolReader: " + "File " + oldPlace.getAbsolutePath() + " does not exist!");
 			return false;
 		}
 		FileOutputStream os = null;
@@ -952,7 +953,7 @@ public class Engine {
 		cacheDirName = createCacheDir(
 				DeviceInfo.EINK_NOOK ? new File("/media/") : Environment.getExternalStorageDirectory(), CACHE_BASE_DIR_NAME);
 		// non-standard SD mount points
-		log.i(cacheDirName
+		Log.i("MyTrace", "CoolReader: " + cacheDirName
 				+ " will be used for cache, maxCacheSize=" + CACHE_DIR_SIZE);
 		if (cacheDirName == null) {
 			for (String dirname : mountedRootsMap.keySet()) {
@@ -974,11 +975,11 @@ public class Engine {
 //		}
 		// set cache directory for engine
 		if (cacheDirName != null) {
-			log.i(cacheDirName
+			Log.i("MyTrace", "CoolReader: " + cacheDirName
 					+ " will be used for cache, maxCacheSize=" + CACHE_DIR_SIZE);
 			setCacheDirectoryInternal(cacheDirName, CACHE_DIR_SIZE);
 		} else {
-			log.w("No directory for cache is available!");
+			Log.w("MyTrace", "CoolReader: " + "No directory for cache is available!");
 		}
 	}
 
@@ -992,7 +993,7 @@ public class Engine {
 			return false;
 		for (String key : list.keySet()) {
 			if (path.equals(key)) { // path.startsWith(key + "/")
-				log.w("Skipping duplicate path " + path + " == " + key);
+				Log.w("MyTrace", "CoolReader: " + "Skipping duplicate path " + path + " == " + key);
 				return false; // duplicate subpath
 			}
 		}
@@ -1001,11 +1002,11 @@ public class Engine {
 			if (dir.isDirectory()) {
 //				String[] d = dir.list();
 //				if ((d!=null && d.length>0) || dir.canWrite()) {
-					log.i("Adding FS root: " + path + " " + name);
+					Log.i("MyTrace", "CoolReader: " + "Adding FS root: " + path + " " + name);
 					list.put(path, name);
 //					return true;
 //				} else {
-//					log.i("Skipping mount point " + path + " : no files or directories found here, and writing is disabled");
+//					Log.i("MyTrace", "CoolReader: " + "Skipping mount point " + path + " : no files or directories found here, and writing is disabled");
 //				}
 			}
 		} catch (Exception e) {
@@ -1075,16 +1076,16 @@ public class Engine {
 			fstabFileName = fstabFile;
 			s = loadFileUtf8(new File(fstabFile));
 			if (s != null)
-				log.i("found fstab file " + fstabFile);
+				Log.i("MyTrace", "CoolReader: " + "found fstab file " + fstabFile);
 		}
 		if (s == null)
-			log.w("fstab file not found");
+			Log.w("MyTrace", "CoolReader: " + "fstab file not found");
 		if ( s!= null) {
 			String[] rows = s.split("\n");
 			int rulesFound = 0;
 			for (String row : rows) {
 				if (row != null && row.startsWith("dev_mount")) {
-					log.d("mount rule: " + row);
+					Log.d("MyTrace", "CoolReader: " + "mount rule: " + row);
 					rulesFound++;
 					String[] cols = Utils.splitByWhitespace(row);
 					if (cols.length >= 5) {
@@ -1097,7 +1098,7 @@ public class Engine {
 						String label = null;
 						boolean hasusb = dev.indexOf("usb") >= 0;
 						boolean hasmmc = dev.indexOf("mmc") >= 0;
-						log.i("*** mount point '" + name + "' *** " + point + "  (" + dev + ")");
+						Log.i("MyTrace", "CoolReader: " + "*** mount point '" + name + "' *** " + point + "  (" + dev + ")");
 						if ("auto".equals(mode)) {
 							// assume AUTO is for externally automount devices
 							if (hasusb)
@@ -1120,7 +1121,7 @@ public class Engine {
 				}
 			}
 			if (rulesFound == 0)
-				log.w("mount point rules not found in " + fstabFileName);
+				Log.w("MyTrace", "CoolReader: " + "mount point rules not found in " + fstabFileName);
 		}
 
 		// TODO: probably, hardcoded list is not necessary after /etc/vold parsing 
@@ -1161,7 +1162,7 @@ public class Engine {
 		for (String point : knownMountPoints) {
 			String link = isLink(point);
 			if (link != null) {
-				log.d("standard mount point path is link: " + point + " > " + link);
+				Log.d("MyTrace", "CoolReader: " + "standard mount point path is link: " + point + " > " + link);
 				addMountRoot(map, link, link);
 			} else {
 				addMountRoot(map, point, point);
@@ -1174,12 +1175,12 @@ public class Engine {
 		
 		mountedRootsMap = map;
 		Collection<File> list = new ArrayList<File>();
-		log.i("Mount ROOTS:");
+		Log.i("MyTrace", "CoolReader: " + "Mount ROOTS:");
 		for (String f : map.keySet()) {
 			File path = new File(f);
 			list.add(path);
 			String label = map.get(f);
-			log.i("*** " + f + " '" + label + "' isDirectory=" + path.isDirectory() + " canRead=" + path.canRead() + " canWrite=" + path.canRead() + " isLink=" + isLink(f));
+			Log.i("MyTrace", "CoolReader: " + "*** " + f + " '" + label + "' isDirectory=" + path.isDirectory() + " canRead=" + path.canRead() + " canWrite=" + path.canRead() + " isLink=" + isLink(f));
 		}
 		mountedRootsList = list.toArray(new File[] {});
 		pathCorrector = new MountPathCorrector(mountedRootsList);
@@ -1203,7 +1204,7 @@ public class Engine {
 
 	// public void waitTasksCompletion()
 	// {
-	// log.i("waiting for engine tasks completion");
+	// Log.i("MyTrace", "CoolReader: " + "waiting for engine tasks completion");
 	// try {
 	// mExecutor.awaitTermination(0, TimeUnit.SECONDS);
 	// } catch (InterruptedException e) {
@@ -1215,7 +1216,7 @@ public class Engine {
 	 * Uninitialize engine.
 	 */
 	public void uninit() {
-//		log.i("Engine.uninit() is called for " + hashCode());
+//		Log.i("MyTrace", "CoolReader: " + "Engine.uninit() is called for " + hashCode());
 //		if (initialized) {
 //			synchronized(this) {
 //				uninitInternal();
@@ -1226,7 +1227,7 @@ public class Engine {
 	}
 
 	protected void finalize() throws Throwable {
-		log.i("Engine.finalize() is called for " + hashCode());
+		Log.i("MyTrace", "CoolReader: " + "Engine.finalize() is called for " + hashCode());
 		// if ( initialized ) {
 		// //uninitInternal();
 		// initialized = false;
@@ -1245,7 +1246,7 @@ public class Engine {
 		ArrayList<String> fontPaths = new ArrayList<String>();
 		for (File fontDir : dirs) {
 			if (fontDir.isDirectory()) {
-				log.v("Scanning directory " + fontDir.getAbsolutePath()
+				Log.v("MyTrace", "CoolReader: " + "Scanning directory " + fontDir.getAbsolutePath()
 						+ " for font files");
 				// get font names
 				String[] fileList = fontDir.list(new FilenameFilter() {
@@ -1262,7 +1263,7 @@ public class Engine {
 					String pathName = new File(fontDir, fileList[i])
 							.getAbsolutePath();
 					fontPaths.add(pathName);
-					log.v("found font: " + pathName);
+					Log.v("MyTrace", "CoolReader: " + "found font: " + pathName);
 				}
 			}
 		}
@@ -1278,15 +1279,15 @@ public class Engine {
 //			if (force_install_library)
 //				throw new Exception("forcing install");
 			// try loading library w/o manual installation
-			log.i("trying to load library " + LIBRARY_NAME
+			Log.i("MyTrace", "CoolReader: " + "trying to load library " + LIBRARY_NAME
 					+ " w/o installation");
 			System.loadLibrary(LIBRARY_NAME);
 			// try invoke native method
-			//log.i("trying execute native method ");
+			//Log.i("MyTrace", "CoolReader: " + "trying execute native method ");
 			//setHyphenationMethod(HYPH_NONE, new byte[] {});
-			log.i(LIBRARY_NAME + " loaded successfully");
+			Log.i("MyTrace", "CoolReader: " + LIBRARY_NAME + " loaded successfully");
 //		} catch (Exception ee) {
-//			log.i(SO_NAME + " not found using standard paths, will install manually");
+//			Log.i("MyTrace", "CoolReader: " + SO_NAME + " not found using standard paths, will install manually");
 //			File sopath = mActivity.getDir("libs", Context.MODE_PRIVATE);
 //			File soname = new File(sopath, SO_NAME);
 //			try {
@@ -1308,13 +1309,13 @@ public class Engine {
 //					is.close();
 //					os.close();
 //				} else {
-//					log.i("JNI library " + soname.getAbsolutePath()
+//					Log.i("MyTrace", "CoolReader: " + "JNI library " + soname.getAbsolutePath()
 //							+ " is up to date");
 //				}
 //				System.load(soname.getAbsolutePath());
 //				//setHyphenationMethod(HYPH_NONE, new byte[] {});
 			} catch (Exception e) {
-				log.e("cannot install " + LIBRARY_NAME + " library", e);
+				Log.e("MyTrace", "CoolReader: " + "cannot install " + LIBRARY_NAME + " library", e);
 				throw new RuntimeException("Cannot load JNI library");
 //			}
 		}
@@ -1399,7 +1400,7 @@ public class Engine {
 		for (File f : dir.listFiles()) {
 			if (!f.isDirectory()) {
 				if (HyphDict.fromFile(f))
-					log.i("Registered external hyphenation dict " + f.getAbsolutePath());
+					Log.i("MyTrace", "CoolReader: " + "Registered external hyphenation dict " + f.getAbsolutePath());
 			}
 		}
 	}
@@ -1524,16 +1525,16 @@ public class Engine {
 
 	// static initialization
 	static {
-		log.i("Engine() : static initialization");
+		Log.i("MyTrace", "CoolReader: " + "Engine() : static initialization");
 		installLibrary();
 		initMountRoots();
 		mFonts = findFonts();
 		findExternalHyphDictionaries();
 		if (!initInternal(mFonts)) {
-			log.i("Engine.initInternal failed!");
+			Log.i("MyTrace", "CoolReader: " + "Engine.initInternal failed!");
 			throw new RuntimeException("Cannot initialize CREngine JNI");
 		}
 		initCacheDirectory();
-		log.i("Engine() : initialization done");
+		Log.i("MyTrace", "CoolReader: " + "Engine() : initialization done");
 	}
 }

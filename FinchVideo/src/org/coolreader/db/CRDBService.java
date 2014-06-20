@@ -14,15 +14,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class CRDBService extends Service {
-	public static final Logger log = L.create("db");
-	public static final Logger vlog = L.create("db", Log.ASSERT);
 
     private MainDB mainDB = new MainDB();
     private CoverDB coverDB = new CoverDB();
 	
     @Override
     public void onCreate() {
-    	log.i("onCreate()");
+    	Log.i("MyTrace", "CoolReader: " + "onCreate()");
     	mThread = new ServiceThread("crdb");
     	mThread.start();
     	execTask(new OpenDatabaseTask());
@@ -30,7 +28,7 @@ public class CRDBService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        log.i("Received start id " + startId + ": " + intent);
+        Log.i("MyTrace", "CoolReader: " + "Received start id " + startId + ": " + intent);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -38,7 +36,7 @@ public class CRDBService extends Service {
 
     @Override
     public void onDestroy() {
-    	log.i("onDestroy()");
+    	Log.i("MyTrace", "CoolReader: " + "onDestroy()");
     	execTask(new CloseDatabaseTask());
     	mThread.stop(5000);
     }
@@ -50,10 +48,10 @@ public class CRDBService extends Service {
     	if (cr3dir.isDirectory())
     		cr3dir.mkdirs();
     	if (!cr3dir.isDirectory() || !cr3dir.canWrite()) {
-	    	log.w("Cannot use " + cr3dir + " for writing database, will use data directory instead");
+	    	Log.w("MyTrace", "CoolReader: " + "Cannot use " + cr3dir + " for writing database, will use data directory instead");
     		cr3dir = Environment.getDataDirectory();
     	}
-    	log.i("DB directory: " + cr3dir);
+    	Log.i("MyTrace", "CoolReader: " + "DB directory: " + cr3dir);
     	return cr3dir;
     }
     
@@ -584,13 +582,13 @@ public class CRDBService extends Service {
 		@Override
 		public void run() {
 			long ts = Utils.timeStamp();
-			vlog.v(toString() + " started");
+			Log.v("MyTrace", "CoolReader: " + toString() + " started");
 			try {
 				work();
 			} catch (Exception e) {
-				log.e("Exception while running DB task in background", e);
+				Log.e("MyTrace", "CoolReader: " + "Exception while running DB task in background", e);
 			}
-			vlog.v(toString() + " finished in " + Utils.timeInterval(ts) + " ms");
+			Log.v("MyTrace", "CoolReader: " + toString() + " finished in " + Utils.timeInterval(ts) + " ms");
 		}
 		
 		public abstract void work();
@@ -602,7 +600,7 @@ public class CRDBService extends Service {
 	 * @param task is Runnable to execute
 	 */
 	private void execTask(final Task task) {
-		vlog.v("Posting task " + task);
+		Log.v("MyTrace", "CoolReader: " + "Posting task " + task);
 		mThread.post(task);
 	}
 	
@@ -612,7 +610,7 @@ public class CRDBService extends Service {
 	 * @param task is Runnable to execute
 	 */
 	private void execTask(final Task task, long delay) {
-		vlog.v("Posting task " + task + " with delay " + delay);
+		Log.v("MyTrace", "CoolReader: " + "Posting task " + task + " with delay " + delay);
 		mThread.postDelayed(task, delay);
 	}
 	
@@ -625,14 +623,14 @@ public class CRDBService extends Service {
 	private void sendTask(Handler handler, Runnable task) {
 		try {
 			if (handler != null) {
-				vlog.v("Senging task to " + handler.toString());
+				Log.v("MyTrace", "CoolReader: " + "Senging task to " + handler.toString());
 				handler.post(task);
 			} else {
-				vlog.v("No Handler provided: executing task in current thread");
+				Log.v("MyTrace", "CoolReader: " + "No Handler provided: executing task in current thread");
 				task.run();
 			}
 		} catch (Exception e) {
-			log.e("Exception in DB callback", e);
+			Log.e("MyTrace", "CoolReader: " + "Exception in DB callback", e);
 		}
 	}
 

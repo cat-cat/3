@@ -1,8 +1,8 @@
 package org.coolreader.crengine;
 
 import android.util.Log;
-import org.coolreader.R;
-import org.coolreader.plugins.OnlineStoreBook;
+import com.audiobook2.R;
+//import org.coolreader.plugins.OnlineStoreBook;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -352,30 +352,33 @@ public class FileInfo {
 	
 	public boolean isOnlineCatalogPluginBook()
 	{
-		return !isDirectory && pathname != null && pathname.startsWith(ONLINE_CATALOG_PLUGIN_PREFIX) && getOnlineStoreBookInfo() != null;
+		return false;
+//		return !isDirectory && pathname != null && pathname.startsWith(ONLINE_CATALOG_PLUGIN_PREFIX) && getOnlineStoreBookInfo() != null;
 	}
 	
 	public boolean isOPDSDir()
 	{
-		return pathname!=null && pathname.startsWith(OPDS_DIR_PREFIX) && (getOPDSEntryInfo() == null || getOPDSEntryInfo().getBestAcquisitionLink() == null);
+		return false;
+//		return pathname!=null && pathname.startsWith(OPDS_DIR_PREFIX) && (getOPDSEntryInfo() == null || getOPDSEntryInfo().getBestAcquisitionLink() == null);
 	}
 	
 	public boolean isOPDSBook()
 	{
-		return pathname!=null && pathname.startsWith(OPDS_DIR_PREFIX) && getOPDSEntryInfo() != null && getOPDSEntryInfo().getBestAcquisitionLink() != null;
+		return false;
+//		return pathname!=null && pathname.startsWith(OPDS_DIR_PREFIX) && getOPDSEntryInfo() != null && getOPDSEntryInfo().getBestAcquisitionLink() != null;
 	}
 	
-	private OPDSUtil.EntryInfo getOPDSEntryInfo() {
-		if (tag !=null && tag instanceof OPDSUtil.EntryInfo)
-			return (OPDSUtil.EntryInfo)tag;
-		return null;
-	}
+//	private OPDSUtil.EntryInfo getOPDSEntryInfo() {
+//		if (tag !=null && tag instanceof OPDSUtil.EntryInfo)
+//			return (OPDSUtil.EntryInfo)tag;
+//		return null;
+//	}
 	
-	public OnlineStoreBook getOnlineStoreBookInfo() {
-		if (tag !=null && tag instanceof OnlineStoreBook)
-			return (OnlineStoreBook)tag;
-		return null;
-	}
+//	public OnlineStoreBook getOnlineStoreBookInfo() {
+//		if (tag !=null && tag instanceof OnlineStoreBook)
+//			return (OnlineStoreBook)tag;
+//		return null;
+//	}
 	
 	public boolean isOPDSRoot()
 	{

@@ -1,8 +1,9 @@
 package org.coolreader.crengine;
 
 import org.coolreader.CoolReader;
-import org.coolreader.R;
+import com.audiobook2.R;
 
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -53,7 +54,7 @@ public class StatusBar extends LinearLayout implements Settings {
 			lblTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
 			lblPosition.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
 			if (needRelayout) {
-				CoolReader.log.d("changing status bar layout");
+				Log.d("MyTrace", "CoolReader: " + "changing status bar layout");
 				lblPosition.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				lblTitle.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				content.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
@@ -167,9 +168,10 @@ public class StatusBar extends LinearLayout implements Settings {
 				append(pos, Utils.formatTime(activity, System.currentTimeMillis()), " ");
 			}
 			if (showBattery && fullscreen) {
-				int batteryState = activity.getReaderView() != null ? activity.getReaderView().getBatteryState() : 0;
-				if (batteryState >= 0)
-					append(pos, "[" + (batteryState < 10 ? "0" : "") + batteryState + "%]", " ");
+				// TODO:
+//				int batteryState = activity.getReaderView() != null ? activity.getReaderView().getBatteryState() : 0;
+//				if (batteryState >= 0)
+//					append(pos, "[" + (batteryState < 10 ? "0" : "") + batteryState + "%]", " ");
 			}
 			boolean updated = false;
 			if (!lblPosition.getText().equals(pos)) {
@@ -185,7 +187,7 @@ public class StatusBar extends LinearLayout implements Settings {
 			else
 				indicator.setPosition(0);
 			if (updated && isShown()) {
-				CoolReader.log.d("changing status bar layout");
+				Log.d("MyTrace", "CoolReader: " + "changing status bar layout");
 				measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				forceLayout();
 			}

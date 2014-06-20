@@ -1,15 +1,10 @@
 package org.coolreader.db;
 
-import org.coolreader.crengine.L;
-import org.coolreader.crengine.Logger;
-
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 public class CoverDB extends BaseDB {
-
-	public static final Logger log = L.create("cdb");
 	
 	public final int DB_VERSION = 9;
 	private final static boolean CLEAR_ON_START = false;
@@ -40,7 +35,7 @@ public class CoverDB extends BaseDB {
 		dumpStatistics();
 	
 		if (CLEAR_ON_START) {
-			log.w("CLEAR_ON_START is ON: removing all coverpages from DB");
+			Log.w("MyTrace", "CoolReader: " + "CLEAR_ON_START is ON: removing all coverpages from DB");
 			execSQLIgnoreErrors("DELETE FROM coverpages");
 		}
 		
@@ -53,7 +48,7 @@ public class CoverDB extends BaseDB {
 	}
 
 	private void dumpStatistics() {
-		log.i("coverDB: " + longQuery("SELECT count(*) FROM coverpages") + " coverpages");
+		Log.i("MyTrace", "CoolReader: " + "coverDB: " + longQuery("SELECT count(*) FROM coverpages") + " coverpages");
 	}
 
 	public void clearCaches() {

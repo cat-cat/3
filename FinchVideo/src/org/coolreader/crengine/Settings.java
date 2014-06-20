@@ -5,6 +5,8 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import com.audiobook2.R;
+
 public interface Settings {
     public static final String PROP_PAGE_BACKGROUND_IMAGE       ="background.image";
     public static final String PROP_PAGE_BACKGROUND_IMAGE_DAY   ="background.image.day";
@@ -194,17 +196,17 @@ public interface Settings {
     	RU("ru", R.string.options_app_locale_ru, R.raw.help_template_ru),
     	UK("uk", R.string.options_app_locale_uk, R.raw.help_template_ru),
     	BG("bg", R.string.options_app_locale_bg, 0),
-    	BY("by", R.string.options_app_locale_by, 0),
+//    	BY("by", R.string.options_app_locale_by, 0),
     	SK("sk", R.string.options_app_locale_sk, 0),
     	TR("tr", R.string.options_app_locale_tr, 0),
     	LT("lt", R.string.options_app_locale_lt, 0),
     	IT("it", R.string.options_app_locale_it, 0),
     	HU("hu", R.string.options_app_locale_hu, R.raw.help_template_hu),
     	NL("nl", R.string.options_app_locale_nl, 0),
-    	PL("pl", R.string.options_app_locale_pl, 0),
+//    	PL("pl", R.string.options_app_locale_pl, 0),
         PT("pt", R.string.options_app_locale_pt, 0),
         PT_BR("pt_BR", R.string.options_app_locale_pt_rbr, 0),
-    	CS("cs", R.string.options_app_locale_cs, 0),
+//    	CS("cs", R.string.options_app_locale_cs, 0),
     	ZH_CN("zh_CN", R.string.options_app_locale_zh_cn, R.raw.help_template_zh_cn),
     	;
     	

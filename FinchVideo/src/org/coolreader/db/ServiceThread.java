@@ -2,20 +2,16 @@ package org.coolreader.db;
 
 import java.util.LinkedList;
 
-import org.coolreader.crengine.L;
-import org.coolreader.crengine.Logger;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 /**
  * Thread to run background tasks inside.
  * @author Vadim Lopatin
  */
 public class ServiceThread extends Thread {
-
-	public static final Logger log = L.create("st");
 	
 	public ServiceThread(String name) {
 		super(name);
@@ -28,7 +24,7 @@ public class ServiceThread extends Thread {
 	public void post(Runnable task) {
 		synchronized (mQueue) {
 			if (mHandler == null || mStopped) {
-				log.w("Thread is not yet started, just adding to queue " + task);
+				Log.w("MyTrace", "CoolReader: " + "Thread is not yet started, just adding to queue " + task);
 				mQueue.addLast(task);
 			} else {
 				postQueuedTasks();
@@ -70,7 +66,7 @@ public class ServiceThread extends Thread {
 	private void postQueuedTasks() {
 		while (mQueue.size() > 0) {
 			Runnable t = mQueue.removeFirst();
-			log.w("Executing queued task " + t);
+			Log.w("MyTrace", "CoolReader: " + "Executing queued task " + t);
 			mHandler.post(t);
 		}
 	}
@@ -90,14 +86,14 @@ public class ServiceThread extends Thread {
 				lock.wait(timeout);
 				return true;
 			} catch (InterruptedException e) {
-				L.i("Waiting is interrupted");
+				Log.i("MyTrace", "CoolReader: " + "Waiting is interrupted");
 			}
 		}
 		return false;
 	}
 	
 	public void stop(final long timeout) {
-		L.i("Stop is called. Not supported.");
+		Log.i("MyTrace", "CoolReader: " + "Stop is called. Not supported.");
 		waitForCompletion(timeout);
 		mHandler.getLooper().quit();
 	}
@@ -110,22 +106,22 @@ public class ServiceThread extends Thread {
 
 	@Override
 	public void run() {
-		log.i("Running service thread");
+		Log.i("MyTrace", "CoolReader: " + "Running service thread");
 		Looper.prepare();
 		mHandler = new Handler() {
 			public void handleMessage( Message message )
 			{
-				log.d("message: " + message);
+				Log.d("MyTrace", "CoolReader: " + "message: " + message);
 			}
 		};
-		log.i("Service thread handler is created");
+		Log.i("MyTrace", "CoolReader: " + "Service thread handler is created");
 		synchronized (mQueue) {
 			postQueuedTasks();
 			mStopped = false;
 		}
 		Looper.loop();
 		mHandler = null;
-		log.i("Exiting background thread");
+		Log.i("MyTrace", "CoolReader: " + "Exiting background thread");
 	}
 	private Handler mHandler;
 	private boolean mStopped = true;

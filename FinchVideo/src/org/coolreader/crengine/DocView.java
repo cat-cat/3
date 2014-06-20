@@ -2,10 +2,9 @@ package org.coolreader.crengine;
 
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class DocView {
-
-	public static final Logger log = L.create("dv");
 
 	public static final int SWAP_DONE = 0;
 	public static final int SWAP_TIMEOUT = 1;
@@ -187,7 +186,7 @@ public class DocView {
 	 */
 	public void resize(int dx, int dy) {
 		synchronized(mutex) {
-			log.d("DocView.resize(" + dx + ", "+ dy + ")");
+			Log.d("MyTrace", "CoolReader: " + "DocView.resize(" + dx + ", "+ dy + ")");
 			resizeInternal(dx, dy);
 		}
 	}

@@ -15,7 +15,7 @@ public class VMRuntimeHack {
 		if (runtime == null)
 			return false;
 		totalSize += size;
-		L.v("trackAlloc(" + size + ")  total=" + totalSize);
+		Log.v("MyTrace", "CoolReader: " + "trackAlloc(" + size + ")  total=" + totalSize);
 		try {
 			Object res = trackAllocation.invoke(runtime, Long.valueOf(size));
 			return (res instanceof Boolean) ? (Boolean)res : true;
@@ -31,7 +31,7 @@ public class VMRuntimeHack {
 		if (runtime == null)
 			return false;
 		totalSize -= size;
-		L.v("trackFree(" + size + ")  total=" + totalSize);
+		Log.v("MyTrace", "CoolReader: " + "trackFree(" + size + ")  total=" + totalSize);
 		try {
 			Object res = trackFree.invoke(runtime, Long.valueOf(size));
 			return (res instanceof Boolean) ? (Boolean)res : true;

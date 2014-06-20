@@ -6,7 +6,7 @@ import org.coolreader.db.CRDBService;
 
 import android.util.Log;
 
-public class History extends FileInfoChangeSource {
+public class History {
 	private ArrayList<BookInfo> mBooks = new ArrayList<BookInfo>();
 	private FileInfo mRecentBooksFolder;
 
@@ -129,7 +129,8 @@ public class History extends FileInfoChangeSource {
 			mRecentBooksFolder.clear();
 			for ( BookInfo book : mBooks )
 				mRecentBooksFolder.addFile(book.getFileInfo());
-			onChange(mRecentBooksFolder, false);
+			// TODO:
+//			onChange(mRecentBooksFolder, false);
 		} else {
 			Log.v("cr3", "History.updateRecentDir() : mRecentBooksFolder is null");
 		}
@@ -156,15 +157,16 @@ public class History extends FileInfoChangeSource {
 	{
 		Log.v("cr3", "History.loadFromDB()");
 		mRecentBooksFolder = mScanner.getRecentDir();
-		db.loadRecentBooks(100, new CRDBService.RecentBooksLoadingCallback() {
-			@Override
-			public void onRecentBooksListLoaded(ArrayList<BookInfo> bookList) {
-				if (bookList != null) {
-					mBooks = bookList;
-					updateRecentDir();
-				}
-			}
-		});
+		// TODO:
+//		db.loadRecentBooks(100, new CRDBService.RecentBooksLoadingCallback() {
+//			@Override
+//			public void onRecentBooksListLoaded(ArrayList<BookInfo> bookList) {
+//				if (bookList != null) {
+//					mBooks = bookList;
+//					updateRecentDir();
+//				}
+//			}
+//		});
 		if ( mRecentBooksFolder==null )
 			Log.v("cr3", "History.loadFromDB() : mRecentBooksFolder is null");
 		return true;

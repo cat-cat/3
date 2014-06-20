@@ -53,7 +53,7 @@ public class BackgroundThread extends Thread {
 	public final static void ensureBackground()
 	{
 		if ( CHECK_THREAD_CONTEXT && !isBackgroundThread() ) {
-			L.e("not in background thread", new Exception("ensureInBackgroundThread() is failed"));
+			Log.e("MyTrace", "CoolReader: " + "not in background thread", new Exception("ensureInBackgroundThread() is failed"));
 			throw new RuntimeException("ensureInBackgroundThread() is failed");
 		}
 	}
@@ -64,7 +64,7 @@ public class BackgroundThread extends Thread {
 	public final static void ensureGUI()
 	{
 		if ( CHECK_THREAD_CONTEXT && isBackgroundThread() ) {
-			L.e("not in GUI thread", new Exception("ensureGUI() is failed"));
+			Log.e("MyTrace", "CoolReader: " + "not in GUI thread", new Exception("ensureGUI() is failed"));
 			throw new RuntimeException("ensureGUI() is failed");
 		}
 	}
@@ -84,7 +84,7 @@ public class BackgroundThread extends Thread {
 		if (guiHandler != null) {
 			// forward already posted events
 			synchronized(postedGUI) {
-				L.d("Engine.setGUI: " + postedGUI.size() + " posted tasks to copy");
+				Log.d("MyTrace", "CoolReader: " + "Engine.setGUI: " + postedGUI.size() + " posted tasks to copy");
 				for ( Runnable task : postedGUI )
 					guiHandler.post( task );
 			}
@@ -147,14 +147,14 @@ public class BackgroundThread extends Thread {
 	{
 		Engine.suspendLongOperation();
 		if ( mStopped ) {
-			L.i("Posting task " + task + " to GUI queue since background thread is stopped");
+			Log.d("MyTrace", "CoolReader: " + "Posting task " + task + " to GUI queue since background thread is stopped");
 			postGUI( task );
 			return;
 		}
 		task = guard(task);
 		if ( handler==null ) {
 			synchronized(posted) {
-				L.i("Adding task " + task + " to posted list since handler is not yet created");
+				Log.d("MyTrace", "CoolReader: " + "Adding task " + task + " to posted list since handler is not yet created");
 				posted.add(task);
 			}
 		} else {
@@ -266,12 +266,12 @@ public class BackgroundThread extends Thread {
     			return null;
     		}
     	}
-    	//L.d("executeSync called");
-    	if(DBG) L.d("callBackground : posting Background task " + Thread.currentThread().getName());
+    	//Log.d("MyTrace", "CoolReader: " + "executeSync called");
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callBackground : posting Background task " + Thread.currentThread().getName());
     	final Sync<T> sync = new Sync<T>();
     	postBackground( new Runnable() {
     		public void run() {
-    			if(DBG) L.d("callBackground : inside background thread " + Thread.currentThread().getName());
+    			if(DBG) Log.d("MyTrace", "CoolReader: " + "callBackground : inside background thread " + Thread.currentThread().getName());
     			try {
     				sync.set( task.call() );
     			} catch ( Exception e ) {
@@ -279,10 +279,10 @@ public class BackgroundThread extends Thread {
     			}
     		}
     	});
-    	if(DBG) L.d("callBackground : calling get " + Thread.currentThread().getName());
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callBackground : calling get " + Thread.currentThread().getName());
     	T res = sync.get();
-    	if(DBG) L.d("callBackground : returned from get " + Thread.currentThread().getName());
-    	//L.d("executeSync done");
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callBackground : returned from get " + Thread.currentThread().getName());
+    	//Log.d("MyTrace", "CoolReader: " + "executeSync done");
     	return res;
     }
 	
@@ -297,32 +297,32 @@ public class BackgroundThread extends Thread {
     			return null;
     		}
     	}
-    	if(DBG) L.d("callGUI : posting GUI task " + Thread.currentThread().getName());
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : posting GUI task " + Thread.currentThread().getName());
     	final Sync<T> sync = new Sync<T>();
     	postGUI( new Runnable() {
     		public void run() {
-    			if(DBG) L.d("callGUI : inside GUI thread " + Thread.currentThread().getName());
+    			if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : inside GUI thread " + Thread.currentThread().getName());
     	    	T result = null;
     			try {
-        	    	L.d("callGUI : calling source callable " + Thread.currentThread().getName());
+        	    	Log.d("MyTrace", "CoolReader: " + "callGUI : calling source callable " + Thread.currentThread().getName());
     				result = task.call();
     			} catch ( Exception e ) {
-    				if(DBG) L.e("exception in postGUI", e);
+    				if(DBG) Log.e("MyTrace", "CoolReader: " + "exception in postGUI", e);
     				throw new RuntimeException(e);
     			}
     			try {
-    				if(DBG) L.d("callGUI : calling sync.set " + Thread.currentThread().getName());
+    				if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : calling sync.set " + Thread.currentThread().getName());
     				sync.set( result );
-    				if(DBG) L.d("callGUI : returned from sync.set " + Thread.currentThread().getName());
+    				if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : returned from sync.set " + Thread.currentThread().getName());
     			} catch ( Exception e ) {
-    				if(DBG) L.e("exception in postGUI", e);
+    				if(DBG) Log.e("MyTrace", "CoolReader: " + "exception in postGUI", e);
     				throw new RuntimeException(e);
     			}
     		}
     	});
-    	if(DBG) L.d("callGUI : calling get " + Thread.currentThread().getName());
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : calling get " + Thread.currentThread().getName());
     	T res = sync.get();
-    	if(DBG) L.d("callGUI : returned from get " + Thread.currentThread().getName());
+    	if(DBG) Log.d("MyTrace", "CoolReader: " + "callGUI : returned from get " + Thread.currentThread().getName());
     	return res;
     }
 	
@@ -342,7 +342,7 @@ public class BackgroundThread extends Thread {
 			@Override
 			public void run() {
 				if (handler != null) {
-					L.i("Calling quit() on background thread looper.");
+					Log.d("MyTrace", "CoolReader: " + "Calling quit() on background thread looper.");
 					handler.getLooper().quit();
 				}
 			}

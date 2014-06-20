@@ -1,18 +1,16 @@
 package org.coolreader.crengine;
 
 import android.util.Log;
-import org.coolreader.R;
+import com.audiobook2.R;
 import org.coolreader.db.CRDBService;
-import org.coolreader.plugins.OnlineStorePluginManager;
-import org.coolreader.plugins.OnlineStoreWrapper;
+//import org.coolreader.plugins.OnlineStorePluginManager;
+//import org.coolreader.plugins.OnlineStoreWrapper;
 
 import java.io.File;
 import java.util.*;
 import java.util.zip.ZipEntry;
 
 public class Scanner extends FileInfoChangeSource {
-	
-	public static final Logger log = L.create("sc");
 	
 	HashMap<String, FileInfo> mFileList = new HashMap<String, FileInfo>();
 //	ArrayList<FileInfo> mFilesForParsing = new ArrayList<FileInfo>();
@@ -65,7 +63,7 @@ public class Scanner extends FileInfoChangeSource {
 				items.add(item);
 			}
 			if ( items.size()==0 ) {
-				L.i("Supported files not found in " + zip.pathname);
+				Log.i("MyTrace", "CoolReader: " + "Supported files not found in " + zip.pathname);
 				return null;
 			} else if ( items.size()==1 ) {
 				// single supported file in archive
@@ -84,7 +82,7 @@ public class Scanner extends FileInfoChangeSource {
 				return zip;
 			}
 		} catch ( Exception e ) {
-			L.e("IOException while opening " + zip.pathname + " " + e.getMessage());
+			Log.e("MyTrace", "CoolReader: " + "IOException while opening " + zip.pathname + " " + e.getMessage());
 		}
 		return null;
 	}
@@ -117,7 +115,7 @@ public class Scanner extends FileInfoChangeSource {
 				for ( File f : items ) {
 					// check whether file is a link
 					if (Engine.isLink(f.getAbsolutePath()) != null) {
-						log.w("skipping " + f + " because it's a link");
+						Log.w("MyTrace", "CoolReader: " + "skipping " + f + " because it's a link");
 						continue;
 					}
 					if (!f.isDirectory()) {
@@ -183,7 +181,7 @@ public class Scanner extends FileInfoChangeSource {
 			baseDir.isListed = true;
 			return !baseDir.isEmpty();
 		} catch ( Exception e ) {
-			L.e("Exception while listing directory " + baseDir.pathname, e);
+			Log.e("MyTrace", "CoolReader: " + "Exception while listing directory " + baseDir.pathname, e);
 			baseDir.isListed = true;
 			return false;
 		}
@@ -204,7 +202,7 @@ public class Scanner extends FileInfoChangeSource {
 	 * @param dir is directory with changed content
 	 */
 	public void onDirectoryContentChanged(FileInfo dir) {
-		log.v("onDirectoryContentChanged(" + dir.getPathName() + ")");
+		Log.v("MyTrace", "CoolReader: " + "onDirectoryContentChanged(" + dir.getPathName() + ")");
 		onChange(dir, false);
 	}
 	
@@ -218,7 +216,7 @@ public class Scanner extends FileInfoChangeSource {
 	private void scanDirectoryFiles(final CRDBService.LocalBinder db, final FileInfo baseDir, final ScanControl control, final Engine.ProgressControl progress, final Runnable readyCallback) {
 		// GUI thread
 		BackgroundThread.ensureGUI();
-		log.d("scanDirectoryFiles(" + baseDir.getPathName() + ") ");
+		Log.d("MyTrace", "CoolReader: " + "scanDirectoryFiles(" + baseDir.getPathName() + ") ");
 		
 		// store list of files to scan
 		ArrayList<String> pathNames = new ArrayList<String>();
@@ -238,83 +236,84 @@ public class Scanner extends FileInfoChangeSource {
 			listDirectory(baseDir.getDir(i));
 		}
 
-		// load book infos for files
-		db.loadFileInfos(pathNames, new CRDBService.FileInfoLoadingCallback() {
-			@Override
-			public void onFileInfoListLoaded(ArrayList<FileInfo> list) {
-				log.v("onFileInfoListLoaded");
-				// GUI thread
-				final ArrayList<FileInfo> filesForParsing = new ArrayList<FileInfo>();
-				ArrayList<FileInfo> filesForSave = new ArrayList<FileInfo>();
-				Map<String, FileInfo> mapOfFilesFoundInDb = new HashMap<String, FileInfo>();
-				for (FileInfo f : list)
-					mapOfFilesFoundInDb.put(f.getPathName(), f);
-						
-				for (int i=0; i<baseDir.fileCount(); i++) {
-					FileInfo item = baseDir.getFile(i);
-					FileInfo fromDB = mapOfFilesFoundInDb.get(item.getPathName());
-					if (fromDB != null) {
-						// use DB value
-						baseDir.setFile(i, fromDB);
-					} else {
-						// not found in DB
-						if (item.format.canParseProperties()) {
-							filesForParsing.add(new FileInfo(item));
-						} else {
-							filesForSave.add(new FileInfo(item));
-						}
-					}
-				}
-				if (filesForSave.size() > 0) {
-					db.saveFileInfos(filesForSave);
-				}
-				if (filesForParsing.size() == 0 || control.isStopped()) {
-					readyCallback.run();
-					return;
-				}
-				// scan files in Background thread
-				BackgroundThread.instance().postBackground(new Runnable() {
-					@Override
-					public void run() {
-						// Background thread
-						final ArrayList<FileInfo> filesForSave = new ArrayList<FileInfo>();
-						try {
-							int count = filesForParsing.size();
-							for ( int i=0; i<count; i++ ) {
-								if (control.isStopped())
-									break;
-								progress.setProgress(i * 10000 / count);
-								FileInfo item = filesForParsing.get(i);
-								engine.scanBookProperties(item);
-								filesForSave.add(item);
-							}
-						} catch (Exception e) {
-							L.e("Exception while scanning", e);
-						}
-						progress.hide();
-						// jump to GUI thread
-						BackgroundThread.instance().postGUI(new Runnable() {
-							@Override
-							public void run() {
-								// GUI thread
-								try {
-									if (filesForSave.size() > 0) {
-										db.saveFileInfos(filesForSave);
-									}
-									for (FileInfo file : filesForSave)
-										baseDir.setFile(file);
-								} catch (Exception e ) {
-									L.e("Exception while scanning", e);
-								}
-								// call finish handler
-								readyCallback.run();
-							}
-						});
-					}
-					
-				});
-			}
-		});
+		// TODO:
+//		// load book infos for files
+//		db.loadFileInfos(pathNames, new CRDBService.FileInfoLoadingCallback() {
+//			@Override
+//			public void onFileInfoListLoaded(ArrayList<FileInfo> list) {
+//				Log.v("MyTrace", "CoolReader: " + "onFileInfoListLoaded");
+//				// GUI thread
+//				final ArrayList<FileInfo> filesForParsing = new ArrayList<FileInfo>();
+//				ArrayList<FileInfo> filesForSave = new ArrayList<FileInfo>();
+//				Map<String, FileInfo> mapOfFilesFoundInDb = new HashMap<String, FileInfo>();
+//				for (FileInfo f : list)
+//					mapOfFilesFoundInDb.put(f.getPathName(), f);
+//						
+//				for (int i=0; i<baseDir.fileCount(); i++) {
+//					FileInfo item = baseDir.getFile(i);
+//					FileInfo fromDB = mapOfFilesFoundInDb.get(item.getPathName());
+//					if (fromDB != null) {
+//						// use DB value
+//						baseDir.setFile(i, fromDB);
+//					} else {
+//						// not found in DB
+//						if (item.format.canParseProperties()) {
+//							filesForParsing.add(new FileInfo(item));
+//						} else {
+//							filesForSave.add(new FileInfo(item));
+//						}
+//					}
+//				}
+//				if (filesForSave.size() > 0) {
+//					db.saveFileInfos(filesForSave);
+//				}
+//				if (filesForParsing.size() == 0 || control.isStopped()) {
+//					readyCallback.run();
+//					return;
+//				}
+//				// scan files in Background thread
+//				BackgroundThread.instance().postBackground(new Runnable() {
+//					@Override
+//					public void run() {
+//						// Background thread
+//						final ArrayList<FileInfo> filesForSave = new ArrayList<FileInfo>();
+//						try {
+//							int count = filesForParsing.size();
+//							for ( int i=0; i<count; i++ ) {
+//								if (control.isStopped())
+//									break;
+//								progress.setProgress(i * 10000 / count);
+//								FileInfo item = filesForParsing.get(i);
+//								engine.scanBookProperties(item);
+//								filesForSave.add(item);
+//							}
+//						} catch (Exception e) {
+//							Log.e("MyTrace", "CoolReader: " + "Exception while scanning", e);
+//						}
+//						progress.hide();
+//						// jump to GUI thread
+//						BackgroundThread.instance().postGUI(new Runnable() {
+//							@Override
+//							public void run() {
+//								// GUI thread
+//								try {
+//									if (filesForSave.size() > 0) {
+//										db.saveFileInfos(filesForSave);
+//									}
+//									for (FileInfo file : filesForSave)
+//										baseDir.setFile(file);
+//								} catch (Exception e ) {
+//									Log.e("MyTrace", "CoolReader: " + "Exception while scanning", e);
+//								}
+//								// call finish handler
+//								readyCallback.run();
+//							}
+//						});
+//					}
+//					
+//				});
+//			}
+//		});
 	}
 	
 	/**
@@ -328,7 +327,7 @@ public class Scanner extends FileInfoChangeSource {
 		// Call in GUI thread only!
 		BackgroundThread.ensureGUI();
 
-		log.d("scanDirectory(" + baseDir.getPathName() + ") " + (recursiveScan ? "recursive" : ""));
+		Log.d("MyTrace", "CoolReader: " + "scanDirectory(" + baseDir.getPathName() + ") " + (recursiveScan ? "recursive" : ""));
 		
 		listDirectory(baseDir);
 		listSubtree( baseDir, 2, android.os.SystemClock.uptimeMillis() + 700 );
@@ -415,20 +414,20 @@ public class Scanner extends FileInfoChangeSource {
 		dir.pathname = pathname;
 		dir.filename = filename;
 		if (findRoot(pathname) != null) {
-			log.w("skipping duplicate root " + pathname);
+			Log.w("MyTrace", "CoolReader: " + "skipping duplicate root " + pathname);
 			return false; // exclude duplicates
 		}
 		if (listIt) {
-			log.i("Checking FS root " + pathname);
+			Log.i("MyTrace", "CoolReader: " + "Checking FS root " + pathname);
 			if (!dir.isReadableDirectory()) { // isWritableDirectory
-				log.w("Skipping " + pathname + " - it's not a readable directory");
+				Log.w("MyTrace", "CoolReader: " + "Skipping " + pathname + " - it's not a readable directory");
 				return false;
 			}
 			if (!listDirectory(dir)) {
-				log.w("Skipping " + pathname + " - listing failed");
+				Log.w("MyTrace", "CoolReader: " + "Skipping " + pathname + " - listing failed");
 				return false;
 			}
-			log.i("Adding FS root: " + pathname + "  " + filename);
+			Log.i("MyTrace", "CoolReader: " + "Adding FS root: " + pathname + "  " + filename);
 		}
 		mRoot.addDir(dir);
 		dir.parent = mRoot;
@@ -463,9 +462,10 @@ public class Scanner extends FileInfoChangeSource {
 		else if (FileInfo.STATE_FINISHED_TAG.equals(path))
 			return createBooksByStateFinishedRoot();
 		else if (path.startsWith(FileInfo.ONLINE_CATALOG_PLUGIN_PREFIX)) {
-			OnlineStoreWrapper w = OnlineStorePluginManager.getPlugin(mActivity, path);
-			if (w != null)
-				return w.createRootDirectory();
+			// TODO:
+//			OnlineStoreWrapper w = OnlineStorePluginManager.getPlugin(mActivity, path);
+//			if (w != null)
+//				return w.createRootDirectory();
 			return null;
 		} else if (path.startsWith(FileInfo.OPDS_DIR_PREFIX))
 			return createOPDSDir(path);
@@ -661,7 +661,7 @@ public class Scanner extends FileInfoChangeSource {
 			autoAddRootForFile(new File(file.pathname) );
 			parent = findParentInternal(file, root);
 			if ( parent==null ) {
-				L.e("Cannot find root directory for file " + file.pathname);
+				Log.e("MyTrace", "CoolReader: " + "Cannot find root directory for file " + file.pathname);
 				return null;
 			}
 		}
@@ -778,7 +778,7 @@ public class Scanner extends FileInfoChangeSource {
 			p = p.getParentFile();
 		}
 		if ( p!=null ) {
-			L.i("Found possible mount point " + p.getAbsolutePath());
+			Log.i("MyTrace", "CoolReader: " + "Found possible mount point " + p.getAbsolutePath());
 			return addRoot(p.getAbsolutePath(), p.getAbsolutePath(), true);
 		}
 		return false;
@@ -786,7 +786,7 @@ public class Scanner extends FileInfoChangeSource {
 	
 //	public boolean scan()
 //	{
-//		L.i("Started scanning");
+//		Log.i("MyTrace", "CoolReader: " + "Started scanning");
 //		long start = System.currentTimeMillis();
 //		mFileList.clear();
 //		mFilesForParsing.clear();
@@ -806,7 +806,7 @@ public class Scanner extends FileInfoChangeSource {
 //		lookupDB();
 //		parseBookProperties();
 //		updateProgress(9999);
-//		L.i("Finished scanning (" + (System.currentTimeMillis()-start)+ " ms)");
+//		Log.i("MyTrace", "CoolReader: " + "Finished scanning (" + (System.currentTimeMillis()-start)+ " ms)");
 //		return res;
 //	}
 	
@@ -875,7 +875,7 @@ public class Scanner extends FileInfoChangeSource {
 			if ( mRoot.getDir(i).isOPDSRoot() )
 				return mRoot.getDir(i);
 		}
-		L.w("OPDS root directory not found!");
+		Log.w("MyTrace", "CoolReader: " + "OPDS root directory not found!");
 		return null;
 	}
 	
@@ -885,7 +885,7 @@ public class Scanner extends FileInfoChangeSource {
 			if ( mRoot.getDir(i).isRecentDir())
 				return mRoot.getDir(i);
 		}
-		L.w("Recent books directory not found!");
+		Log.w("MyTrace", "CoolReader: " + "Recent books directory not found!");
 		return null;
 	}
 	

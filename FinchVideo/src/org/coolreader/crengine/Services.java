@@ -3,25 +3,24 @@ package org.coolreader.crengine;
 import org.coolreader.crengine.Engine.HyphDict;
 
 import android.os.Handler;
+import android.util.Log;
 
 public class Services {
-
-	public static final Logger log = L.create("sv");
 	
 	private static Engine mEngine;
 	private static Scanner mScanner;
 	private static History mHistory;
-	private static CoverpageManager mCoverpageManager;
-    private static FileSystemFolders mFSFolders;
+//	private static CoverpageManager mCoverpageManager;
+//    private static FileSystemFolders mFSFolders;
 
 	public static Engine getEngine() { return mEngine; }
 	public static Scanner getScanner() { return mScanner; }
 	public static History getHistory() { return mHistory; }
-    public static CoverpageManager getCoverpageManager() { return mCoverpageManager; }
-    public static FileSystemFolders getFileSystemFolders() { return mFSFolders; }
+//    public static CoverpageManager getCoverpageManager() { return mCoverpageManager; }
+//    public static FileSystemFolders getFileSystemFolders() { return mFSFolders; }
 
 	public static void startServices(BaseActivity activity) {
-		log.i("First activity is created");
+		Log.i("MyTrace", "CoolReader: " + "First activity is created");
 		// testing background thread
 		//mSettings = activity.settings();
 		
@@ -38,22 +37,22 @@ public class Services {
 
        	mHistory = new History(mScanner);
 		mScanner.setDirScanEnabled(activity.settings().getBool(ReaderView.PROP_APP_BOOK_PROPERTY_SCAN_ENABLED, true));
-		mCoverpageManager = new CoverpageManager();
+//		mCoverpageManager = new CoverpageManager();
 
-        mFSFolders = new FileSystemFolders(mScanner);
+//        mFSFolders = new FileSystemFolders(mScanner);
 	}
 
 	public static void stopServices() {
-		log.i("Last activity is destroyed");
-		if (mCoverpageManager == null) {
-			log.i("Will not destroy services: finish only activity creation detected");
-			return;
-		}
-		mCoverpageManager.clear();
+		Log.i("MyTrace", "CoolReader: " + "Last activity is destroyed");
+//		if (mCoverpageManager == null) {
+//			Log.i("MyTrace", "CoolReader: " + "Will not destroy services: finish only activity creation detected");
+//			return;
+//		}
+//		mCoverpageManager.clear();
 		BackgroundThread.instance().postBackground(new Runnable() {
 			@Override
 			public void run() {
-				log.i("Stopping background thread");
+				Log.i("MyTrace", "CoolReader: " + "Stopping background thread");
 				if (mEngine == null)
 					return;
 				mEngine.uninit();
@@ -63,6 +62,6 @@ public class Services {
 		});
 		mHistory = null;
 		mScanner = null;
-		mCoverpageManager = null;
+//		mCoverpageManager = null;
 	}
 }

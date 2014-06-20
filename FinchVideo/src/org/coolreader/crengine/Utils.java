@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.coolreader.R;
+import com.audiobook2.R;
 import org.coolreader.crengine.FileInfo.SortOrder;
 
 import android.app.Activity;
@@ -133,9 +133,9 @@ public class Utils {
 		if (!f.exists())
 			return;
 		File backup = getBackupFileName(f, true);
-		L.i("Creating backup of file " + f + " as " + backup);
+		Log.i("MyTrace", "CoolReader: " + "Creating backup of file " + f + " as " + backup);
 		if (Utils.copyFile(f, backup)) {
-			L.w("copying of DB has been failed");
+			Log.w("MyTrace", "CoolReader: " + "copying of DB has been failed");
 		}
 		f.renameTo(backup);
 	}
@@ -543,12 +543,13 @@ public class Utils {
 				buf.append(ch);
 				continue;
 			}
-			for ( OPDSUtil.SubstTable t : Utils.substTables ) {
-				if ( t.isInRange(ch) ) {
-					buf.append(t.get(ch));
-					found = true;
-				}
-			}
+			// TODO:
+//			for ( OPDSUtil.SubstTable t : Utils.substTables ) {
+//				if ( t.isInRange(ch) ) {
+//					buf.append(t.get(ch));
+//					found = true;
+//				}
+//			}
 			if ( found )
 				continue;
 			buf.append("_");
@@ -556,10 +557,11 @@ public class Utils {
 		return buf.toString();
 	}
 
-	final static OPDSUtil.SubstTable[] substTables = { 
-		new OPDSUtil.SubstTable(0x430, new String[]{"a", "b", "v", "g", "d", "e", "zh", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "c", "ch", "sh", "sch", "'", "y", "i", "e", "yu", "ya"}),
-		new OPDSUtil.SubstTable(0x410, new String[]{"A", "B", "V", "G", "D", "E", "Zh", "Z", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "H", "C", "Ch", "Sh", "Sch", "'", "Y", "I", "E", "Yu", "Ya"}),
-	};
+	// TODO:
+//	final static OPDSUtil.SubstTable[] substTables = { 
+//		new OPDSUtil.SubstTable(0x430, new String[]{"a", "b", "v", "g", "d", "e", "zh", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "c", "ch", "sh", "sch", "'", "y", "i", "e", "yu", "ya"}),
+//		new OPDSUtil.SubstTable(0x410, new String[]{"A", "B", "V", "G", "D", "E", "Zh", "Z", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "H", "C", "Ch", "Sh", "Sch", "'", "Y", "I", "E", "Yu", "Ya"}),
+//	};
 	public static String transcribeWithLimit(String str, int maxLen) {
 		str = transcribeFileName(str);
 		if (str.length() > maxLen)
