@@ -1,5 +1,8 @@
 package org.coolreader.crengine;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -2999,6 +3002,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 		return false;
 	}
 	
+	boolean myDocLoaded = false;
 	public boolean loadDocument( final FileInfo fileInfo, final Runnable errorHandler )
 	{
 		Log.v("MyTrace", "ReaderView: " + "loadDocument(" + fileInfo.getPathName() + ")");
@@ -3027,6 +3031,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 				});
 			}
 		});
+		
 		return true;
 	}
 
@@ -3050,6 +3055,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 	
 	public boolean loadDocument( String fileName, final Runnable errorHandler )
 	{
+		// /storage/sdcard1/Books/russkiy_eksperiment [librs.net].fb2
 		BackgroundThread.ensureGUI();
 		save();
 		Log.i("MyTrace", "ReaderView: " + "loadDocument(" + fileName + ")");

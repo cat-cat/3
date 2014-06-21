@@ -1,0 +1,2 @@
+set solib-search-path ./obj/local/mips
+directory /Users/user/Downloads/adt-bundle-mac-x86_64-20130522/android-ndk-r9d/platforms/android-19/arch-mips/usr/include -I jni/../../crengine/include jni/../../thirdparty/libpng jni/../../thirdparty/freetype/include jni/../../thirdparty/libjpeg jni/../../thirdparty/antiword jni/../../thirdparty/chmlib/src /Users/user/Downloads/adt-bundle-mac-x86_64-20130522/android-ndk-r9d/sources/cxx-stl/system/include

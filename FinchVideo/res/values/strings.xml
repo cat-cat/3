@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+	<string name="title_reader">Ридер</string>
     <string name="finch_video_app_name">BookSmile</string>
     <string name="finch_video_update_content">Update Content</string>
     <string name="finch_video_search"></string>

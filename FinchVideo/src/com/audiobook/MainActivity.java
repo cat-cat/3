@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
+import org.coolreader.CoolReader;
 
 import junit.framework.Assert;
 import android.app.ProgressDialog;
@@ -81,6 +82,11 @@ public class MainActivity extends SherlockActivity {
         //Used to put dark icons on light action bar
         //boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
         boolean isLight = true;
+        
+		menu.add(0, 3, 0, "open_book")
+        .setIcon(android.R.drawable.ic_menu_compass)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
 
         menu.add(0, 0, 0, "search")
             .setIcon(isLight ? android.R.drawable.ic_menu_search : android.R.drawable.ic_menu_agenda)
@@ -105,6 +111,9 @@ public class MainActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent myIntentA1A2 = null;
 		switch (item.getItemId()) {
+		case 3:
+			myIntentA1A2 = new Intent(MainActivity.this, CoolReader.class);
+			break;
 		case 0:
 			myIntentA1A2 = new Intent(MainActivity.this, SearchActivity.class);
 			break;

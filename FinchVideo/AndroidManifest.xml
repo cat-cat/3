@@ -59,6 +59,10 @@
         </receiver>
         <service android:name="com.audiobook.GcmIntentService" />
         <activity
+            android:name="org.coolreader.CoolReader"
+            android:label="@string/title_reader" >
+        </activity>
+        <activity
             android:name="com.audiobook.BookActivity"
             android:label="@string/title_activity_player" >
         </activity>
@@ -96,6 +100,10 @@
             android:name="com.audiobook.PlayerActivity"
             android:label="@string/title_activity_player" >
         </activity>
+        
+        <!-- Database service -->
+        <service android:name="org.coolreader.db.CRDBService" />
+        
     </application>
 
 </manifest>
